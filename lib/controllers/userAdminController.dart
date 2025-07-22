@@ -1,35 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:oxytrack_frontend/services/userServices.dart';
+import 'package:oxytrack_frontend/services/userAdminServices.dart';
 import 'package:oxytrack_frontend/models/user.dart';
+import 'package:oxytrack_frontend/models/userDoctor.dart';
+import 'package:oxytrack_frontend/services/userDoctorServices.dart';
 
-class UserController extends GetxController {
-  final UserServices userService = Get.put(UserServices());
+class UserAdminController extends GetxController {
+  final UserAdminServices userAdminServices = Get.put(UserAdminServices());
+    final UserDoctorServices userDoctorServices= Get.put(UserDoctorServices());
+
 
 // Variables del Log In de usuario
-  final TextEditingController usernameLogInController = TextEditingController();
-  final TextEditingController passwordLogInController = TextEditingController();
+  final TextEditingController usernameAdminController = TextEditingController();
+  final TextEditingController passwordAdminController = TextEditingController();
 
-  
-  // Variables del registro de usuario
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController nameController = TextEditingController();
-  final TextEditingController lastnameController = TextEditingController();
-  final TextEditingController birthDateController =
-      TextEditingController(); // en formato yyyy-MM-dd
-  final TextEditingController ageController =
-      TextEditingController(); // en formato yyyy-MM-dd
-  final TextEditingController heightController = TextEditingController();
-  final TextEditingController weightController = TextEditingController();
-  final TextEditingController medicationController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+
+    // Variables del registro de doctor
+  final TextEditingController usernameDoctorController = TextEditingController();
+  final TextEditingController emailDoctorController = TextEditingController();
+  final TextEditingController nameDoctorController = TextEditingController();
+  final TextEditingController lastnameDoctorController = TextEditingController();
+  final TextEditingController passwordDoctorController = TextEditingController();
 
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
   void logIn() async {
-    if (usernameLogInController.text.isEmpty || passwordLogInController.text.isEmpty) {
+    if (usernameAdminController.text.isEmpty || passwordAdminController.text.isEmpty) {
       Get.snackbar(
         'Error',
         'Campos vacíos',
@@ -40,22 +37,22 @@ class UserController extends GetxController {
 
     print('🟢 Iniciando sesión desde UserController...');
 
-    final logIn = (
-      username: usernameLogInController.text,
-      password: passwordLogInController.text,
+    final logInAdmin = (
+      username: usernameAdminController.text,
+      password: passwordAdminController.text,
     );
 
     isLoading.value = true;
     errorMessage.value = '';
 
     try {
-      final responseCode = await userService.logIn(logIn);
+      final responseCode = await userAdminServices.logIn(logInAdmin);
 
       print('🔍 Respuesta del backend: $responseCode');
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        Get.toNamed('/home');
+        Get.toNamed('/adminPage');
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
         Get.snackbar('Advertencia', errorMessage.value);
@@ -71,17 +68,15 @@ class UserController extends GetxController {
     }
   }
 
+
   // Registro de usuario
 
   void signUp() async {
-    if (usernameController.text.isEmpty ||
-        passwordController.text.isEmpty ||
-        emailController.text.isEmpty ||
-        nameController.text.isEmpty ||
-        lastnameController.text.isEmpty ||
-        birthDateController.text.isEmpty ||
-        heightController.text.isEmpty ||
-        weightController.text.isEmpty) {
+    if (usernameDoctorController.text.isEmpty ||
+        emailDoctorController.text.isEmpty ||
+        nameDoctorController.text.isEmpty ||
+        lastnameDoctorController.text.isEmpty ||
+        passwordDoctorController.text.isEmpty) {
       errorMessage.value = 'Campos vacíos';
       Get.snackbar(
         'Error',
@@ -110,20 +105,15 @@ class UserController extends GetxController {
     isLoading.value = true;
 
     try {
-      final newUser = UserModel(
-        username: usernameController.text.trim(),
-        email: emailController.text.trim(),
-        name: nameController.text.trim(),
-        lastname: lastnameController.text.trim(),
-        birthDate: birthDateController.text.trim(), // formato yyyy-MM-dd
-        age: "",
-        height: heightController.text.trim(),
-        weight: weightController.text.trim(),
-        medication: [],
-        password: passwordController.text.trim(),
+      final newDoctor = UserDoctorModel(
+        username: usernameDoctorController.text.trim(),
+        email: emailDoctorController.text.trim(),
+        name: nameDoctorController.text.trim(),
+        lastname: lastnameDoctorController.text.trim(),
+        password: passwordDoctorController.text.trim(),
       );
 
-      final response = await userService.createUser(newUser);
+      final response = await userAdminServices.createDoctor(newDoctor);
       print('----------------- ${response}');
 
       if (response != null && response == 201) {
@@ -149,4 +139,5 @@ class UserController extends GetxController {
       isLoading.value = false;
     }
   }
-}
+
+  }

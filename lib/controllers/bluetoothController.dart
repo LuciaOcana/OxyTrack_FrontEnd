@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:async';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
-import 'package:http/http.dart' as http;
 
 final flutterReactiveBle = FlutterReactiveBle();
 
@@ -51,7 +50,8 @@ class BluetoothController {
               final value = utf8.decode(data);
               print("📥 Dato BLE recibido: $value");
               _receivedDataController.add(value);
-              sendDataToBackend(value);
+
+              // Se eliminó el envío al backend
             });
           } else if (connectionState.connectionState == DeviceConnectionState.disconnected) {
             print("⚠️ Dispositivo desconectado");
@@ -67,24 +67,6 @@ class BluetoothController {
     }, onError: (err) {
       print("❌ Error de escaneo: $err");
     });
-  }
-
-  Future<void> sendDataToBackend(String message) async {
-    try {
-      final response = await http.post(
-        Uri.parse("https://TU_BACKEND.com/api/recibir-dato"),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'mensaje': message}),
-      );
-
-      if (response.statusCode == 200) {
-        print("✅ Mensaje enviado al backend");
-      } else {
-        print("❌ Error al enviar al backend: ${response.statusCode}");
-      }
-    } catch (e) {
-      print("❌ Error HTTP: $e");
-    }
   }
 
   void dispose() {

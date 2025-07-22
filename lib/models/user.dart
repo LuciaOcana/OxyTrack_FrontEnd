@@ -6,13 +6,12 @@ class UserModel with ChangeNotifier {
   String _name;
   String _lastname;
   String _birthDate;
-  String? _age;
+  String? _age; // ⬅️ ahora es String
   String _height;
   String _weight;
   List<String> _medication;
   String _password;
 
-  // Constructor
   UserModel({
     required String username,
     required String email,
@@ -29,11 +28,27 @@ class UserModel with ChangeNotifier {
         _name = name,
         _lastname = lastname,
         _birthDate = birthDate,
-        _age = age,
+        _age = age ?? _calculateAge(birthDate),
         _height = height,
         _weight = weight,
         _medication = medication ?? [],
         _password = password;
+
+  /// 🔄 Calcula la edad como String
+  static String _calculateAge(String birthDateStr) {
+    try {
+      final birthDate = DateTime.parse(birthDateStr);
+      final today = DateTime.now();
+      int age = today.year - birthDate.year;
+      if (today.month < birthDate.month ||
+          (today.month == birthDate.month && today.day < birthDate.day)) {
+        age--;
+      }
+      return age.toString();
+    } catch (e) {
+      return ''; // Por si la fecha está mal
+    }
+  }
 
   // Getters
   String get username => _username;
@@ -47,34 +62,6 @@ class UserModel with ChangeNotifier {
   List<String> get medication => _medication;
   String get password => _password;
 
-  // Método para actualizar el usuario
-  void updateUser({
-    required String username,
-    required String email,
-    required String name,
-    required String lastname,
-    required String birthDate,
-    String? age,
-    required String height,
-    required String weight,
-    List<String>? medication,
-    required String password,
-  }) {
-    _username = username;
-    _email = email;
-    _name = name;
-    _lastname = lastname;
-    _birthDate = birthDate;
-    _age = age;
-    _height = height;
-    _weight = weight;
-    _medication = medication ?? [];
-    _password = password;
-
-    notifyListeners();
-  }
-
-  // Método fromJson para crear una instancia desde un Map (JSON)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       username: json['username'] ?? '',
@@ -82,7 +69,7 @@ class UserModel with ChangeNotifier {
       name: json['name'] ?? '',
       lastname: json['lastname'] ?? '',
       birthDate: json['birthDate'] ?? '',
-      age: json['age'],
+      age: json['age']?.toString(), // ⬅️ asegúrate de que sea String
       height: json['height'] ?? '',
       weight: json['weight'] ?? '',
       medication: List<String>.from(json['medication'] ?? []),
@@ -90,7 +77,6 @@ class UserModel with ChangeNotifier {
     );
   }
 
-  // Método toJson para convertir la instancia en un Map (JSON)
   Map<String, dynamic> toJson() {
     return {
       'username': _username,
