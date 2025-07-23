@@ -117,11 +117,10 @@ class UserAdminController extends GetxController {
       print('----------------- ${response}');
 
       if (response != null && response == 201) {
-        Get.snackbar('Éxito', 'Usuario creado exitosamente');
-        Get.toNamed('/login');
+        Get.snackbar('Éxito', 'Doctor creado exitosamente');
       } else {
         errorMessage.value =
-            'Error: Este E-Mail o nombre de usuario ya están en uso';
+            'Error: Este E-Mail o nombre de doctor ya están en uso';
         Get.snackbar(
           'Error',
           errorMessage.value,

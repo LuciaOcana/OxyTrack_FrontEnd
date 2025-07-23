@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:oxytrack_frontend/widgets/doctorCard.dart'; // Importa el modelo de usuario
 import 'package:oxytrack_frontend/controllers/userAdminController.dart';
-
+import 'package:oxytrack_frontend/models/userDoctor.dart';
 
 
 class AdminPageScreen extends StatefulWidget {
@@ -12,7 +12,7 @@ class AdminPageScreen extends StatefulWidget {
 }
 
 class _AdminPageScreenState extends State<AdminPageScreen> {
- // final _formKey = GlobalKey<FormState>();
+ final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -20,10 +20,8 @@ class _AdminPageScreenState extends State<AdminPageScreen> {
     final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-    final UserAdminController userAdminController= UserAdminController();
+    final UserAdminController _userAdminController= UserAdminController();
 
-
-  final List<Map<String, String>> _doctors = [];
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +36,7 @@ class _AdminPageScreenState extends State<AdminPageScreen> {
           children: [
             // Registro de doctores
             Form(
-             // key: _formKey,
+              key: _formKey,
               child: Column(
                 children: [
                   const Text(
@@ -47,43 +45,45 @@ class _AdminPageScreenState extends State<AdminPageScreen> {
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
-                    controller: userAdminController.usernameDoctorController,
+                    controller: _userAdminController.usernameDoctorController,
                     decoration: const InputDecoration(labelText: 'username'),
                     validator: (value) =>
                         value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   TextFormField(
-                    controller: userAdminController.emailDoctorController,
+                    controller: _userAdminController.emailDoctorController,
                     decoration: const InputDecoration(labelText: 'Email'),
                     validator: (value) =>
                         value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   TextFormField(
-                    controller: userAdminController.nameDoctorController,
+                    controller: _userAdminController.nameDoctorController,
                     decoration: const InputDecoration(labelText: 'name'),
                     validator: (value) =>
                         value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   TextFormField(
-                    controller: userAdminController.lastnameDoctorController,
+                    controller: _userAdminController.lastnameDoctorController,
                     decoration: const InputDecoration(labelText: 'lastname'),
                     validator: (value) =>
                         value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   TextFormField(
-                    controller: userAdminController.passwordAdminController,
+                    controller: _userAdminController.passwordDoctorController,
                     decoration: const InputDecoration(labelText: 'password'),
                     validator: (value) =>
                         value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: userAdminController.signUp,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blueAccent,
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    ),
+                    onPressed: (){
+                       _userAdminController.signUp();
+                    
+                    //style: ElevatedButton.styleFrom(
+                      //backgroundColor: Colors.blueAccent,
+                      //padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
+                      //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+  },
                     child: const Text('Registrar', style: TextStyle(fontSize: 16)),
                   ),
                   const SizedBox(height: 24),

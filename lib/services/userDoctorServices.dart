@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:oxytrack_frontend/models/userDoctor.dart';
 
 class UserDoctorServices {
-final String baseUrl = "http://192.168.1.66:5000/api/doctors"; // Para Android Emulator
+final String baseUrl = "http://192.168.1.58:5000/api/doctors"; // Para Android Emulator
   //final String baseUrl = "http://10.0.2.2:5000/api/users"; // Para Android Emulator
     //*final String baseUrl = "http://0.0.0.0:5000/api/users"; // Para Android Emulator
 
