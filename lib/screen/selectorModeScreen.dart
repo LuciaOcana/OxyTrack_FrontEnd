@@ -64,7 +64,7 @@ class SelectorModeScreen extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      'Soy Paciente',
+                      'Soy paciente',
                       style: TextStyle(fontSize: 18),
                     ),
                   ),
@@ -84,7 +84,7 @@ class SelectorModeScreen extends StatelessWidget {
                       ),
                     ),
                     child: const Text(
-                      'Soy Doctor',
+                      'Soy personal médico',
                       style: TextStyle(fontSize: 18, color: Colors.lightBlue),
                     ),
                   ),
