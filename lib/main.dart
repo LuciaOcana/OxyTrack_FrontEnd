@@ -6,15 +6,14 @@ import 'package:oxytrack_frontend/screen/logInScreen.dart';
 import 'package:oxytrack_frontend/screen/logInDoctorScreen.dart';
 import 'package:oxytrack_frontend/screen/logInAdminScreen.dart';
 import 'package:oxytrack_frontend/screen/adminPageScreen.dart';
+import 'package:oxytrack_frontend/screen/homeDoctorPageScreen.dart';
 
 import 'package:oxytrack_frontend/screen/bluetoothScreen.dart';
-
+import 'package:oxytrack_frontend/widgets/navBar.dart';
 
 
 void main() {
-  //runApp(const MyApp());
     runApp(MyApp());
-
 }
 
 class MyApp extends StatelessWidget {
@@ -38,7 +37,8 @@ class MyApp extends StatelessWidget {
         ),
         GetPage(
           name: '/home',
-          page: () => homePageScreen(),
+          page: () => BottomNavScaffold(child: homePageScreen()),
+          //page: () => homePageScreen(),
         ),
         GetPage(
           name: '/bluetooth',
@@ -51,6 +51,10 @@ class MyApp extends StatelessWidget {
         GetPage(
          name: '/loginDoctor',
          page: () => LogInDoctorScreen(), // ← Nueva ruta
+        ),
+        GetPage(
+         name: '/homeDoctor',
+         page: () => HomeDoctorPageScreen(), // ← Nueva ruta
         ),
         GetPage(
          name: '/loginAdmin',

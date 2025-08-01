@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:oxytrack_frontend/services/userDoctorServices.dart';
-import 'package:oxytrack_frontend/services/userServices.dart';
-import 'package:oxytrack_frontend/models/userDoctor.dart';
 
 class UserDoctorController extends GetxController {
-  final UserDoctorServices userDoctorServices= Get.put(UserDoctorServices());
+  final UserDoctorServices _userDoctorServices= Get.put(UserDoctorServices());
 
     // Variables del Log In de doctor
   final TextEditingController usernameLogInDoctorController =
@@ -44,13 +42,13 @@ class UserDoctorController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final responseCode = await userDoctorServices.logInDoctor(logInDoctor);
+      final responseCode = await _userDoctorServices.logInDoctor(logInDoctor);
 
       print('🔍 Respuesta del backend: $responseCode');
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        Get.toNamed('/home');  //ESTO HAY QUE CAMBIARLO POR LA PAGINA PRINCIPAL DE DOCTOR
+        Get.toNamed('/homeDoctor');  //ESTO HAY QUE CAMBIARLO POR LA PAGINA PRINCIPAL DE DOCTOR
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
         Get.snackbar('Advertencia', errorMessage.value);

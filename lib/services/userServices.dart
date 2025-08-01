@@ -54,6 +54,25 @@ class UserServices {
       return -1;
     }
   }
+
+  //usuarios paginados
+  Future<List<UserModel>> getUsers(
+      {int page = 1, int limit = 20, bool connectedOnly = false}) async {
+    try {
+        // Obtener usuarios con paginación
+        print('Obteniendo usuarios desde el backend con paginación');
+        var res = await dio.get('$baseUrl/getUser/$page/$limit');
+         final List<dynamic> responseData = res.data['users'];
+        // Convertir los datos en una lista de objetos UserModel
+        print("🔍 Respuesta completa del servidor: ${res.data}");
+
+        return responseData.map((data) => UserModel.fromJson(data)).toList();
+        } catch (e) {
+      print("Error al obtener usuarios: $e");
+      throw e;
+    }
+  }
+
     Map<String, dynamic> logInJson(logIn) => {
         'username': logIn.username,
         'password': logIn.password,

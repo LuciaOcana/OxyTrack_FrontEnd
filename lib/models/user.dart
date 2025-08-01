@@ -6,7 +6,7 @@ class UserModel with ChangeNotifier {
   String _name;
   String _lastname;
   String _birthDate;
-  String? _age; // ⬅️ ahora es String
+  String? _age; 
   String _height;
   String _weight;
   List<String> _medication;
