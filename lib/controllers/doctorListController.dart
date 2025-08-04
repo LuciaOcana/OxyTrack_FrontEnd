@@ -1,36 +1,35 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:oxytrack_frontend/models/user.dart';
-import 'package:oxytrack_frontend/services/userServices.dart';
+import 'package:oxytrack_frontend/models/userDoctor.dart';
 import 'package:oxytrack_frontend/services/userDoctorServices.dart';
 
+import 'package:oxytrack_frontend/services/userAdminServices.dart';
 
-class UserListController extends GetxController {
+class DoctorListController extends GetxController {
   final isLoading = false.obs;
-  final userList = <UserModel>[].obs;
+  final doctorList = <UserDoctorModel>[].obs;
   final currentPage = 1.obs;
   final limit = 10.obs;
 
-  final UserServices userService = UserServices();
-    final UserDoctorServices userDoctorService = UserDoctorServices();
-
+  final UserDoctorServices userDoctorService = UserDoctorServices();
+  final UserAdminServices userAdminService = UserAdminServices();
 
   @override
   void onInit() {
     super.onInit();
-    fetchUsers(); // Llamada inicial
+    fetchDoctors(); // Llamada inicial
   }
 
-  Future<void> fetchUsers() async {
+  Future<void> fetchDoctors() async {
     try {
       isLoading.value = true;
-      final users = await userDoctorService.getUsers(
+      final doctors = await userAdminService.getDoctors(
         page: currentPage.value,
         limit: limit.value,
       );
-      userList.assignAll(users ?? []);
+      doctorList.assignAll(doctors ?? []);
     } catch (e, stackTrace) {
-      debugPrint("❌ Error fetching users: $e\n$stackTrace");
+      debugPrint("❌ Error fetching doctor: $e\n$stackTrace");
     } finally {
       isLoading.value = false;
     }
@@ -40,19 +39,19 @@ class UserListController extends GetxController {
     if (limit.value != newLimit) {
       limit.value = newLimit;
       currentPage.value = 1;
-      fetchUsers();
+      fetchDoctors();
     }
   }
 
   void nextPage() {
     currentPage.value++;
-    fetchUsers();
+    fetchDoctors();
   }
 
   void previousPage() {
     if (currentPage.value > 1) {
       currentPage.value--;
-      fetchUsers();
+      fetchDoctors();
     }
   }
 }

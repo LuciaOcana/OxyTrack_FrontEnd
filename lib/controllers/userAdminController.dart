@@ -6,8 +6,8 @@ import 'package:oxytrack_frontend/models/userDoctor.dart';
 import 'package:oxytrack_frontend/services/userDoctorServices.dart';
 
 class UserAdminController extends GetxController {
-  final UserAdminServices userAdminServices = Get.put(UserAdminServices());
-    final UserDoctorServices userDoctorServices= Get.put(UserDoctorServices());
+  final UserAdminServices _userAdminServices = Get.put(UserAdminServices());
+    final UserDoctorServices _userDoctorServices= Get.put(UserDoctorServices());
 
 
 // Variables del Log In de usuario
@@ -46,7 +46,7 @@ class UserAdminController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final responseCode = await userAdminServices.logIn(logInAdmin);
+      final responseCode = await _userAdminServices.logIn(logInAdmin);
 
       print('🔍 Respuesta del backend: $responseCode');
 
@@ -71,7 +71,9 @@ class UserAdminController extends GetxController {
 
   // Registro de usuario
 
-  void signUp() async {
+
+
+  Future<bool> signUp() async {
     if (usernameDoctorController.text.isEmpty ||
         emailDoctorController.text.isEmpty ||
         nameDoctorController.text.isEmpty ||
@@ -83,7 +85,7 @@ class UserAdminController extends GetxController {
         errorMessage.value,
         snackPosition: SnackPosition.BOTTOM,
       );
-      return;
+      return false;
     }
 
     /* // Validación de formato de correo electrónico
@@ -113,11 +115,12 @@ class UserAdminController extends GetxController {
         password: passwordDoctorController.text.trim(),
       );
 
-      final response = await userAdminServices.createDoctor(newDoctor);
+      final response = await _userAdminServices.createDoctor(newDoctor);
       print('----------------- ${response}');
 
       if (response != null && response == 201) {
         Get.snackbar('Éxito', 'Doctor creado exitosamente');
+        return true;
       } else {
         errorMessage.value =
             'Error: Este E-Mail o nombre de doctor ya están en uso';
@@ -126,6 +129,7 @@ class UserAdminController extends GetxController {
           errorMessage.value,
           snackPosition: SnackPosition.BOTTOM,
         );
+        return false;
       }
     } catch (e) {
       errorMessage.value = 'Error al registrar usuario';
@@ -134,6 +138,7 @@ class UserAdminController extends GetxController {
         errorMessage.value,
         snackPosition: SnackPosition.BOTTOM,
       );
+      return false;
     } finally {
       isLoading.value = false;
     }

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 //import 'package:oxytrack_frontend/widgets/userCard.dart'; // Importa el modelo de usuario
 import 'package:oxytrack_frontend/controllers/userAdminController.dart';
+import 'package:oxytrack_frontend/controllers/doctorListController.dart';
+
 import 'package:oxytrack_frontend/models/userDoctor.dart';
 
+import 'package:oxytrack_frontend/widgets/doctorCard.dart';
 
 class AdminPageScreen extends StatefulWidget {
   const AdminPageScreen({super.key});
@@ -12,16 +17,18 @@ class AdminPageScreen extends StatefulWidget {
 }
 
 class _AdminPageScreenState extends State<AdminPageScreen> {
- final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
-    final TextEditingController _lastnameController = TextEditingController();
+  final TextEditingController _lastnameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-    final UserAdminController _userAdminController= UserAdminController();
-
+  final UserAdminController _userAdminController = UserAdminController();
+  final DoctorListController _doctorListController = Get.put(
+    DoctorListController(),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -47,44 +54,70 @@ class _AdminPageScreenState extends State<AdminPageScreen> {
                   TextFormField(
                     controller: _userAdminController.usernameDoctorController,
                     decoration: const InputDecoration(labelText: 'username'),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Este campo es obligatorio' : null,
+                    validator:
+                        (value) =>
+                            value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   TextFormField(
                     controller: _userAdminController.emailDoctorController,
                     decoration: const InputDecoration(labelText: 'Email'),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Este campo es obligatorio' : null,
+                    validator:
+                        (value) =>
+                            value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   TextFormField(
                     controller: _userAdminController.nameDoctorController,
                     decoration: const InputDecoration(labelText: 'name'),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Este campo es obligatorio' : null,
+                    validator:
+                        (value) =>
+                            value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   TextFormField(
                     controller: _userAdminController.lastnameDoctorController,
                     decoration: const InputDecoration(labelText: 'lastname'),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Este campo es obligatorio' : null,
+                    validator:
+                        (value) =>
+                            value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   TextFormField(
                     controller: _userAdminController.passwordDoctorController,
                     decoration: const InputDecoration(labelText: 'password'),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Este campo es obligatorio' : null,
+                    validator:
+                        (value) =>
+                            value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
                   const SizedBox(height: 12),
                   ElevatedButton(
-                    onPressed: (){
-                       _userAdminController.signUp();
-                    
-                    //style: ElevatedButton.styleFrom(
-                      //backgroundColor: Colors.blueAccent,
-                      //padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12),
-                      //shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-  },
-                    child: const Text('Registrar', style: TextStyle(fontSize: 16)),
+                    onPressed: () async {
+                      final success = await _userAdminController.signUp();
+
+                      if (success) {
+                        // Limpiar campos manualmente
+                        _userAdminController.usernameDoctorController.clear();
+                        _userAdminController.emailDoctorController.clear();
+                        _userAdminController.nameDoctorController.clear();
+                        _userAdminController.lastnameDoctorController.clear();
+                        _userAdminController.passwordDoctorController.clear();
+
+                        // Notificar éxito
+                        Get.snackbar(
+                          'Éxito',
+                          'Doctor registrado correctamente',
+                          snackPosition: SnackPosition.BOTTOM,
+                          backgroundColor: Colors.green,
+                          colorText: Colors.white,
+                        );
+
+                        // Actualizar lista de doctores
+                        _doctorListController.fetchDoctors();
+                      } else {
+                        // Error ya se muestra desde el controller (puedes mejorar aquí si quieres)
+                      }
+                    },
+                    child: const Text(
+                      'Registrar',
+                      style: TextStyle(fontSize: 16),
+                    ),
                   ),
                   const SizedBox(height: 24),
                 ],
@@ -102,7 +135,29 @@ class _AdminPageScreenState extends State<AdminPageScreen> {
               ),
             ),
             const SizedBox(height: 12),
-           /* Column(
+
+            Obx(() {
+              if (_doctorListController.isLoading.value) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (_doctorListController.doctorList.isEmpty) {
+                return const Center(
+                  child: Text('No hay doctores disponibles.'),
+                );
+              }
+
+              return ListView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: _doctorListController.doctorList.length,
+                itemBuilder: (context, index) {
+                  final doctor = _doctorListController.doctorList[index];
+                  return DoctorCard(doctor: doctor);
+                },
+              );
+            }),
+            /* Column(
               children: _doctors
                   .map((doc) => DoctorCard(
                         name: doc['name'] ?? '',

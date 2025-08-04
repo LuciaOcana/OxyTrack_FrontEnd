@@ -11,13 +11,6 @@ class UserDoctorController extends GetxController {
   final TextEditingController passwordLogInDoctorController =
       TextEditingController();
 
-  /*// Variables del registro de doctor
-  final TextEditingController usernameDoctorController = TextEditingController();
-  final TextEditingController emailDoctorController = TextEditingController();
-  final TextEditingController nameDoctorController = TextEditingController();
-  final TextEditingController lastnameDoctorController = TextEditingController();
-  final TextEditingController passwordDoctorController = TextEditingController();*/
-
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 

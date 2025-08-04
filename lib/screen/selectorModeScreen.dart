@@ -35,21 +35,28 @@ class SelectorModeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                     // Spacer(flex: 1),   // Espacio arriba
+
+                const SizedBox(height: 100),
+                Image.asset(
+                  'lib/others/images/SpO.png',
+                  height: 300,
+                ),
+
+                const SizedBox(height: 10),  // <- Añadido espacio extra aquí
+
                 Text(
                   'Bienvenido a Oxytrack',
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 23,
                     fontWeight: FontWeight.bold,
-                    color: Colors.blueAccent,
+                    color: const Color(0xFF00B4D8),
                   ),
                   textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 40),
-                Image.asset(
-                  'assets/images/welcome.png',
-                  height: 200,
-                ),
-                const SizedBox(height: 40),
+                      //Spacer(flex: 1),   // espacio entre texto y botones
+
+                const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
@@ -58,15 +65,21 @@ class SelectorModeScreen extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: Colors.lightBlue,
+                      backgroundColor: const Color(0xFF0096C7),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: const Text(
                       'Soy paciente',
-                      style: TextStyle(fontSize: 18),
-                    ),
+                      style: TextStyle(
+                        fontSize: 19,
+                      color: Color(0xFFCAF0F8),
+                      fontFamily: 'OpenSans',
+                                            fontWeight: FontWeight.bold,
+),
+                      ),
+                    
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -89,6 +102,8 @@ class SelectorModeScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                      Spacer(flex: 2),  // espacio abajo para balancear
+
               ],
             ),
           ),

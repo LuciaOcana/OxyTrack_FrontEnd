@@ -45,19 +45,29 @@ class _homePageScreenState extends State<homePageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Oxígeno en Sangre'),
+        title: Text('Bienvenido a OxyTrack'),
         centerTitle: true,
         backgroundColor: Colors.blue,
+        automaticallyImplyLeading: false, // 👈 Esto oculta la flecha de atrás
       ),
       body: Column(
         children: [
           SizedBox(height: 20),
           Text(
-            currentSpo2 != null ? '${currentSpo2!.toStringAsFixed(1)} %' : '---',
-            style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.blue),
+            currentSpo2 != null
+                ? '${currentSpo2!.toStringAsFixed(1)} %'
+                : '---',
+            style: TextStyle(
+              fontSize: 48,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
           ),
           SizedBox(height: 10),
-          Text('SpO₂ Actual', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+          Text(
+            'SpO₂ Actual',
+            style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+          ),
           SizedBox(height: 20),
           Expanded(
             child: Padding(

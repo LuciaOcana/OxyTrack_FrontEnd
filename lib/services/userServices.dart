@@ -1,10 +1,14 @@
 import 'package:oxytrack_frontend/models/user.dart';
 import 'package:dio/dio.dart';
+import 'package:oxytrack_frontend/others/urlFile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class UserServices {
-  final String baseUrl = "http://192.168.1.46:5000/api/users"; // Para Android Emulator
+  //final String baseUrl = "http://192.168.1.67:5000/api/users"; // Para Android Emulator
   //final String baseUrl = "http://10.0.2.2:5000/api/users"; // Para Android Emulator
     //*final String baseUrl = "http://0.0.0.0:5000/api/users"; // Para Android Emulator
+
 
   final Dio dio = Dio(BaseOptions(
     validateStatus: (status) => status! < 500,
@@ -12,11 +16,39 @@ class UserServices {
     maxRedirects: 5,
   ));
 
+
+  String? _token; // 🔐 Token en memoria
+  
+  // Inicializar (leer token guardado en memoria al arrancar)
+  Future<void> init() async {
+    final prefs = await SharedPreferences.getInstance();
+    _token = prefs.getString('jwt_token');
+  }
+
+  // Getter del token si necesitas exponerlo
+  String? get token => _token;
+
+  // Guardar token (memoria + SharedPreferences)
+  Future<void> _setToken(String token) async {
+    _token = token;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('jwt_token', token);
+  }
+
+  // Borrar token
+  Future<void> logout() async {
+    _token = null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('jwt_token');
+  }
+
+
+
 // Método para registrarte
   Future<int> createUser(UserModel newUser) async {
     try {
       Response response = await dio.post(
-        '$baseUrl/create',
+        '$baseUrl/users/create',
         data: newUser.toJson(),
       );
       print('Respuesta completa del servidor: ${response.data}');
@@ -39,11 +71,13 @@ class UserServices {
     try {
       print('Enviando solicitud de LogIn');
       Response response = await dio.post(
-        '$baseUrl/logIn',
+        '$baseUrl/users/logIn',
         data: logInJson(logIn),
       );
 
       if (response.statusCode == 200) {
+        final token = response.data['token'];
+        await _setToken(token); // ✅ Guardar token
         return 200;
       } else {
         print('Error en logIn: ${response.statusCode}');
@@ -55,23 +89,6 @@ class UserServices {
     }
   }
 
-  //usuarios paginados
-  Future<List<UserModel>> getUsers(
-      {int page = 1, int limit = 20, bool connectedOnly = false}) async {
-    try {
-        // Obtener usuarios con paginación
-        print('Obteniendo usuarios desde el backend con paginación');
-        var res = await dio.get('$baseUrl/getUser/$page/$limit');
-         final List<dynamic> responseData = res.data['users'];
-        // Convertir los datos en una lista de objetos UserModel
-        print("🔍 Respuesta completa del servidor: ${res.data}");
-
-        return responseData.map((data) => UserModel.fromJson(data)).toList();
-        } catch (e) {
-      print("Error al obtener usuarios: $e");
-      throw e;
-    }
-  }
 
     Map<String, dynamic> logInJson(logIn) => {
         'username': logIn.username,

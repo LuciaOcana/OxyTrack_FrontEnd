@@ -71,82 +71,294 @@ class _logInScreenState extends State<logInScreen> {
 
   // Función para mostrar el popup de registro
   void _showRegisterDialog() {
+    final tempPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          scrollable: true,
-          title: Text('Registro de Usuario'),
-          content: Form(
-            key: _formKey,
+        return Dialog(
+          insetPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 40,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Container(
+            width: 600, // <- aquí defines el ancho que tú quieras
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                TextFormField(
-                  controller: _userController.usernameController,
-                  decoration: InputDecoration(labelText: 'Username'),
-                  validator:
-                      (value) => value!.isEmpty ? 'Campo requerido' : null,
+                const Text(
+                  'Registro de usuario',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                 ),
-                TextFormField(
-                  controller: _userController.emailController,
-                  decoration: InputDecoration(labelText: 'Email'),
-                  validator:
-                      (value) => value!.isEmpty ? 'Campo requerido' : null,
-                ),
-                TextFormField(
-                  controller: _userController.nameController,
-                  decoration: InputDecoration(labelText: 'Nombre'),
-                ),
-                TextFormField(
-                  controller: _userController.lastnameController,
-                  decoration: InputDecoration(labelText: 'Apellidos'),
-                ),
-                TextFormField(
-                  controller: _userController.birthDateController,
-                  decoration: InputDecoration(labelText: 'Fecha de nacimiento'),
-                ),
-                TextFormField(
-                  controller: _userController.ageController,
-                  decoration: InputDecoration(labelText: 'Edad'),
-                ),
-                TextFormField(
-                  controller: _userController.heightController,
-                  decoration: InputDecoration(labelText: 'Altura'),
-                ),
-                TextFormField(
-                  controller: _userController.weightController,
-                  decoration: InputDecoration(labelText: 'Peso'),
-                ),
-                TextFormField(
-                  controller: _userController.medicationController,
-                  decoration: InputDecoration(
-                    labelText: 'Medicación (opcional)',
+                const SizedBox(height: 10),
+                SingleChildScrollView(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: _userController.usernameController,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Username',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Campo requerido' : null,
+                        ),
+                        SizedBox(height: 12),
+                        TextFormField(
+                          controller: _userController.emailController,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Email',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) {
+                            if (value == null || value.isEmpty)
+                              return 'Campo requerido';
+                            final emailRegex = RegExp(
+                              r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                            );
+                            if (!emailRegex.hasMatch(value))
+                              return 'Formato de email inválido';
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 12),
+                        TextFormField(
+                          controller: _userController.nameController,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Nombre',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Campo requerido' : null,
+                        ),
+                        SizedBox(height: 12),
+                        TextFormField(
+                          controller: _userController.lastnameController,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Apellidos',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Campo requerido' : null,
+                        ),
+                        SizedBox(height: 12),
+                        TextFormField(
+                          controller: _userController.birthDateController,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Fecha de nacimiento',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                  TextSpan(
+                                    text: ' (dd/mm/aaaa)', // Aquí va el formato
+                                    style: TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Campo requerido' : null,
+                        ),
+                        SizedBox(height: 12),
+                        TextFormField(
+                          controller: _userController.heightController,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Altura',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Campo requerido' : null,
+                        ),
+                        SizedBox(height: 12),
+                        TextFormField(
+                          controller: _userController.weightController,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Peso',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Campo requerido' : null,
+                        ),
+                        SizedBox(height: 12),
+                        TextFormField(
+                          controller: tempPasswordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Contraseña',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator:
+                              (value) =>
+                                  value!.isEmpty ? 'Campo requerido' : null,
+                        ),
+                        SizedBox(height: 12),
+                        TextFormField(
+                          controller: confirmPasswordController,
+                          obscureText: true,
+                          decoration: InputDecoration(
+                            label: RichText(
+                              text: TextSpan(
+                                text: 'Confirmar contraseña',
+                                style: const TextStyle(color: Colors.black),
+                                children: const [
+                                  TextSpan(
+                                    text: ' *',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            border: const OutlineInputBorder(),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty)
+                              return 'Campo requerido';
+                            if (value != tempPasswordController.text)
+                              return 'Las contraseñas no coinciden';
+                            return null;
+                          },
+                        ),
+                        SizedBox(height: 12),
+                      ],
+                    ),
                   ),
                 ),
-                TextFormField(
-                  controller: _userController.passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(labelText: 'Contraseña'),
-                  validator:
-                      (value) => value!.isEmpty ? 'Campo requerido' : null,
+                //const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: const Text('Cancelar'),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          _userController.passwordController.text =
+                              tempPasswordController.text;
+                          _userController.signUp();
+                          _userController.usernameController.clear();
+                          _userController.emailController.clear();
+                          _userController.nameController.clear();
+                          _userController.lastnameController.clear();
+                          _userController.birthDateController.clear();
+                          _userController.heightController.clear();
+                          _userController.weightController.clear();
+                          tempPasswordController.clear();
+                          confirmPasswordController.clear();
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      child: const Text('Registrar'),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancelar'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                _userController.signUp();
-                //_register(); // Registra y si es exitoso, puedes cerrar el popup
-                Navigator.of(context).pop();
-              },
-              child: Text('Registrar'),
-            ),
-          ],
         );
       },
     );
@@ -163,7 +375,8 @@ class _logInScreenState extends State<logInScreen> {
           children: [
             TextField(
               controller: _userController.usernameLogInController,
-              decoration: InputDecoration(labelText: 'Usuario')),
+              decoration: InputDecoration(labelText: 'Usuario'),
+            ),
             TextField(
               controller: _userController.passwordLogInController,
               decoration: InputDecoration(labelText: 'Contraseña'),

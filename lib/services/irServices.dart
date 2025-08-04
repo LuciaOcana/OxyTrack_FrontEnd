@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+//import 'package:oxytrack_frontend/others/urlFile.dart';
 
 class IrService {
   final String wsUrl = 'ws://192.168.1.46:5000'; // URL del WebSocket (ajusta IP y puerto)

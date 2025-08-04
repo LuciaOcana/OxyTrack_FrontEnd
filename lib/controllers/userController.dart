@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:oxytrack_frontend/services/userServices.dart';
 import 'package:oxytrack_frontend/models/user.dart';
 
@@ -28,6 +30,7 @@ class UserController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
 
+ 
   void logIn() async {
     if (usernameLogInController.text.isEmpty || passwordLogInController.text.isEmpty) {
       Get.snackbar(
@@ -55,7 +58,7 @@ class UserController extends GetxController {
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        Get.toNamed('/home');
+        Get.toNamed('/homeUser');
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
         Get.snackbar('Advertencia', errorMessage.value);
@@ -70,6 +73,13 @@ class UserController extends GetxController {
       isLoading.value = false;
     }
   }
+// Funcion para guardar el usuario en el sharedPreference
+Future<void> saveUserSession(UserModel user, String role) async {
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setString('user_name', user.name);
+  prefs.setString('user_email', user.email);
+  prefs.setString('user_role', 'user'); // 'user', 'admin', 'doctor'
+}
 
   // Registro de usuario
 
@@ -138,14 +148,15 @@ class UserController extends GetxController {
           snackPosition: SnackPosition.BOTTOM,
         );
       }
-    } catch (e) {
+    } /*catch (e) {
       errorMessage.value = 'Error al registrar usuario';
       Get.snackbar(
         'Error',
         errorMessage.value,
         snackPosition: SnackPosition.BOTTOM,
       );
-    } finally {
+    }
+    */ finally {
       isLoading.value = false;
     }
   }
