@@ -3,6 +3,8 @@ import 'package:dio/dio.dart';
 import 'package:oxytrack_frontend/others/urlFile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:oxytrack_frontend/auth/tokenManager.dart';
+
 
 class UserServices {
   //final String baseUrl = "http://192.168.1.67:5000/api/users"; // Para Android Emulator
@@ -16,8 +18,9 @@ class UserServices {
     maxRedirects: 5,
   ));
 
+  final TokenManager _tokenManager = TokenManager();
 
-  String? _token; // 🔐 Token en memoria
+  /*String? _token; // 🔐 Token en memoria
   
   // Inicializar (leer token guardado en memoria al arrancar)
   Future<void> init() async {
@@ -41,7 +44,7 @@ class UserServices {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt_token');
   }
-
+*/
 
 
 // Método para registrarte
@@ -77,7 +80,7 @@ class UserServices {
 
       if (response.statusCode == 200) {
         final token = response.data['token'];
-        await _setToken(token); // ✅ Guardar token
+        await _tokenManager.setToken(token); // ✅ Guardar token
         return 200;
       } else {
         print('Error en logIn: ${response.statusCode}');

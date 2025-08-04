@@ -7,6 +7,8 @@ import 'package:oxytrack_frontend/models/userDoctor.dart';
 import 'package:oxytrack_frontend/others/urlFile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:oxytrack_frontend/auth/tokenManager.dart';
+
 
 class UserDoctorServices {
 
@@ -15,7 +17,11 @@ class UserDoctorServices {
     followRedirects: true,
     maxRedirects: 5,
   ));
- String? _token; // 🔐 Token en memoria
+
+  final TokenManager _tokenManager = TokenManager();
+
+
+ /*String? _token; // 🔐 Token en memoria
 
   // Método privado que asegura que el token está cargado
   Future<void> _ensureTokenInitialized() async {
@@ -41,7 +47,7 @@ class UserDoctorServices {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt_token');
   }
-
+*/
 
   // Login de doctor
   Future<int> logInDoctor(logInDoctor) async {
@@ -55,7 +61,7 @@ class UserDoctorServices {
 
       if (response.statusCode == 200) {
          final token = response.data['token'];
-        await _setToken(token); // Guarda token automáticamente
+        await _tokenManager.setToken(token); // Guarda token automáticamente
         print('TOKEN: ${token}');
         return 200;
       } else {
@@ -73,13 +79,13 @@ class UserDoctorServices {
   Future<List<UserModel>> getUsers(
       {int page = 1, int limit = 20, bool connectedOnly = false}) async {
     try {
-await _ensureTokenInitialized();        // Obtener usuarios con paginación
+await _tokenManager.ensureTokenInitialized();        // Obtener usuarios con paginación
         print('Obteniendo usuarios desde el backend con paginación');
 
         
         var res = await dio.get('$baseUrl/doctors/getUsers/$page/$limit', options: Options(
           headers: {
-            'Token': _token!, // 🔐 Token desde memoria
+            'Token': _tokenManager.token!, // 🔐 Token desde memoria
           },
         ),
       );

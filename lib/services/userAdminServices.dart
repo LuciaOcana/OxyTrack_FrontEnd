@@ -4,6 +4,9 @@ import 'package:oxytrack_frontend/models/userDoctor.dart';
 import 'package:oxytrack_frontend/others/urlFile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:oxytrack_frontend/auth/tokenManager.dart';
+
+
 class UserAdminServices {
   final Dio dio = Dio(
     BaseOptions(
@@ -13,7 +16,9 @@ class UserAdminServices {
     ),
   );
 
-  String? _token; // 🔐 Token en memoria
+  final TokenManager _tokenManager = TokenManager();
+
+  /*String? _token; // 🔐 Token en memoria
 
   // Método privado que asegura que el token está cargado
   Future<void> _ensureTokenInitialized() async {
@@ -38,7 +43,7 @@ class UserAdminServices {
     _token = null;
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('jwt_token');
-  }
+  }*/
 
   Future<int> logIn(logIn) async {
     try {
@@ -50,7 +55,7 @@ class UserAdminServices {
 
       if (response.statusCode == 200) {
         final token = response.data['token'];
-        await _setToken(token); // Guarda token automáticamente
+        await _tokenManager.setToken(token); // Guarda token automáticamente
         print('TOKEN: ${token}');
 
         return 200;
@@ -72,14 +77,14 @@ class UserAdminServices {
   // Crear doctor
   Future<int> createDoctor(UserDoctorModel newDoctor) async {
     try {
-      await _ensureTokenInitialized();
+      await _tokenManager.ensureTokenInitialized();
 
       Response response = await dio.post(
         '$baseUrl/admin/createDoctor',
         data: newDoctor.toJson(),
         options: Options(
           headers: {
-            'Token': _token!, // 🔐 Token desde memoria
+            'Token': _tokenManager.token!, // 🔐 Token desde memoria
           },
         ),
       );
@@ -106,7 +111,7 @@ class UserAdminServices {
     bool connectedOnly = false,
   }) async {
     try {
-      await _ensureTokenInitialized();
+      await _tokenManager.ensureTokenInitialized();
 
       // Obtener usuarios con paginación
       print('Obteniendo doctores desde el backend con paginación');
@@ -114,7 +119,7 @@ class UserAdminServices {
         '$baseUrl/admin/getDoctors/$page/$limit',
         options: Options(
           headers: {
-            'Token': _token!, // 🔐 Token desde memoria
+            'Token': _tokenManager.token!, // 🔐 Token desde memoria
           },
         ),
       );
