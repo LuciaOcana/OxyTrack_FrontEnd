@@ -110,39 +110,6 @@ Future<List<UserDoctorModel>> getDoctors({
     throw e;
   }
 }
-
-  //usuarios paginados
-  /*Future<List<UserDoctorModel>> getDoctors({
-    int page = 1,
-    int limit = 20,
-    bool connectedOnly = false,
-  }) async {
-    try {
-      await _tokenManager.ensureTokenInitialized();
-
-      // Obtener usuarios con paginación
-      print('Obteniendo doctores desde el backend con paginación');
-      var res = await dio.get(
-        '$baseUrl/admin/getDoctors/$page/$limit',
-        options: Options(
-          headers: {
-            "Authorization": "Bearer $_tokenManager.token!",
-            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
-          },
-        ),
-      );
-      final List<dynamic> responseData = res.data['doctors'];
-      // Convertir los datos en una lista de objetos UserModel
-      print("🔍 Respuesta completa del servidor: ${res.data}");
-
-      return responseData
-          .map((data) => UserDoctorModel.fromJson(data))
-          .toList();
-    } catch (e) {
-      print("Error al obtener doctores: $e");
-      throw e;
-    }
-  }*/
   //usuarios paginados
   Future<List<String>> getUsersWNDoctor() async {
     try {
@@ -190,6 +157,40 @@ Future<List<UserDoctorModel>> getDoctors({
       throw e;
     }
   }
+
+  Future<int> editDoctor(String username,Map<String, dynamic> updatedFields) async {
+    try {
+      //Verificamos que tenemos token
+      await _tokenManager.ensureTokenInitialized();
+
+      // Obtener usuarios con paginación
+      print('Obteniendo doctores desde el backend con paginación');
+        Response response = await dio.put(
+        '$baseUrl/admin/editDoctorAdmin/$username',
+        data: updatedFields,
+        options: Options(
+          headers: {
+            'Authorization': "Bearer ${_tokenManager.token!}",
+            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
+          },
+        ),
+      );
+
+     
+    print("✅ Respuesta completa del servidor: ${ response.data}");
+
+  if (response.statusCode == 201) {
+        print('Doctor creado.');
+        return 201;
+      } else {
+        print('Error en creación: ${response.statusCode}');
+        return response.statusCode!;
+      }
+}
+catch(e){print('Excepción en creación: $e');
+      return -1;}}
+
+
 
   Future<int> logOut() async {
     try {

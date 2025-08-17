@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart'; // 👈 para listEquals
+
 import 'package:oxytrack_frontend/services/userAdminServices.dart';
 import 'package:oxytrack_frontend/models/user.dart';
 import 'package:oxytrack_frontend/models/userDoctor.dart';
@@ -24,8 +26,21 @@ class UserAdminController extends GetxController {
   final TextEditingController nameDoctorController = TextEditingController();
   final TextEditingController lastnameDoctorController =
       TextEditingController();
+  var selectedPatients = <String>[].obs;
 
   final TextEditingController passwordDoctorController =
+      TextEditingController();
+
+      // Variables del Edit de doctor
+  final TextEditingController usernameDoctorControllerEdit =
+      TextEditingController();
+  final TextEditingController emailDoctorControllerEdit = TextEditingController();
+  final TextEditingController nameDoctorControllerEdit = TextEditingController();
+  final TextEditingController lastnameDoctorControllerEdit =
+      TextEditingController();
+  var selectedPatientsEdit = <String>[].obs;
+
+  final TextEditingController passwordDoctorControllerEdit =
       TextEditingController();
 
   final RxBool isLoading = false.obs;
@@ -33,7 +48,6 @@ class UserAdminController extends GetxController {
   final tokenManager = TokenManager();
   var patientsList = <String>[].obs; // Lista reactiva
   // ✅ Pacientes seleccionados como lista reactiva
-  var selectedPatients = <String>[].obs;
 
   void logIn() async {
     if (usernameAdminController.text.isEmpty ||
@@ -172,6 +186,78 @@ class UserAdminController extends GetxController {
       isLoading.value = false;
     }
   }
+
+  Future<bool> updateDoctor(String originalUsername, UserDoctorModel originalDoctor) async {
+  try {
+    final Map<String, dynamic> updatedFields = {};
+
+    // 👇 Solo añadimos al body lo que realmente cambió
+    if (usernameDoctorControllerEdit.text.trim().isNotEmpty &&
+        usernameDoctorControllerEdit.text.trim() != originalDoctor.username) {
+      updatedFields["username"] = usernameDoctorControllerEdit.text.trim();
+    }
+
+    if (emailDoctorControllerEdit.text.trim().isNotEmpty &&
+        emailDoctorControllerEdit.text.trim() != originalDoctor.email) {
+      updatedFields["email"] = emailDoctorControllerEdit.text.trim();
+    }
+
+    if (nameDoctorControllerEdit.text.trim().isNotEmpty &&
+        nameDoctorControllerEdit.text.trim() != originalDoctor.name) {
+      updatedFields["name"] = nameDoctorControllerEdit.text.trim();
+    }
+
+    if (lastnameDoctorControllerEdit.text.trim().isNotEmpty &&
+        lastnameDoctorControllerEdit.text.trim() != originalDoctor.lastname) {
+      updatedFields["lastname"] = lastnameDoctorControllerEdit.text.trim();
+    }
+
+    if (selectedPatientsEdit.isNotEmpty &&
+        !listEquals(selectedPatientsEdit, originalDoctor.patients ?? [])) {
+      updatedFields["patients"] = selectedPatientsEdit.toList();
+    }
+
+    if (passwordDoctorControllerEdit.text.trim().isNotEmpty) {
+      updatedFields["password"] = passwordDoctorControllerEdit.text.trim();
+    }
+
+    if (updatedFields.isEmpty) {
+      Get.snackbar('Info', 'No se han realizado cambios');
+      return false;
+    }
+
+    final responseCode =
+        await _userAdminServices.editDoctor(originalUsername, updatedFields);
+
+    print('----------------- $responseCode');
+
+    if (responseCode == 200 || responseCode == 201) {
+      Get.snackbar('Éxito', 'Doctor editado exitosamente');
+      return true;
+    } else {
+      errorMessage.value =
+          'Error: Este E-Mail o nombre de doctor ya están en uso';
+      Get.snackbar(
+        'Error',
+        errorMessage.value,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+  } catch (e) {
+    errorMessage.value = 'Error al actualizar doctor';
+    Get.snackbar(
+      'Error',
+      errorMessage.value,
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    return false;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+
 
   void loadPatients() async {
     try {

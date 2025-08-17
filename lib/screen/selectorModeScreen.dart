@@ -15,6 +15,7 @@ class SelectorModeScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
+        automaticallyImplyLeading: false,
         actions: [
           TextButton(
             onPressed: () {
@@ -22,7 +23,7 @@ class SelectorModeScreen extends StatelessWidget {
             },
             child: const Text(
               'Administrador',
-              style: TextStyle(color: Colors.blueAccent),
+              style: TextStyle(color: Color(0xFF0077B6)),
             ),
           ),
         ],
@@ -76,8 +77,7 @@ class SelectorModeScreen extends StatelessWidget {
                         fontSize: 19,
                       color: Color(0xFFCAF0F8),
                       fontFamily: 'OpenSans',
-                                            fontWeight: FontWeight.bold,
-),
+                                            fontWeight: FontWeight.bold),
                       ),
                     
                   ),
@@ -91,14 +91,16 @@ class SelectorModeScreen extends StatelessWidget {
                     },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Colors.lightBlue),
+                      side: const BorderSide(color: Color(0xFF0077B6)),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
                     child: const Text(
                       'Soy personal médico',
-                      style: TextStyle(fontSize: 18, color: Colors.lightBlue),
+                      style: TextStyle(fontSize: 18, color: Color(0xFF0077B6),
+                      fontFamily: 'OpenSans',
+                                            fontWeight: FontWeight.bold),
                     ),
                   ),
                 ),
