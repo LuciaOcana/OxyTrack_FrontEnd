@@ -2,19 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:oxytrack_frontend/controllers/navBarController.dart';
+import 'package:oxytrack_frontend/controllers/navBarAdminController.dart';
 
 class BottomNavScaffoldAdmin extends StatelessWidget {
   final Widget child;
-  final NavBarController navController = Get.put(NavBarController());
+  final NavBarAdminController navController = Get.put(NavBarAdminController());
 
   BottomNavScaffoldAdmin({required this.child});
 
   @override
   Widget build(BuildContext context) {
     // Variables de tipo String asignadas en tiempo de ejecución
-    final homeLabel = 'Home'.tr;
-    final profileLabel = 'Perfil'.tr;
+    final doctorListLabel = 'Lista de doctores'.tr;
+    final doctorAddLabel = 'Añadir doctor'.tr;
 
     return Scaffold(
       body: child,
@@ -35,11 +35,11 @@ class BottomNavScaffoldAdmin extends StatelessWidget {
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
-              label: homeLabel,
+              label: doctorListLabel,
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_outline),
-              label: profileLabel,
+              label: doctorAddLabel,
             ),
           ],
         ),

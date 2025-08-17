@@ -12,20 +12,19 @@ import 'package:oxytrack_frontend/screen/logInAdminScreen.dart';
 import 'package:oxytrack_frontend/screen/homePageScreen.dart';
 import 'package:oxytrack_frontend/screen/profileUserScreen.dart';
 import 'package:oxytrack_frontend/screen/homeDoctorPageScreen.dart';
-import 'package:oxytrack_frontend/screen/homaAdminPageScreen.dart';
+import 'package:oxytrack_frontend/screen/homaAdminDoctorListPageScreen.dart';
+import 'package:oxytrack_frontend/screen/homaAdminAddDoctorPageScreen.dart';
 
 // Otros widgets o pantallas compartidas
 import 'package:oxytrack_frontend/screen/bluetoothScreen.dart';
 import 'package:oxytrack_frontend/widgets/navBarUser.dart';
+import 'package:oxytrack_frontend/widgets/navBarAdmin.dart';
 
 void main() async {
-  // Asegura que los plugins como SharedPreferences estén inicializados
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Obtiene la ruta inicial según el rol guardado (user, doctor, admin)
   final initialRoute = await getInitialRoute();
 
-  // Inicia la app
   runApp(MyApp(initialRoute: initialRoute));
 }
 
@@ -45,7 +44,7 @@ class MyApp extends StatelessWidget {
       ),
       initialRoute: initialRoute,
       getPages: [
-        // General / Selección
+        // General
         GetPage(name: '/selectorMode', page: () => SelectorModeScreen()),
 
         // Usuario
@@ -65,7 +64,14 @@ class MyApp extends StatelessWidget {
 
         // Admin
         GetPage(name: '/loginAdmin', page: () => LogInAdminScreen()),
-        GetPage(name: '/adminPage', page: () => AdminPageScreen()),
+        GetPage(
+          name: '/adminDoctorListPage',
+          page: () => BottomNavScaffoldAdmin(child: AdminDoctorListPageScreen()),
+        ),
+        GetPage(
+          name: '/adminAddDoctorPage',
+          page: () => BottomNavScaffoldAdmin(child: AdminAddDoctorPageScreen()),
+        ),
 
         // Común
         GetPage(name: '/bluetooth', page: () => BluetoothPage()),
@@ -85,8 +91,8 @@ Future<String> getInitialRoute() async {
     case 'doctor':
       return '/homeDoctor';
     case 'admin':
-      return '/adminPage';
+      return '/adminDoctorListPage'; // 🔹 Corrijo esta ruta
     default:
-      return '/selectorMode'; // Si no hay sesión, vuelve al selector
+      return '/selectorMode'; // Si no hay sesión → selección
   }
 }

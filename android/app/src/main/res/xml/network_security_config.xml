@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">192.168.1.48</domain> <!-- tu IP backend -->
+        <trust-anchors>
+            <!-- Esto permite confiar en certificados instalados por el usuario -->
+            <certificates src="user"/>
+            <!-- Esto mantiene también las CA del sistema -->
+            <certificates src="system"/>
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

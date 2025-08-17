@@ -17,12 +17,15 @@ class TokenManager {
         throw Exception("Token no encontrado, por favor loguearse");
       }
     }
+    else{
+      print("Token encontrado");
+    }
   }
 
-  Future<void> setToken(String token) async {
-    token = token;
+  Future<void> setToken(String newToken) async {
+    token = newToken;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('jwt_token', token);
+    await prefs.setString('jwt_token', newToken);
   }
 
   Future<String> getToken() async {

@@ -130,6 +130,7 @@ Future<void> saveUserSession(UserModel user, String role) async {
         height: heightController.text.trim(),
         weight: weightController.text.trim(),
         medication: [],
+        doctor: "",
         password: passwordController.text.trim(),
       );
 

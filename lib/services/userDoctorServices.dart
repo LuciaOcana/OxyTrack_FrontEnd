@@ -104,4 +104,24 @@ await _tokenManager.ensureTokenInitialized();        // Obtener usuarios con pag
         'username': logInDoctor.username,
         'password': logInDoctor.password,
       };
+
+
+        Future<int> logOut(logIn) async {
+    try {
+      print('Enviando solicitud de LogIn');
+      Response response = await dio.post(
+        '$baseUrl/doctors/logout'
+      );
+
+      if (response.statusCode == 200) {
+        return 200;
+      } else {
+        print('Error en logout: ${response.statusCode}');
+        return response.statusCode!;
+      }
+    } catch (e) {
+      print('Error en logout: $e');
+      return -1;
+    }
+  }
 }

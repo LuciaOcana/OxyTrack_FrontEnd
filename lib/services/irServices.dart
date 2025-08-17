@@ -4,9 +4,8 @@ import 'dart:io';
 //import 'package:oxytrack_frontend/others/urlFile.dart';
 
 class IrService {
-  final String wsUrl = 'ws://192.168.1.46:5000'; // URL del WebSocket (ajusta IP y puerto)
-  //final String baseUrl = "http://10.0.2.2:5000/api/users"; // Para Android Emulator
-  //*final String baseUrl = "http://0.0.0.0:5000/api/users"; // Para Android Emulator
+  final String wsUrl = 'ws://192.168.1.48:5000'; // URL del WebSocket (ajusta IP y puerto)
+  //final String wsUrl = 'wss://192.168.1.48:5000'; // URL del WebSocketSecure (ajusta IP y puerto)
 
   WebSocket? _socket;
   StreamController<Map<String, dynamic>> _spo2Controller = StreamController.broadcast();

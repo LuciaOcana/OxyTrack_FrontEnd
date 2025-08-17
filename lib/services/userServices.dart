@@ -77,7 +77,7 @@ class UserServices {
         '$baseUrl/users/logIn',
         data: logInJson(logIn),
       );
-
+      print('RESPUESTA: ${response}');
       if (response.statusCode == 200) {
         final token = response.data['token'];
         await _tokenManager.setToken(token); // ✅ Guardar token
@@ -97,4 +97,23 @@ class UserServices {
         'username': logIn.username,
         'password': logIn.password,
       };
+
+        Future<int> logOut(logIn) async {
+    try {
+      print('Enviando solicitud de LogIn');
+      Response response = await dio.post(
+        '$baseUrl/user/logout'
+      );
+
+      if (response.statusCode == 200) {
+        return 200;
+      } else {
+        print('Error en logout: ${response.statusCode}');
+        return response.statusCode!;
+      }
+    } catch (e) {
+      print('Error en logout: $e');
+      return -1;
+    }
+  }
 }

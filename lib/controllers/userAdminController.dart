@@ -4,29 +4,40 @@ import 'package:oxytrack_frontend/services/userAdminServices.dart';
 import 'package:oxytrack_frontend/models/user.dart';
 import 'package:oxytrack_frontend/models/userDoctor.dart';
 import 'package:oxytrack_frontend/services/userDoctorServices.dart';
+import 'package:oxytrack_frontend/others/sessionManager.dart';
+import 'package:oxytrack_frontend/auth/tokenManager.dart';
+
+import 'package:oxytrack_frontend/auth/tokenManager.dart';
 
 class UserAdminController extends GetxController {
   final UserAdminServices _userAdminServices = Get.put(UserAdminServices());
-    final UserDoctorServices _userDoctorServices= Get.put(UserDoctorServices());
+  final UserDoctorServices _userDoctorServices = Get.put(UserDoctorServices());
 
-
-// Variables del Log In de usuario
+  // Variables del Log In de usuario
   final TextEditingController usernameAdminController = TextEditingController();
   final TextEditingController passwordAdminController = TextEditingController();
 
-
-    // Variables del registro de doctor
-  final TextEditingController usernameDoctorController = TextEditingController();
+  // Variables del registro de doctor
+  final TextEditingController usernameDoctorController =
+      TextEditingController();
   final TextEditingController emailDoctorController = TextEditingController();
   final TextEditingController nameDoctorController = TextEditingController();
-  final TextEditingController lastnameDoctorController = TextEditingController();
-  final TextEditingController passwordDoctorController = TextEditingController();
+  final TextEditingController lastnameDoctorController =
+      TextEditingController();
+
+  final TextEditingController passwordDoctorController =
+      TextEditingController();
 
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+  final tokenManager = TokenManager();
+  var patientsList = <String>[].obs; // Lista reactiva
+  // ✅ Pacientes seleccionados como lista reactiva
+  var selectedPatients = <String>[].obs;
 
   void logIn() async {
-    if (usernameAdminController.text.isEmpty || passwordAdminController.text.isEmpty) {
+    if (usernameAdminController.text.isEmpty ||
+        passwordAdminController.text.isEmpty) {
       Get.snackbar(
         'Error',
         'Campos vacíos',
@@ -48,11 +59,31 @@ class UserAdminController extends GetxController {
     try {
       final responseCode = await _userAdminServices.logIn(logInAdmin);
 
+      final token =
+          await tokenManager.getToken(); // 🔹 recupera el token guardado
+
+      print("Token disponible en controller: $token");
       print('🔍 Respuesta del backend: $responseCode');
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        Get.toNamed('/adminPage');
+        await SessionManager.saveSession(
+          "admin",
+          token,
+          usernameAdminController.text,
+        );
+
+        // 🔹 Comprobamos que se guardó bien
+        final savedRole = await SessionManager.getRole();
+        final savedToken = await SessionManager.getToken();
+        final savedUsername = await SessionManager.getUsername();
+
+        print("✅ Sesión guardada correctamente");
+        print("Rol: $savedRole");
+        print("Token: $savedToken");
+        print("Username: $savedUsername");
+
+        Get.toNamed('/adminDoctorListPage');
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
         Get.snackbar('Advertencia', errorMessage.value);
@@ -68,10 +99,7 @@ class UserAdminController extends GetxController {
     }
   }
 
-
   // Registro de usuario
-
-
 
   Future<bool> signUp() async {
     if (usernameDoctorController.text.isEmpty ||
@@ -88,21 +116,21 @@ class UserAdminController extends GetxController {
       return false;
     }
 
-    /* // Validación de formato de correo electrónico
-    if (!GetUtils.isEmail(emailController.text)) {
+    // Validación de formato de correo electrónico
+    if (!GetUtils.isEmail(emailDoctorController.text)) {
       errorMessage.value = 'Correo electrónico no válido';
       Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
-      return;
+      return false;
     }
 
     // Validación de contraseña segura
     final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$');
-    if (!regex.hasMatch(passwordController.text)) {
+    if (!regex.hasMatch(passwordDoctorController.text)) {
       errorMessage.value =
           'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
       Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
-      return;
-    }*/
+      return false;
+    }
 
     isLoading.value = true;
 
@@ -112,6 +140,7 @@ class UserAdminController extends GetxController {
         email: emailDoctorController.text.trim(),
         name: nameDoctorController.text.trim(),
         lastname: lastnameDoctorController.text.trim(),
+        patients: selectedPatients.isEmpty ? [] : selectedPatients.toList(),
         password: passwordDoctorController.text.trim(),
       );
 
@@ -144,4 +173,38 @@ class UserAdminController extends GetxController {
     }
   }
 
+  void loadPatients() async {
+    try {
+      final patients =
+          await _userAdminServices
+              .getUsersWNDoctor(); // Debe devolver lista de nombres
+      patientsList.value = patients; // Actualiza la lista reactiva
+      print("pacientes: $patients");
+    } catch (e) {
+      print("Error cargando pacientes: $e");
+    }
   }
+
+  void logout() async {
+    try {
+      final responseCode = await _userAdminServices.logOut();
+      // 🔹 Llamada correcta a función async
+      await SessionManager.clearSession();
+      print('🔍 Respuesta del backend: $responseCode');
+      if (responseCode == 200) {
+        Get.snackbar('Éxito', 'Inicio de sesión exitoso');
+
+        Get.toNamed('/selectorMode');
+      } else if (responseCode == 300) {
+        Get.snackbar('Advertencia', errorMessage.value);
+      } else {
+        Get.snackbar('Error', errorMessage.value);
+      }
+    } catch (e) {
+      errorMessage.value = 'Error: No se pudo conectar con la API';
+      Get.snackbar('Error', errorMessage.value);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}

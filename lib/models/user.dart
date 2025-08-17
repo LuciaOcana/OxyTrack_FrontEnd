@@ -10,6 +10,7 @@ class UserModel with ChangeNotifier {
   String _height;
   String _weight;
   List<String> _medication;
+  String _doctor;
   String _password;
 
   UserModel({
@@ -22,6 +23,7 @@ class UserModel with ChangeNotifier {
     required String height,
     required String weight,
     List<String>? medication,
+    String? doctor,
     required String password,
   })  : _username = username,
         _email = email,
@@ -32,6 +34,7 @@ class UserModel with ChangeNotifier {
         _height = height,
         _weight = weight,
         _medication = medication ?? [],
+        _doctor = doctor ?? '',
         _password = password;
 
   /// 🔄 Calcula la edad como String
@@ -60,6 +63,7 @@ class UserModel with ChangeNotifier {
   String get height => _height;
   String get weight => _weight;
   List<String> get medication => _medication;
+  String? get doctor => doctor;
   String get password => _password;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -73,6 +77,7 @@ class UserModel with ChangeNotifier {
       height: json['height'] ?? '',
       weight: json['weight'] ?? '',
       medication: List<String>.from(json['medication'] ?? []),
+      doctor: json['doctor']?.toString(), 
       password: json['password'] ?? '',
     );
   }
@@ -88,6 +93,7 @@ class UserModel with ChangeNotifier {
       'height': _height,
       'weight': _weight,
       'medication': _medication,
+      'doctor': _doctor,
       'password': _password,
     };
   }
