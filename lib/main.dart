@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:oxytrack_frontend/others/themeController.dart';
+import 'package:get_storage/get_storage.dart';
 
 // Pantallas principales del sistema
 import 'package:oxytrack_frontend/screen/selectorModeScreen.dart';
@@ -22,6 +24,9 @@ import 'package:oxytrack_frontend/widgets/navBarAdmin.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await GetStorage.init(); // ✅ Inicializa GetStorage
+  // Inicializa el controlador de tema
+  Get.put(ThemeController());
 
   final initialRoute = await getInitialRoute();
 
@@ -35,48 +40,72 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'OxyTrack',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-        useMaterial3: true,
-      ),
-      initialRoute: initialRoute,
-      getPages: [
-        // General
-        GetPage(name: '/selectorMode', page: () => SelectorModeScreen()),
+    return Obx(() {
+      final themeController = Get.find<ThemeController>();
 
-        // Usuario
-        GetPage(name: '/logIn', page: () => logInScreen()),
-        GetPage(
-          name: '/homeUser',
-          page: () => BottomNavScaffold(child: homePageScreen()),
-        ),
-        GetPage(
-          name: '/profileUser',
-          page: () => BottomNavScaffold(child: UserProfileScreen()),
-        ),
+      return GetMaterialApp(
+        title: 'OxyTrack',
+        debugShowCheckedModeBanner: false,
 
-        // Doctor
-        GetPage(name: '/loginDoctor', page: () => LogInDoctorScreen()),
-        GetPage(name: '/homeDoctor', page: () => HomeDoctorPageScreen()),
-
-        // Admin
-        GetPage(name: '/loginAdmin', page: () => LogInAdminScreen()),
-        GetPage(
-          name: '/adminDoctorListPage',
-          page: () => BottomNavScaffoldAdmin(child: AdminDoctorListPageScreen()),
-        ),
-        GetPage(
-          name: '/adminAddDoctorPage',
-          page: () => BottomNavScaffoldAdmin(child: AdminAddDoctorPageScreen()),
+        // Tema claro personalizado
+        theme: ThemeData.light().copyWith(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.light),
+          useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0xFFE0F7FA),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: Color(0xFF89AFAF),
+            titleTextStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+          ),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.black),
+            bodyMedium: TextStyle(color: Colors.black54),
+            titleLarge: TextStyle(color: Colors.black),
+          ),
         ),
 
-        // Común
-        GetPage(name: '/bluetooth', page: () => BluetoothPage()),
-      ],
-    );
+        // Tema oscuro personalizado
+        darkTheme: ThemeData.dark().copyWith(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark),
+          useMaterial3: true,
+          scaffoldBackgroundColor: const Color(0xFF121212),
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.grey[850],
+            titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          ),
+          textTheme: const TextTheme(
+            bodyLarge: TextStyle(color: Colors.white),
+            bodyMedium: TextStyle(color: Colors.white70),
+            titleLarge: TextStyle(color: Colors.white),
+          ),
+          buttonTheme: ButtonThemeData(buttonColor: Colors.grey[700]),
+          iconTheme: const IconThemeData(color: Colors.white70),
+        ),
+
+        themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+        initialRoute: initialRoute,
+        getPages: [
+          // General
+          GetPage(name: '/selectorMode', page: () => SelectorModeScreen()),
+
+          // Usuario
+          GetPage(name: '/logIn', page: () => logInScreen()),
+          GetPage(name: '/homeUser', page: () => BottomNavScaffold(child: homePageScreen())),
+          GetPage(name: '/profileUser', page: () => BottomNavScaffold(child: UserProfileScreen())),
+
+          // Doctor
+          GetPage(name: '/loginDoctor', page: () => LogInDoctorScreen()),
+          GetPage(name: '/homeDoctor', page: () => HomeDoctorPageScreen()),
+
+          // Admin
+          GetPage(name: '/loginAdmin', page: () => LogInAdminScreen()),
+          GetPage(name: '/adminDoctorListPage', page: () => BottomNavScaffoldAdmin(child: AdminDoctorListPageScreen())),
+          GetPage(name: '/adminAddDoctorPage', page: () => BottomNavScaffoldAdmin(child: AdminAddDoctorPageScreen())),
+
+          // Común
+          GetPage(name: '/bluetooth', page: () => BluetoothPage()),
+        ],
+      );
+    });
   }
 }
 
@@ -91,8 +120,8 @@ Future<String> getInitialRoute() async {
     case 'doctor':
       return '/homeDoctor';
     case 'admin':
-      return '/adminDoctorListPage'; // 🔹 Corrijo esta ruta
+      return '/adminDoctorListPage';
     default:
-      return '/selectorMode'; // Si no hay sesión → selección
+      return '/selectorMode';
   }
 }

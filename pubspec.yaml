@@ -44,6 +44,8 @@ dev_dependencies:
   multi_select_flutter: ^4.0.0
   flutter_test:
     sdk: flutter
+  get:
+  get_storage: ^2.0.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

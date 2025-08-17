@@ -30,15 +30,20 @@ class BottomNavScaffoldAdmin extends StatelessWidget {
             }
           },
           elevation: 5, // Sombra suave para el diseño
-          type: BottomNavigationBarType
-              .fixed, // Fija para mantener los elementos en su lugar
+          type:
+              BottomNavigationBarType
+                  .fixed, // Fija para mantener los elementos en su lugar
+          // 👇 Colores personalizados
+          selectedItemColor: const Color(0xFF0096C7), // color activo
+          unselectedItemColor: Colors.grey, // color inactivo
+          backgroundColor: Colors.white, // color de fondo
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
+              icon: Icon(Icons.list_alt),
               label: doctorListLabel,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
+              icon: Icon(Icons.person_add_alt_1),
               label: doctorAddLabel,
             ),
           ],

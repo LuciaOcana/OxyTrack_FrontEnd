@@ -114,21 +114,6 @@ class _LogInAdminScreenState extends State<LogInAdminScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-
-                  // Opción de contraseña olvidada
-                  TextButton(
-                    onPressed: () {
-                      // Aquí podrías agregar función de recuperación de contraseña
-                    },
-                    child: const Text(
-                      "¿Olvidaste tu contraseña?",
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontFamily: 'OpenSans',
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
                 ],
               ),
             ),

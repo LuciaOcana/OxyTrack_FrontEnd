@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:oxytrack_frontend/screen/logInScreen.dart';
 import 'package:oxytrack_frontend/screen/logInDoctorScreen.dart';
-
-
+import 'package:oxytrack_frontend/others/themeController.dart'; // ✅ Importa el controlador
 
 class SelectorModeScreen extends StatelessWidget {
   const SelectorModeScreen({super.key});
@@ -36,16 +34,12 @@ class SelectorModeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                     // Spacer(flex: 1),   // Espacio arriba
-
                 const SizedBox(height: 100),
                 Image.asset(
                   'lib/others/images/SpO.png',
                   height: 300,
                 ),
-
-                const SizedBox(height: 10),  // <- Añadido espacio extra aquí
-
+                const SizedBox(height: 10),
                 Text(
                   'Bienvenido a Oxytrack',
                   style: TextStyle(
@@ -55,8 +49,6 @@ class SelectorModeScreen extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                      //Spacer(flex: 1),   // espacio entre texto y botones
-
                 const SizedBox(height: 30),
                 SizedBox(
                   width: double.infinity,
@@ -75,11 +67,11 @@ class SelectorModeScreen extends StatelessWidget {
                       'Soy paciente',
                       style: TextStyle(
                         fontSize: 19,
-                      color: Color(0xFFCAF0F8),
-                      fontFamily: 'OpenSans',
-                                            fontWeight: FontWeight.bold),
+                        color: Color(0xFFCAF0F8),
+                        fontFamily: 'OpenSans',
+                        fontWeight: FontWeight.bold,
                       ),
-                    
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -98,14 +90,42 @@ class SelectorModeScreen extends StatelessWidget {
                     ),
                     child: const Text(
                       'Soy personal médico',
-                      style: TextStyle(fontSize: 18, color: Color(0xFF0077B6),
-                      fontFamily: 'OpenSans',
-                                            fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Color(0xFF0077B6),
+                        fontFamily: 'OpenSans',
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-                      Spacer(flex: 2),  // espacio abajo para balancear
+                const SizedBox(height: 16),
 
+                // ✅ Botón para cambiar el tema
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Get.find<ThemeController>().toggleTheme(),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: const Color(0xFF0077B6),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      'Cambiar tema',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                        fontFamily: 'OpenSans',
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const Spacer(flex: 2),
               ],
             ),
           ),
