@@ -56,7 +56,7 @@ class UserAdminServices {
         data: newDoctor.toJson(),
         options: Options(
           headers: {
-             'Authorization': "Bearer ${_tokenManager.token!}",
+            'Authorization': "Bearer ${_tokenManager.token!}",
             //'Token': _tokenManager.token!, // 🔐 Token desde memoria
           },
         ),
@@ -77,8 +77,42 @@ class UserAdminServices {
     }
   }
 
+Future<List<UserDoctorModel>> getDoctors({
+  int page = 1,
+  int limit = 20,
+  bool connectedOnly = false,
+}) async {
+  try {
+    await _tokenManager.ensureTokenInitialized();
+
+    // Obtener usuarios con paginación
+    print('Obteniendo doctores desde el backend con paginación');
+    var res = await dio.get(
+      '$baseUrl/admin/getDoctors/$page/$limit',
+      options: Options(
+        headers: {
+          'Authorization': "Bearer ${_tokenManager.token!}",
+        },
+      ),
+    );
+
+    // Si 'doctors' es null, asigna lista vacía
+    final List<dynamic> responseData = res.data['doctors'] ?? [];
+
+    // Convertir los datos en objetos UserDoctorModel
+    print("🔍 Respuesta completa del servidor: ${res.data}");
+
+    return responseData
+        .map((data) => UserDoctorModel.fromJson(data))
+        .toList();
+  } catch (e) {
+    print("Error al obtener doctores: $e");
+    throw e;
+  }
+}
+
   //usuarios paginados
-  Future<List<UserDoctorModel>> getDoctors({
+  /*Future<List<UserDoctorModel>> getDoctors({
     int page = 1,
     int limit = 20,
     bool connectedOnly = false,
@@ -108,8 +142,7 @@ class UserAdminServices {
       print("Error al obtener doctores: $e");
       throw e;
     }
-  }
-
+  }*/
   //usuarios paginados
   Future<List<String>> getUsersWNDoctor() async {
     try {
@@ -131,20 +164,24 @@ class UserAdminServices {
       final responseData = res.data;
       // Convertir los datos en una lista de objetos UserModel
       print("🔍 Respuesta completa del servidor: ${res.data}");
-
       if (responseData is Map<String, dynamic> &&
           responseData["usersWNDoctor"] is List) {
         final List<dynamic> users = responseData["usersWNDoctor"];
 
-        // En este caso users es directamente ["Lucia Ocana", "Otro Usuario", ...]
-        final names = users.map((u) => u.toString()).toList();
+        // Construir "Nombre Apellido (username)"
+        final formatted =
+            users
+                .whereType<Map<String, dynamic>>() // seguridad
+                .map(
+                  (u) => "${u['name']} ${u['lastname']} (${u['username']})",
+                ) // 👈 aquí el cambio
+                .toList();
 
-        // Logs de verificación
-        for (var name in names) {
-          print("👤 Usuario encontrado: $name");
+        for (var u in formatted) {
+          print("👤 Usuario encontrado: $u");
         }
 
-        return names;
+        return formatted;
       }
 
       return [];

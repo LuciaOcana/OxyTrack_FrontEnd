@@ -14,11 +14,11 @@ class DoctorListController extends GetxController {
   final UserDoctorServices userDoctorService = UserDoctorServices();
   final UserAdminServices userAdminService = UserAdminServices();
 
-  @override
+  /*@override
   void onInit() {
     super.onInit();
     fetchDoctors(); // Llamada inicial
-  }
+  }*/
 
   Future<void> fetchDoctors() async {
     try {
@@ -28,6 +28,8 @@ class DoctorListController extends GetxController {
         limit: limit.value,
       );
       doctorList.assignAll(doctors ?? []);
+      debugPrint("✅ Doctors fetched: ${doctors?.length}");
+
     } catch (e, stackTrace) {
       debugPrint("❌ Error fetching doctor: $e\n$stackTrace");
     } finally {

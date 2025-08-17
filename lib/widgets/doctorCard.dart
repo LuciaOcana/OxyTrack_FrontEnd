@@ -3,8 +3,9 @@ import '../models/userDoctor.dart'; // Ajusta la ruta si el teu model està en u
 
 class DoctorCard extends StatelessWidget {
   final UserDoctorModel doctor;
+  final VoidCallback? onEdit; // Callback para manejar la acción del botón
 
-  const DoctorCard({Key? key, required this.doctor}) : super(key: key);
+  const DoctorCard({Key? key, required this.doctor, this.onEdit}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,12 +18,26 @@ class DoctorCard extends StatelessWidget {
           children: [
             Text(
               doctor.name,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text('Username: ${doctor.email}'),
             const SizedBox(height: 8),
             Text('Name: ${doctor.username}'),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end, // Alinea a la derecha
+              children: [
+                ElevatedButton.icon(
+                  onPressed: onEdit,
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Editar'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  ),
+                ),
+              ],
+            ),
           ],
         ),
       ),
