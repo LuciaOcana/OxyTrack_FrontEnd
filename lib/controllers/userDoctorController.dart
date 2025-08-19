@@ -41,7 +41,7 @@ class UserDoctorController extends GetxController {
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        Get.toNamed('/homeDoctor');  //ESTO HAY QUE CAMBIARLO POR LA PAGINA PRINCIPAL DE DOCTOR
+        Get.toNamed('/doctorPatientListPage');  //ESTO HAY QUE CAMBIARLO POR LA PAGINA PRINCIPAL DE DOCTOR
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
         Get.snackbar('Advertencia', errorMessage.value);
@@ -56,76 +56,30 @@ class UserDoctorController extends GetxController {
       isLoading.value = false;
     }
   }
+void passwordChange(String newPass, String confirmNewPass) async {
+  try {
+    if (newPass == confirmNewPass && newPass.isNotEmpty) {
+      final responseCode = await _userDoctorServices.newPassword(usernameLogInDoctorController.text, newPass); // Llamada al backend
+            print('🔍 Respuesta del backend: $responseCode');
 
-
-  // Registro de usuario
-
-  /*void signUp() async {
-    if (usernameDoctorController.text.isEmpty ||
-        emailDoctorController.text.isEmpty ||
-        nameDoctorController.text.isEmpty ||
-        lastnameDoctorController.text.isEmpty ||
-        passwordDoctorController.text.isEmpty) {
-      errorMessage.value = 'Campos vacíos';
-      Get.snackbar(
-        'Error',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    /* // Validación de formato de correo electrónico
-    if (!GetUtils.isEmail(emailController.text)) {
-      errorMessage.value = 'Correo electrónico no válido';
-      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
-      return;
-    }
-
-    // Validación de contraseña segura
-    final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$');
-    if (!regex.hasMatch(passwordController.text)) {
-      errorMessage.value =
-          'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
-      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
-      return;
-    }*/
-
-    isLoading.value = true;
-
-    try {
-      final newDoctor = UserDoctorModel(
-        username: usernameDoctorController.text.trim(),
-        email: emailDoctorController.text.trim(),
-        name: nameDoctorController.text.trim(),
-        lastname: lastnameDoctorController.text.trim(),
-        password: passwordDoctorController.text.trim(),
-      );
-
-      final response = await userDoctorServices.createDoctor(newDoctor);
-      print('----------------- ${response}');
-
-      if (response != null && response == 201) {
-        Get.snackbar('Éxito', 'Usuario creado exitosamente');
-        Get.toNamed('/login');
-      } else {
-        errorMessage.value =
-            'Error: Este E-Mail o nombre de usuario ya están en uso';
-        Get.snackbar(
-          'Error',
-          errorMessage.value,
+if (responseCode == 200) {
+      Get.snackbar("Éxito", "Contraseña cambiada correctamente",
           snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    } catch (e) {
-      errorMessage.value = 'Error al registrar usuario';
-      Get.snackbar(
-        'Error',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    } finally {
-      isLoading.value = false;
+          backgroundColor: Colors.green.shade400,
+          colorText: Colors.white);
+    }} else {
+      Get.snackbar("Error", "Las contraseñas no coinciden",
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.shade400,
+          colorText: Colors.white);
     }
-  }*/
+  } catch (e) {
+    Get.snackbar("Error", "No se pudo cambiar la contraseña",
+        snackPosition: SnackPosition.BOTTOM,
+        backgroundColor: Colors.red.shade400,
+        colorText: Colors.white);
+    print("❌ Error en passwordChange: $e");
+  }
+}
+
 }

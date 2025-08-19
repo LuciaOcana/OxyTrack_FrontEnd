@@ -9,35 +9,37 @@ class homePageScreen extends StatefulWidget {
 }
 
 class _homePageScreenState extends State<homePageScreen> {
-  final IrService irService = IrService();
+  final IrService irService = IrService(); // misma instancia singleton
   List<_SpO2Data> spo2Data = [];
   double? currentSpo2;
   late TooltipBehavior _tooltipBehavior;
   late StreamSubscription _spo2Subscription;
-  double timeIndex = 0;
 
   @override
   void initState() {
     super.initState();
     _tooltipBehavior = TooltipBehavior(enable: true);
-    irService.connect();
 
+    // Inicializar con los datos que ya existen en IrService
+    currentSpo2 = irService.currentSpo2;
+    spo2Data = List.from(irService.spo2Data);
+
+    // Suscripción al stream para recibir datos nuevos
     _spo2Subscription = irService.spo2Stream.listen((data) {
-      double spo2 = (data['spo2'] as num).toDouble();
       setState(() {
-        currentSpo2 = spo2;
-        if (spo2Data.length >= 30) {
-          spo2Data.removeAt(0);
-        }
-        spo2Data.add(_SpO2Data(timeIndex++, spo2));
+        currentSpo2 = irService.currentSpo2;
+        spo2Data = List.from(irService.spo2Data);
       });
     });
+
+    // Conectamos al WebSocket
+    irService.connect();
   }
 
   @override
   void dispose() {
     _spo2Subscription.cancel();
-    irService.disconnect();
+    //irService.disconnect(); // solo desconecta el socket; stream permanece activo
     super.dispose();
   }
 
@@ -48,7 +50,7 @@ class _homePageScreenState extends State<homePageScreen> {
         title: Text('Bienvenido a OxyTrack'),
         centerTitle: true,
         backgroundColor: Colors.blue,
-        automaticallyImplyLeading: false, // 👈 Esto oculta la flecha de atrás
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [

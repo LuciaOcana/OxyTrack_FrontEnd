@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:oxytrack_frontend/services/irServices.dart'; // Importa los servicios
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -16,7 +17,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   void initState() {
     super.initState();
-    loadUserData(); // Carga los datos al abrir la pantalla
+    loadUserData();
+    IrService().connect(); // 🔌 WebSocket
   }
 
   Future<void> loadUserData() async {
@@ -39,7 +41,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     await prefs.remove('user_name');
     await prefs.remove('user_email');
 
-    Get.offAllNamed('/selectorMode'); // Redirige al selector de modo
+    Get.offAllNamed('/selectorMode');
   }
 
   @override
@@ -47,66 +49,82 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil de Usuario'),
-        backgroundColor: Colors.lightBlueAccent,
+        backgroundColor: const Color(0xFF0096C7),
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+          color: Colors.white,
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
+            tooltip: 'Cerrar sesión',
             onPressed: logout,
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const CircleAvatar(
-              radius: 40,
-              backgroundColor: Colors.lightBlueAccent,
-              child: Icon(Icons.person, size: 40, color: Colors.white),
-            ),
-            const SizedBox(height: 20),
-            Obx(() => Text(
-                  name.value,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                )),
-            const SizedBox(height: 8),
-            Obx(() => Text(
-                  email.value,
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
-                )),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => _EditProfileDialog(
-                    currentName: name.value,
-                    currentEmail: email.value,
-                    onSave: saveUserData,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                "👤", // Emoticono bonito en vez del círculo
+                style: TextStyle(fontSize: 80),
+              ),
+              const SizedBox(height: 20),
+              Obx(() => Text(
+                    name.value,
+                    style: const TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      fontFamily: 'OpenSans',
+                    ),
+                  )),
+              const SizedBox(height: 8),
+              Obx(() => Text(
+                    email.value,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey,
+                      fontFamily: 'OpenSans',
+                    ),
+                  )),
+              const SizedBox(height: 40),
+              ElevatedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => _EditProfileDialog(
+                      currentName: name.value,
+                      currentEmail: email.value,
+                      onSave: saveUserData,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text('Editar perfil'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF0096C7),
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                );
-              },
-              icon: const Icon(Icons.edit),
-              label: const Text('Editar perfil'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.lightBlueAccent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontFamily: 'OpenSans',
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            ElevatedButton.icon(
-              onPressed: logout,
-              icon: const Icon(Icons.exit_to_app),
-              label: const Text('Cerrar sesión'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.redAccent,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -142,7 +160,14 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Editar Perfil'),
+      title: const Text(
+        'Editar Perfil',
+        style: TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF0096C7),
+        ),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -173,11 +198,11 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
               colorText: Colors.white,
             );
           },
-          child: const Text('Guardar'),
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.lightBlueAccent,
+            backgroundColor: const Color(0xFF0096C7),
             foregroundColor: Colors.white,
           ),
+          child: const Text('Guardar'),
         ),
       ],
     );

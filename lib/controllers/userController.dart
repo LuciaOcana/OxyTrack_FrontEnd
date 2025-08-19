@@ -4,9 +4,15 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:oxytrack_frontend/services/userServices.dart';
 import 'package:oxytrack_frontend/models/user.dart';
+import 'package:oxytrack_frontend/others/sessionManager.dart';
+import 'package:oxytrack_frontend/auth/tokenManager.dart';
+import 'package:oxytrack_frontend/services/irServices.dart';
+
+
 
 class UserController extends GetxController {
   final UserServices userService = Get.put(UserServices());
+  final IrService _irService = IrService();
 
 // Variables del Log In de usuario
   final TextEditingController usernameLogInController = TextEditingController();
@@ -29,6 +35,8 @@ class UserController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+    final tokenManager = TokenManager();
+
 
  
   void logIn() async {
@@ -53,11 +61,19 @@ class UserController extends GetxController {
 
     try {
       final responseCode = await userService.logIn(logIn);
+      final token =
+          await tokenManager.getToken(); // 🔹 recupera el token guardado
 
       print('🔍 Respuesta del backend: $responseCode');
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
+        await SessionManager.saveSession(
+          "user",
+          token,
+          usernameLogInController.text,
+        );
+        _irService.connect();
         Get.toNamed('/homeUser');
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;

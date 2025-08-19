@@ -1,63 +1,114 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-//import 'package:oxytrack_frontend/others/urlFile.dart';
+import 'package:oxytrack_frontend/others/sessionManager.dart';
+
+// Clase que representa un dato de SpO2
+class _SpO2Data {
+  _SpO2Data(this.time, this.value);
+  final double time;
+  final double value;
+}
 
 class IrService {
-  final String wsUrl = 'ws://192.168.1.48:5000'; // URL del WebSocket (ajusta IP y puerto)
-  //final String wsUrl = 'wss://192.168.1.48:5000'; // URL del WebSocketSecure (ajusta IP y puerto)
+  // -------------------- SINGLETON --------------------
+  static final IrService _instance = IrService._internal();
+  factory IrService() => _instance;
+  IrService._internal();
+  // ---------------------------------------------------
 
+  final String wsUrl = 'ws://192.168.1.48:3000';
   WebSocket? _socket;
-  StreamController<Map<String, dynamic>> _spo2Controller = StreamController.broadcast();
 
-  // Stream para que la UI escuche cambios de SpO2
+  // StreamController broadcast para que múltiples listeners puedan escuchar
+  final StreamController<Map<String, dynamic>> _spo2Controller =
+      StreamController.broadcast();
   Stream<Map<String, dynamic>> get spo2Stream => _spo2Controller.stream;
 
-  // Abrir conexión WebSocket
+  // Lista global de datos y estado actual
+  List<_SpO2Data> spo2Data = [];
+  double timeIndex = 0;
+  double? currentSpo2;
+
+  // Conectar al WebSocket
   Future<void> connect() async {
     try {
-      _socket = await WebSocket.connect(wsUrl);
+      String? username = await SessionManager.getUsername();
+      print("Conectando a WebSocket en: $wsUrl");
 
-      print('WebSocket conectado');
+      if (username == null || username.isEmpty) {
+        print("❌ No se encontró username en sesión");
+        return;
+      }
+
+      if (_socket != null && _socket!.readyState == WebSocket.open) {
+        print("🔄 WebSocket ya está conectado");
+        return;
+      }
+
+      _socket = await WebSocket.connect(wsUrl);
+      print('✅ WebSocket conectado');
+
+      final initMessage = jsonEncode({
+        "type": "init",
+        "username": username,
+        "role": "paciente",
+      });
+      _socket!.add(initMessage);
+      print("📤 Init enviado con username: $username");
 
       _socket!.listen(
         (data) {
-          print('Mensaje recibido WS: $data');
-
+          print('📨 Mensaje recibido WS: $data');
           try {
-            // Suponiendo que el backend envía JSON con {username, spo2, timestamp}
             Map<String, dynamic> message = jsonDecode(data);
-            _spo2Controller.add(message);  // Enviar datos al stream
+
+            if (message.containsKey('spo2')) {
+              double spo2Value = (message['spo2'] as num).toDouble();
+              currentSpo2 = spo2Value;
+
+              // Guardar en lista global
+              spo2Data.add(_SpO2Data(timeIndex++, spo2Value));
+
+              // Mantener solo los últimos 100 datos para no crecer indefinidamente
+              if (spo2Data.length > 100) {
+                spo2Data.removeAt(0);
+              }
+            }
+
+            _spo2Controller.add(message); // enviar al stream
           } catch (e) {
-            print('Error parseando mensaje WS: $e');
+            print('❌ Error parseando mensaje WS: $e');
           }
         },
         onDone: () {
-          print('WebSocket cerrado');
+          print('🔌 WebSocket cerrado');
           _socket = null;
         },
         onError: (error) {
-          print('Error WebSocket: $error');
+          print('❌ Error WebSocket: $error');
           _socket = null;
         },
       );
     } catch (e) {
-      print('No se pudo conectar al WebSocket: $e');
+      print('❌ No se pudo conectar al WebSocket: $e');
     }
   }
 
-  // Enviar mensaje (si quieres enviar algo al backend)
+  // Enviar mensaje al backend
   void sendMessage(String message) {
     if (_socket != null && _socket!.readyState == WebSocket.open) {
       _socket!.add(message);
     } else {
-      print('WebSocket no conectado para enviar mensaje');
+      print('⚠️ WebSocket no conectado para enviar mensaje');
     }
   }
 
-  // Cerrar la conexión WebSocket y el stream
+  // Cerrar conexión y stream
   void disconnect() {
     _socket?.close();
-    _spo2Controller.close();
+    _socket = null;
+    // No cerramos el stream aquí para mantener los datos mientras la app está abierta
+    print('🔒 WebSocket desconectado (stream sigue activo)');
   }
 }

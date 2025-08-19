@@ -9,7 +9,6 @@ import 'package:oxytrack_frontend/services/userDoctorServices.dart';
 import 'package:oxytrack_frontend/others/sessionManager.dart';
 import 'package:oxytrack_frontend/auth/tokenManager.dart';
 
-import 'package:oxytrack_frontend/auth/tokenManager.dart';
 
 class UserAdminController extends GetxController {
   final UserAdminServices _userAdminServices = Get.put(UserAdminServices());

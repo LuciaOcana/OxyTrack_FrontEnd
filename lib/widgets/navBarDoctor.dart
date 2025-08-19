@@ -2,19 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:oxytrack_frontend/controllers/navBarController.dart';
+import 'package:oxytrack_frontend/controllers/navBarDoctorController.dart';
 
 class BottomNavScaffoldDoctor extends StatelessWidget {
   final Widget child;
-  final NavBarController navController = Get.put(NavBarController());
+  final NavBarDoctorController navController = Get.put(NavBarDoctorController());
 
   BottomNavScaffoldDoctor({required this.child});
 
   @override
   Widget build(BuildContext context) {
     // Variables de tipo String asignadas en tiempo de ejecución
-    final homeLabel = 'Home'.tr;
-    final profileLabel = 'Perfil'.tr;
+    final patientsListLabel = 'Lista de pacientes'.tr;
+    final doctorEditLabel = 'Editar doctor'.tr;
 
     return Scaffold(
       body: child,
@@ -30,16 +30,21 @@ class BottomNavScaffoldDoctor extends StatelessWidget {
             }
           },
           elevation: 5, // Sombra suave para el diseño
-          type: BottomNavigationBarType
-              .fixed, // Fija para mantener los elementos en su lugar
+          type:
+              BottomNavigationBarType
+                  .fixed, // Fija para mantener los elementos en su lugar
+          // 👇 Colores personalizados
+          selectedItemColor: const Color(0xFF0096C7), // color activo
+          unselectedItemColor: Colors.grey, // color inactivo
+          backgroundColor: Colors.white, // color de fondo
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: homeLabel,
+              icon: Icon(Icons.list_alt),
+              label: patientsListLabel,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              label: profileLabel,
+              icon: Icon(Icons.person_add_alt_1),
+              label: doctorEditLabel,
             ),
           ],
         ),

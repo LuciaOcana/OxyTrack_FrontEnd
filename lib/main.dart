@@ -13,14 +13,17 @@ import 'package:oxytrack_frontend/screen/logInAdminScreen.dart';
 // Pantallas para cada rol
 import 'package:oxytrack_frontend/screen/homePageScreen.dart';
 import 'package:oxytrack_frontend/screen/profileUserScreen.dart';
-import 'package:oxytrack_frontend/screen/homeDoctorPageScreen.dart';
-import 'package:oxytrack_frontend/screen/homaAdminDoctorListPageScreen.dart';
-import 'package:oxytrack_frontend/screen/homaAdminAddDoctorPageScreen.dart';
+import 'package:oxytrack_frontend/screen/homeDoctorPatientsListPageScreen.dart';
+import 'package:oxytrack_frontend/screen/homeDoctorEditDoctorPageScreen.dart';
+import 'package:oxytrack_frontend/screen/homeAdminDoctorListPageScreen.dart';
+import 'package:oxytrack_frontend/screen/homeAdminAddDoctorPageScreen.dart';
 
 // Otros widgets o pantallas compartidas
 import 'package:oxytrack_frontend/screen/bluetoothScreen.dart';
 import 'package:oxytrack_frontend/widgets/navBarUser.dart';
 import 'package:oxytrack_frontend/widgets/navBarAdmin.dart';
+import 'package:oxytrack_frontend/widgets/navBarDoctor.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -94,7 +97,8 @@ class MyApp extends StatelessWidget {
 
           // Doctor
           GetPage(name: '/loginDoctor', page: () => LogInDoctorScreen()),
-          GetPage(name: '/homeDoctor', page: () => HomeDoctorPageScreen()),
+          GetPage(name: '/doctorPatientListPage', page: () => BottomNavScaffoldDoctor (child:HomeDoctorPatientListPageScreen())),
+          GetPage(name: '/doctorEditDoctorPage', page: () => BottomNavScaffoldDoctor (child: HomeDoctorEditDoctorPageScreen())),
 
           // Admin
           GetPage(name: '/loginAdmin', page: () => LogInAdminScreen()),
