@@ -20,33 +20,6 @@ class UserServices {
 
   final TokenManager _tokenManager = TokenManager();
 
-  /*String? _token; // 🔐 Token en memoria
-  
-  // Inicializar (leer token guardado en memoria al arrancar)
-  Future<void> init() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('jwt_token');
-  }
-
-  // Getter del token si necesitas exponerlo
-  String? get token => _token;
-
-  // Guardar token (memoria + SharedPreferences)
-  Future<void> _setToken(String token) async {
-    _token = token;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('jwt_token', token);
-  }
-
-  // Borrar token
-  Future<void> logout() async {
-    _token = null;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('jwt_token');
-  }
-*/
-
-
 // Método para registrarte
   Future<int> createUser(UserModel newUser) async {
     try {
@@ -98,11 +71,85 @@ class UserServices {
         'password': logIn.password,
       };
 
-        Future<int> logOut(logIn) async {
+Future<int> editUser(String username,Map<String, dynamic> updatedFields) async {
+    try {
+      //Verificamos que tenemos token
+      await _tokenManager.ensureTokenInitialized();
+
+      // Obtener usuarios con paginación
+      print('Obteniendo doctores desde el backend con paginación');
+        Response response = await dio.put(
+        '$baseUrl/user/editUser/$username',
+        data: updatedFields,
+        options: Options(
+          headers: {
+            'Authorization': "Bearer ${_tokenManager.token!}",
+            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
+          },
+        ),
+      );
+
+     
+    print("✅ Respuesta completa del servidor: ${ response.data}");
+
+  if (response.statusCode == 201) {
+        print('Usuario actualizado');
+        return 201;
+      } else {
+        print('Error en la edicióm: ${response.statusCode}');
+        return response.statusCode!;
+      }
+}
+catch(e){print('Excepción en la edición: $e');
+      return -1;}}
+
+
+Future<UserModel> getUser(String username) async {
+    try {
+      //Verificamos que tenemos token
+      await _tokenManager.ensureTokenInitialized();
+
+      // Obtener usuarios con paginación
+      print('Obteniendo doctores desde el backend con paginación');
+        Response response = await dio.get(
+        '$baseUrl/users/getUser/$username',
+        options: Options(
+          headers: {
+            'Authorization': "Bearer ${_tokenManager.token!}",
+            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
+          },
+        ),
+      );
+
+     
+    print("✅ Respuesta completa del servidor: ${ response.data}");
+    print("✅ Respuesta completa del servidor: ${ response.data}");
+
+  if (response.statusCode == 200) {
+        print('Usuario actualizado');
+        // Suponiendo que UserModel tiene un fromJson
+      return UserModel.fromJson(response.data);
+      } else {
+            throw Exception('Error al obtener usuario: ${response.statusCode}');
+
+      }
+}
+catch(e){print('Excepción en getUser: $e');
+    throw Exception('Error en la petición de usuario');}}
+
+
+
+    Future<int> logOut() async {
     try {
       print('Enviando solicitud de LogIn');
       Response response = await dio.post(
-        '$baseUrl/user/logout'
+        '$baseUrl/users/logout',
+        options: Options(
+          headers: {
+            "Authorization": "Bearer $_tokenManager.token!",
+            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
+          },
+        ),
       );
 
       if (response.statusCode == 200) {

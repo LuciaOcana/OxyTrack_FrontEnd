@@ -63,7 +63,7 @@ class UserModel with ChangeNotifier {
   String get height => _height;
   String get weight => _weight;
   List<String> get medication => _medication;
-  String? get doctor => doctor;
+  String? get doctor => _doctor;
   String get password => _password;
 
   factory UserModel.fromJson(Map<String, dynamic> json) {

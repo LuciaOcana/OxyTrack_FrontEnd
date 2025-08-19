@@ -4,8 +4,8 @@ import 'dart:io';
 import 'package:oxytrack_frontend/others/sessionManager.dart';
 
 // Clase que representa un dato de SpO2
-class _SpO2Data {
-  _SpO2Data(this.time, this.value);
+class SpO2Data {
+  SpO2Data(this.time, this.value);
   final double time;
   final double value;
 }
@@ -26,7 +26,7 @@ class IrService {
   Stream<Map<String, dynamic>> get spo2Stream => _spo2Controller.stream;
 
   // Lista global de datos y estado actual
-  List<_SpO2Data> spo2Data = [];
+  List<SpO2Data> spo2Data = [];
   double timeIndex = 0;
   double? currentSpo2;
 
@@ -68,7 +68,7 @@ class IrService {
               currentSpo2 = spo2Value;
 
               // Guardar en lista global
-              spo2Data.add(_SpO2Data(timeIndex++, spo2Value));
+              spo2Data.add(SpO2Data(timeIndex++, spo2Value));
 
               // Mantener solo los últimos 100 datos para no crecer indefinidamente
               if (spo2Data.length > 100) {

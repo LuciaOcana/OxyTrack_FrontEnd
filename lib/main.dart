@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
 
           // Usuario
           GetPage(name: '/logIn', page: () => logInScreen()),
-          GetPage(name: '/homeUser', page: () => BottomNavScaffold(child: homePageScreen())),
+          GetPage(name: '/homeUser', page: () => BottomNavScaffold(child: HomePageScreen())),
           GetPage(name: '/profileUser', page: () => BottomNavScaffold(child: UserProfileScreen())),
 
           // Doctor

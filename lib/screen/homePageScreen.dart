@@ -3,14 +3,14 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import 'dart:async';
 import 'package:oxytrack_frontend/services/irServices.dart'; // Importa los servicios
 
-class homePageScreen extends StatefulWidget {
+class HomePageScreen extends StatefulWidget {
   @override
-  _homePageScreenState createState() => _homePageScreenState();
+  _HomePageScreenState createState() => _HomePageScreenState();
 }
 
-class _homePageScreenState extends State<homePageScreen> {
+class _HomePageScreenState extends State<HomePageScreen> {
   final IrService irService = IrService(); // misma instancia singleton
-  List<_SpO2Data> spo2Data = [];
+  List<SpO2Data> spo2Data = [];
   double? currentSpo2;
   late TooltipBehavior _tooltipBehavior;
   late StreamSubscription _spo2Subscription;
@@ -25,7 +25,7 @@ class _homePageScreenState extends State<homePageScreen> {
     spo2Data = List.from(irService.spo2Data);
 
     // Suscripción al stream para recibir datos nuevos
-    _spo2Subscription = irService.spo2Stream.listen((data) {
+    _spo2Subscription = irService.spo2Stream.listen((_) {
       setState(() {
         currentSpo2 = irService.currentSpo2;
         spo2Data = List.from(irService.spo2Data);
@@ -89,11 +89,11 @@ class _homePageScreenState extends State<homePageScreen> {
                   axisLine: AxisLine(width: 0),
                   title: AxisTitle(text: 'SpO₂'),
                 ),
-                series: <CartesianSeries<_SpO2Data, double>>[
-                  SplineAreaSeries<_SpO2Data, double>(
+                series: <CartesianSeries<SpO2Data, double>>[
+                  SplineAreaSeries<SpO2Data, double>(
                     dataSource: spo2Data,
-                    xValueMapper: (_SpO2Data data, _) => data.time,
-                    yValueMapper: (_SpO2Data data, _) => data.value,
+                    xValueMapper: (SpO2Data data, _) => data.time,
+                    yValueMapper: (SpO2Data data, _) => data.value,
                     name: 'SpO₂',
                     color: Colors.blue.withOpacity(0.5),
                     borderColor: Colors.blue,
@@ -107,10 +107,4 @@ class _homePageScreenState extends State<homePageScreen> {
       ),
     );
   }
-}
-
-class _SpO2Data {
-  _SpO2Data(this.time, this.value);
-  final double time;
-  final double value;
 }

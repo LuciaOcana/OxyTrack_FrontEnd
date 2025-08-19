@@ -399,7 +399,7 @@ class _logInScreenState extends State<logInScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => homePageScreen()),
+                  MaterialPageRoute(builder: (context) => HomePageScreen()),
                 );
               },
               child: Text('Entrar como Invitado'),

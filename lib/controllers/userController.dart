@@ -11,7 +11,7 @@ import 'package:oxytrack_frontend/services/irServices.dart';
 
 
 class UserController extends GetxController {
-  final UserServices userService = Get.put(UserServices());
+  final UserServices _userService = Get.put(UserServices());
   final IrService _irService = IrService();
 
 // Variables del Log In de usuario
@@ -33,9 +33,21 @@ class UserController extends GetxController {
   final TextEditingController medicationController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+   // Variables del edit de usuario
+  final TextEditingController usernameControllerEdit = TextEditingController();
+  final TextEditingController emailControllerEdit = TextEditingController();
+  final TextEditingController nameControllerEdit = TextEditingController();
+  final TextEditingController lastnameControllerEdit = TextEditingController();
+  final TextEditingController birthDateControllerEdit =
+      TextEditingController(); // en formato yyyy-MM-dd
+  final TextEditingController heightControllerEdit = TextEditingController();
+  final TextEditingController weightControllerEdit = TextEditingController();
+  final TextEditingController passwordControllerEdit = TextEditingController();
+
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
     final tokenManager = TokenManager();
+  final Rxn<UserModel> userModel = Rxn<UserModel>();
 
 
  
@@ -60,7 +72,7 @@ class UserController extends GetxController {
     errorMessage.value = '';
 
     try {
-      final responseCode = await userService.logIn(logIn);
+      final responseCode = await _userService.logIn(logIn);
       final token =
           await tokenManager.getToken(); // 🔹 recupera el token guardado
 
@@ -150,7 +162,7 @@ Future<void> saveUserSession(UserModel user, String role) async {
         password: passwordController.text.trim(),
       );
 
-      final response = await userService.createUser(newUser);
+      final response = await _userService.createUser(newUser);
       print('----------------- ${response}');
 
       if (response != null && response == 201) {
@@ -174,6 +186,129 @@ Future<void> saveUserSession(UserModel user, String role) async {
       );
     }
     */ finally {
+      isLoading.value = false;
+    }
+  }
+
+
+  Future<bool> updateUser(String originalUsername, UserModel originalDoctor) async {
+  try {
+        isLoading.value = true;
+
+    final Map<String, dynamic> updatedFields = {};
+
+    // 👇 Solo añadimos al body lo que realmente cambió
+    if (usernameControllerEdit.text.trim().isNotEmpty &&
+        usernameControllerEdit.text.trim() != originalDoctor.username) {
+      updatedFields["username"] = usernameControllerEdit.text.trim();
+    }
+
+    if (emailControllerEdit.text.trim().isNotEmpty &&
+        emailControllerEdit.text.trim() != originalDoctor.email) {
+      updatedFields["email"] = emailControllerEdit.text.trim();
+    }
+
+    if (nameControllerEdit.text.trim().isNotEmpty &&
+        nameControllerEdit.text.trim() != originalDoctor.name) {
+      updatedFields["name"] = nameControllerEdit.text.trim();
+    }
+
+    if (lastnameControllerEdit.text.trim().isNotEmpty &&
+        lastnameControllerEdit.text.trim() != originalDoctor.lastname) {
+      updatedFields["lastname"] = lastnameControllerEdit.text.trim();
+    }
+
+   if (birthDateControllerEdit.text.trim().isNotEmpty &&
+        birthDateControllerEdit.text.trim() != originalDoctor.birthDate) {
+      updatedFields["birthDate"] = birthDateControllerEdit.text.trim();
+    }
+    if (heightControllerEdit.text.trim().isNotEmpty &&
+        heightControllerEdit.text.trim() != originalDoctor.height) {
+      updatedFields["height"] = heightControllerEdit.text.trim();
+    }
+    if (weightControllerEdit.text.trim().isNotEmpty &&
+        weightControllerEdit.text.trim() != originalDoctor.weight) {
+      updatedFields["weight"] = weightControllerEdit.text.trim();
+    }
+
+    if (passwordControllerEdit.text.trim().isNotEmpty) {
+      updatedFields["password"] = passwordControllerEdit.text.trim();
+    }
+
+    if (updatedFields.isEmpty) {
+      Get.snackbar('Info', 'No se han realizado cambios');
+      return false;
+    }
+    print('----------------- $updatedFields');
+
+    final responseCode =
+        await _userService.editUser(originalUsername, updatedFields);
+
+    print('----------------- $responseCode');
+
+    if (responseCode == 200 || responseCode == 201) {
+      Get.snackbar('Éxito', 'Doctor editado exitosamente');
+      return true;
+    } else {
+      errorMessage.value =
+          'Error: Este E-Mail o nombre de doctor ya están en uso';
+      Get.snackbar(
+        'Error',
+        errorMessage.value,
+        snackPosition: SnackPosition.BOTTOM,
+      );
+      return false;
+    }
+  } catch (e) {
+    errorMessage.value = 'Error al actualizar doctor';
+    Get.snackbar(
+      'Error',
+      errorMessage.value,
+      snackPosition: SnackPosition.BOTTOM,
+    );
+    return false;
+  } finally {
+    isLoading.value = false;
+  }
+}
+
+/// Obtiene el usuario desde el backend y lo guarda en el controlador
+  Future<UserModel?> fetchUser() async {
+    try {
+      final username = await SessionManager.getUsername();
+      if (username != null) {
+        final user = await _userService.getUser(username);
+        userModel.value = user;
+        return user;
+      } else {
+        print('No se encontró el username en sesión');
+        return null;
+      }
+    } catch (e) {
+      print('Error al obtener el usuario: $e');
+      return null;
+    }
+  }
+
+  void logout() async {
+    try {
+      final responseCode = await _userService.logOut();
+      // 🔹 Llamada correcta a función async
+      await SessionManager.clearSession();
+      print('🔍 Respuesta del backend: $responseCode');
+      if (responseCode == 200) {
+        Get.snackbar('Éxito', 'Inicio de sesión exitoso');
+
+        Get.toNamed('/selectorMode');
+      } else if (responseCode == 300) {
+        Get.snackbar('Advertencia', errorMessage.value);
+      } else {
+        Get.snackbar('Error', errorMessage.value);
+      }
+    } catch (e) {
+      errorMessage.value = 'Error: No se pudo conectar con la API';
+      Get.snackbar('Error', errorMessage.value);
+    } finally {
       isLoading.value = false;
     }
   }
