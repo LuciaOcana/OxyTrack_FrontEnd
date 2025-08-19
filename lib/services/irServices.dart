@@ -5,9 +5,11 @@ import 'package:oxytrack_frontend/others/sessionManager.dart';
 
 // Clase que representa un dato de SpO2
 class SpO2Data {
-  SpO2Data(this.time, this.value);
   final double time;
   final double value;
+    final DateTime timestamp; // NUEVO: hora real del dato
+  SpO2Data(this.time, this.value, this.timestamp);
+
 }
 
 class IrService {
@@ -29,6 +31,8 @@ class IrService {
   List<SpO2Data> spo2Data = [];
   double timeIndex = 0;
   double? currentSpo2;
+    DateTime? lastTimestamp; // NUEVO: último timestamp recibido
+
 
   // Conectar al WebSocket
   Future<void> connect() async {
@@ -67,8 +71,13 @@ class IrService {
               double spo2Value = (message['spo2'] as num).toDouble();
               currentSpo2 = spo2Value;
 
+// Parsear timestamp
+      DateTime timestamp = DateTime.parse(message['timestamp']);
+      
+// Guardar último timestamp para mostrar debajo del %SpO2
+      lastTimestamp = timestamp;
               // Guardar en lista global
-              spo2Data.add(SpO2Data(timeIndex++, spo2Value));
+              spo2Data.add(SpO2Data(timeIndex++, spo2Value,timestamp));
 
               // Mantener solo los últimos 100 datos para no crecer indefinidamente
               if (spo2Data.length > 100) {
