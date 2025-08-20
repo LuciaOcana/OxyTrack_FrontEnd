@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/user.dart';
-import '../controllers/userAdminController.dart';
+import '../controllers/userController.dart';
 
 class UserCard extends StatelessWidget {
   final UserModel user;
@@ -80,7 +80,7 @@ Widget build(BuildContext context) {
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  //_showEditDialog(context);
+                  _showEditDialog(context);
                 },
                 icon: const Icon(Icons.edit),
                 label: const Text('Editar'),
@@ -103,15 +103,12 @@ Widget build(BuildContext context) {
   );
 }
 
-/*
+
   void _showEditDialog(BuildContext context) {
-    final UserAdminController _userAdminController = UserAdminController();
+    final UserController _userController = UserController();
 
     // Inicializamos los controllers con los datos del user seleccionado
-    _userAdminController.usernameUserControllerEdit.text = user.username;
-    _userAdminController.emailUserControllerEdit.text = user.email;
-    _userAdminController.nameUserControllerEdit.text = user.name;
-    _userAdminController.passwordUserControllerEdit.text = "";
+_userController.medicationControllerEdit.text = user.medication.join(", ");
 
     showDialog(
       context: context,
@@ -120,7 +117,7 @@ Widget build(BuildContext context) {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: const Text('Editar Usuario', textAlign: TextAlign.center),
+          title: const Text('Editar medicació del usuario', textAlign: TextAlign.center),
           content: SizedBox(
             width: 500,
             height: 350,
@@ -133,39 +130,10 @@ Widget build(BuildContext context) {
                     children: [
                       TextField(
                         controller:
-                            _userAdminController.usernameUserControllerEdit,
-                        decoration: const InputDecoration(labelText: 'Username'),
-                      ),
-                      TextField(
-                        controller: _userAdminController.emailUserControllerEdit,
-                        decoration: const InputDecoration(labelText: 'Email'),
-                      ),
-                      TextField(
-                        controller: _userAdminController.nameUserControllerEdit,
-                        decoration: const InputDecoration(labelText: 'Nombre'),
+                            _userController.medicationControllerEdit,
+                        decoration: const InputDecoration(labelText: 'Medicacion (separe las diferentes medicaciones con una coma ",")'),
                       ),
                       const SizedBox(height: 12),
-
-                      // 🔹 Flag editable
-                      Obx(() {
-                        return SwitchListTile(
-                          title: const Text("Activo"),
-                          value: _userAdminController.isActiveEdit.value,
-                          onChanged: (value) {
-                            _userAdminController.isActiveEdit.value = value;
-                          },
-                        );
-                      }),
-
-                      const SizedBox(height: 12),
-
-                      TextField(
-                        controller:
-                            _userAdminController.passwordUserControllerEdit,
-                        decoration:
-                            const InputDecoration(labelText: 'Contraseña'),
-                        obscureText: true,
-                      ),
                     ],
                   ),
                 ),
@@ -180,9 +148,34 @@ Widget build(BuildContext context) {
             ),
             ElevatedButton(
               onPressed: () async {
+                 final dialogLoading = ValueNotifier(false);
+    dialogLoading.value = true;
                 final originalUsername = user.username;
+// Construimos el mapa completo para enviar al backend
+              final updatedFields = {
+                 "username": user.username ?? "",
+                 "email": user.email ?? "",
+                 "name": user.name ?? "",
+                 "lastname": user.lastname ?? "",
+                 "birthDate": user.birthDate ?? "",
+                 "age": user.age ?? "",
+                 "weight": user.weight ?? "",
+                 "height": user.height ?? "",
+                "medication": _userController.medicationControllerEdit.text.trim().isNotEmpty
+    ? _userController.medicationControllerEdit.text
+        .split(",")                      // divide por comas
+        .map((e) => e.trim())            // limpia espacios
+        .toList()
+    : user.medication,                   // ya debería ser List<String>
+                "doctor": user.doctor ?? "",
+                "password": user.password ?? ""
+              };
 
-                await _userAdminController.updateUser(originalUsername, user);
+              print("🔹 Campos enviados al backend: $updatedFields");
+
+              final success = await _userController.updateUserByDoctor(user.username, updatedFields);
+              print("🔹 Resultado de updateUser: $success");
+                  dialogLoading.value = false;
 
                 Navigator.of(context).pop();
                 if (onEdit != null) onEdit!();
@@ -193,5 +186,5 @@ Widget build(BuildContext context) {
         );
       },
     );
-  }*/
+  }
 }

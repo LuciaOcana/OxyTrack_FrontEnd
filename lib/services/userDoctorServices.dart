@@ -161,7 +161,37 @@ class UserDoctorServices {
   }
 }
 
+Future<int> editUser(String username,Map<String, dynamic> updatedFields) async {
+    try {
+      //Verificamos que tenemos token
+      await _tokenManager.ensureTokenInitialized();
 
+      // Obtener usuarios con paginación
+      print('Obteniendo doctores desde el backend con paginación');
+        Response response = await dio.put(
+        '$baseUrl/doctors/editUserDoctor/$username',
+        data: updatedFields,
+        options: Options(
+          headers: {
+            'Authorization': "Bearer ${_tokenManager.token!}",
+            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
+          },
+        ),
+      );
+
+     
+    print("✅ Respuesta completa del servidor: ${ response.data}");
+
+  if (response.statusCode == 201) {
+        print('Usuario actualizado');
+        return 201;
+      } else {
+        print('Error en la edicióm: ${response.statusCode}');
+        return response.statusCode!;
+      }
+}
+catch(e){print('Excepción en la edición: $e');
+      return -1;}}
 
 
   Map<String, dynamic> logInDoctorJson(logInDoctor) => {

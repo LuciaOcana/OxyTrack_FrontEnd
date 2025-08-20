@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:oxytrack_frontend/models/user.dart';
 import 'package:oxytrack_frontend/services/userServices.dart';
+import 'package:oxytrack_frontend/services/userDoctorServices.dart';
 import 'package:oxytrack_frontend/services/irServices.dart';
 import 'package:oxytrack_frontend/others/sessionManager.dart';
 import 'package:oxytrack_frontend/auth/tokenManager.dart';
@@ -18,6 +19,7 @@ class UserController extends GetxController {
   // 🔹 Servicios y dependencias
   // ---------------------------
   final UserServices _userService = Get.put(UserServices());
+  final UserDoctorServices _userDoctorServices = Get.put(UserDoctorServices());
   final IrService _irService = IrService();
   final tokenManager = TokenManager();
 
@@ -51,6 +53,7 @@ class UserController extends GetxController {
   final TextEditingController birthDateControllerEdit = TextEditingController();
   final TextEditingController heightControllerEdit = TextEditingController();
   final TextEditingController weightControllerEdit = TextEditingController();
+  final TextEditingController medicationControllerEdit = TextEditingController();
   final TextEditingController passwordControllerEdit = TextEditingController();
 
   // ---------------------------
@@ -411,6 +414,54 @@ class UserController extends GetxController {
   }
 }
 
+
+ Future<bool> updateUserByDoctor(
+  String originalUsername,
+  Map<String, dynamic> updatedFieldsFromDialog,
+) async {
+  try {
+    print("🔹 updateUserByDoctor llamado con: $originalUsername y $updatedFieldsFromDialog");
+
+    isLoading.value = true;
+
+    // Construimos los campos a enviar directamente
+    final Map<String, dynamic> updatedFields = {
+      "username": updatedFieldsFromDialog["username"]?.trim() ?? "",
+      "email": updatedFieldsFromDialog["email"]?.trim() ?? "",
+      "name": updatedFieldsFromDialog["name"]?.trim() ?? "",
+      "lastname": updatedFieldsFromDialog["lastname"]?.trim() ?? "",
+      "birthDate": updatedFieldsFromDialog["birthDate"]?.trim() ?? "",
+      "age": updatedFieldsFromDialog["age"] ?? "",
+      "height": updatedFieldsFromDialog["height"]?.trim() ?? "",
+      "weight": updatedFieldsFromDialog["weight"]?.trim() ?? "",
+      "medication": updatedFieldsFromDialog["medication"] ?? [],
+      "doctor": updatedFieldsFromDialog["doctor"] ?? "",
+      "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
+    };
+
+    print("🔹 Campos finales a enviar al backend: $updatedFields");
+
+    final responseCode = await _userDoctorServices.editUser(originalUsername, updatedFields);
+
+    if (responseCode == 200 || responseCode == 201) {
+      Get.snackbar('Éxito', 'Usuario editado exitosamente por el doctor');
+  // Refrescamos los datos del usuario
+  await fetchUser(); // ahora safe porque user es opcional  
+      return true;
+    } else {
+      errorMessage.value = 'Error: Este E-Mail o nombre ya están en uso';
+      Get.snackbar('Error', errorMessage.value);
+      return false;
+    }
+  } catch (e) {
+    print("🔹 Error en updateUser: $e");
+    errorMessage.value = 'Error al actualizar usuario';
+    Get.snackbar('Error', errorMessage.value);
+    return false;
+  } finally {
+    isLoading.value = false;
+  }
+}
 
   /// ======================================================
   /// CAMBIAR CONTRASEÑA
