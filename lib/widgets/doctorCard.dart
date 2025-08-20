@@ -122,8 +122,108 @@ class DoctorCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  // 🔹 Selector múltiple de pacientes
                   Obx(() {
+                    return InkWell(
+                      onTap: () async {
+                        //await _userAdminController.loadPatients(); // 🔹 asegúrate de cargar la lista
+// 🔹 Cargar la lista de pacientes antes de mostrar el diálogo
+  await _userAdminController.loadPatients();
+                        final List<String>?
+                        results = await showDialog<List<String>>(
+                          context: context,
+                          builder: (context) {
+                            List<String> tempSelected = List.from(
+                              _userAdminController.selectedPatientsEdit,
+                            );
+                            return StatefulBuilder(
+                              builder: (context, setState) {
+                                return AlertDialog(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  title: const Text('Seleccionar pacientes'),
+                                  content: SizedBox(
+                                    width: double.maxFinite,
+                                    child: ListView(
+                                      children:
+                                          _userAdminController.patientsList.map(
+                                            (patient) {
+                                              return CheckboxListTile(
+                                                title: Text(patient),
+                                                value: tempSelected.contains(
+                                                  patient,
+                                                ),
+                                                onChanged: (bool? selected) {
+                                                  setState(() {
+                                                    if (selected == true) {
+                                                      tempSelected.add(patient);
+                                                    } else {
+                                                      tempSelected.remove(
+                                                        patient,
+                                                      );
+                                                    }
+                                                  });
+                                                },
+                                              );
+                                            },
+                                          ).toList(),
+                                    ),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed:
+                                          () => Navigator.pop(context, null),
+                                      child: const Text('Cancelar'),
+                                    ),
+                                    ElevatedButton(
+                                      onPressed:
+                                          () => Navigator.pop(
+                                            context,
+                                            tempSelected,
+                                          ),
+                                      child: const Text('Aceptar'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        );
+
+                        if (results != null) {
+                          _userAdminController.selectedPatients.value = results;
+                        }
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 18,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        child: Text(
+                          _userAdminController.selectedPatients.isEmpty
+                              ? 'Seleccionar pacientes'
+                              : _userAdminController.selectedPatients.join(
+                                ', ',
+                              ),
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    );
+                  }),
+
+                  // 🔹 Selector múltiple de pacientes
+                  /*Obx(() {
                     return ListTile(
                       title: const Text("Pacientes asignados"),
                       subtitle: Text(
@@ -188,7 +288,7 @@ class DoctorCard extends StatelessWidget {
                         }
                       },
                     );
-                  }),
+                  }),*/
 
                   const SizedBox(height: 12),
 

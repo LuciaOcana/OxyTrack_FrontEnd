@@ -366,6 +366,9 @@ void _showPasswordLostDialog() {
   );
 }
 
+void _guestPatient (){
+_userController.logInGuest();
+}
 
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
@@ -461,7 +464,7 @@ void _showPasswordLostDialog() {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: _showRegisterDialog,
+                    onPressed: _guestPatient,
                     child: const Text(
                       'Entrar como invitado',
                       style: TextStyle(

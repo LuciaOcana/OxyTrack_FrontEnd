@@ -22,12 +22,10 @@ class BottomNavScaffoldDoctor extends StatelessWidget {
         () => BottomNavigationBar(
           currentIndex: navController.selectedIndex.value,
           onTap: (index) {
-            if (index == 2) {
-              // Índice correspondiente al chat
-              Get.toNamed('/chat'); // Navegar a la lista de usuarios
-            } else {
-              navController.navigateTo(index); // Navegar a otras pantallas
-            }
+            if (index != 2) {
+            navController.navigateTo(index); // navegar
+
+            } 
           },
           elevation: 5, // Sombra suave para el diseño
           type:

@@ -5,12 +5,12 @@ import 'dart:async';
 import 'package:oxytrack_frontend/services/irServices.dart';
 import 'package:oxytrack_frontend/controllers/userController.dart';
 
-class HomePageScreen extends StatefulWidget {
+class HomeGuestPageScreen extends StatefulWidget {
   @override
-  _HomePageScreenState createState() => _HomePageScreenState();
+  _HomeGuestPageScreenState createState() => _HomeGuestPageScreenState();
 }
 
-class _HomePageScreenState extends State<HomePageScreen> {
+class _HomeGuestPageScreenState extends State<HomeGuestPageScreen> {
   final IrService irService = IrService();
   List<SpO2Data> spo2Data = [];
   double? currentSpo2;
@@ -73,7 +73,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout,
+             color: Color(0xFFe2fdff),),
+           
             tooltip: 'Cerrar sesión',
             onPressed: () => _showLogoutDialog(context),
           ),
@@ -82,7 +84,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
       body: Column(
         children: [
-          const SizedBox(height: 40),
+          const SizedBox(height: 60),
           Text(
             currentSpo2 != null
                 ? '${currentSpo2!.toStringAsFixed(1)} %'
@@ -96,9 +98,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
           const SizedBox(height: 5),
           Text(
             'Último registro: $formattedTime',
-            style: const TextStyle(fontSize: 16, color: Colors.grey),
+            style: const TextStyle(fontSize: 16, color: Color(0xFF00B4D8)),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 30),
 
           SizedBox(
             height: 540, // 🔽 Ajusta el alto como quieras (ej: 200, 250, 300)
@@ -106,14 +108,12 @@ class _HomePageScreenState extends State<HomePageScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: SfCartesianChart(
                 title: ChartTitle(
-                  text: 'SpO₂ en tiempo real\n',
+                  text: '% SpO₂ en tiempo real\n',
                   textStyle: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Color(0xFF0096C7),
-
                   ),
-
                 ),
 
                 plotAreaBorderColor: const Color(0xFF0096C7).withOpacity(0),
@@ -149,7 +149,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                     width: 2.5,
                     color: const Color(0xFF0096C7).withOpacity(0.2),
                   ),
-                  title: const AxisTitle(text: 'SpO₂'),
+                  //title: const AxisTitle(text: 'SpO₂'),
                 ),
                 series: <CartesianSeries<SpO2Data, double>>[
                   SplineAreaSeries<SpO2Data, double>(
@@ -171,7 +171,65 @@ class _HomePageScreenState extends State<HomePageScreen> {
     );
   }
 
-  void _showLogoutDialog(BuildContext context) {
+void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          //title: const Text("Confirmar"),
+          content: const Text(
+            "¿Estás seguro de que quieres cerrar sesión?",
+            style: TextStyle(
+              fontSize: 16,
+              color: Color.fromARGB(255, 0, 0, 0),
+              fontFamily: 'OpenSans',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFFE4E1),
+              ),
+              child: const Text(
+                "Cancelar",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFFB31B1B),
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _userController.logout();
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFB31B1B),
+              ),
+              child: const Text(
+                "Cerrar sesión",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFFFFE4E1),
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+  /*void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
       builder:
@@ -195,10 +253,13 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 onPressed: () {
                   _userController.logout();
                 },
-                child: const Text("Cerrar sesión"),
+                child: const Text(
+                  "Cerrar sesión",
+                  style: TextStyle(color: Color(0xFFFFE4E1)),
+                ),
               ),
             ],
           ),
     );
   }
-}
+}*/

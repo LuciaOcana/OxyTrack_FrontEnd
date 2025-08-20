@@ -258,17 +258,16 @@ class UserAdminController extends GetxController {
 
 
 
-  void loadPatients() async {
-    try {
-      final patients =
-          await _userAdminServices
-              .getUsersWNDoctor(); // Debe devolver lista de nombres
-      patientsList.value = patients; // Actualiza la lista reactiva
-      print("pacientes: $patients");
-    } catch (e) {
-      print("Error cargando pacientes: $e");
-    }
+  Future<void> loadPatients() async {
+  try {
+    final patients = await _userAdminServices.getUsersWNDoctor(); // Debe devolver lista de nombres
+    patientsList.value = patients; // Actualiza la lista reactiva
+    print("pacientes: $patients");
+  } catch (e) {
+    print("Error cargando pacientes: $e");
   }
+}
+
 
   void logout() async {
     try {

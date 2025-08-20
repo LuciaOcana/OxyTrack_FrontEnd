@@ -156,6 +156,49 @@ class UserController extends GetxController {
     }
   }
 
+   void logInGuest() async {
+    
+    print('🟢 Iniciando sesión desde UserController...');
+
+    final logInGuest = (
+      username: "GuestPatient",
+      password: "123456Aa%",
+    );
+
+    isLoading.value = true;
+    errorMessage.value = '';
+
+    try {
+      final responseCode = await _userService.logIn(logInGuest);
+      final token = await tokenManager.getToken(); // Recupera token guardado
+
+      print('🔍 Respuesta del backend: $responseCode');
+
+      if (responseCode == 200) {
+        Get.snackbar('Éxito', 'Inicio de sesión exitoso');
+        
+        Get.toNamed('/homeGuest');
+        await SessionManager.saveSession(
+          "user",
+          token,
+          logInGuest.username,
+        );
+        _irService.connect();
+      } else if (responseCode == 300) {
+        errorMessage.value = 'Usuario deshabilitado'.tr;
+        Get.snackbar('Advertencia', errorMessage.value);
+      } else {
+        errorMessage.value = 'Usuario o contraseña incorrectos'.tr;
+        Get.snackbar('Error', errorMessage.value);
+      }
+    } catch (e) {
+      errorMessage.value = 'Error: No se pudo conectar con la API';
+      Get.snackbar('Error', errorMessage.value);
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   /// ======================================================
   /// REGISTRO DE USUARIO
   /// ======================================================
