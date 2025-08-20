@@ -44,13 +44,44 @@ class UserController extends GetxController {
   final TextEditingController weightControllerEdit = TextEditingController();
   final TextEditingController passwordControllerEdit = TextEditingController();
 
+
+final TextEditingController usernamePasswLostController = TextEditingController();
+  final TextEditingController passwordPasswLostController = TextEditingController();
+    final TextEditingController confirmPasswordController = TextEditingController();
+
+
+
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
     final tokenManager = TokenManager();
   final Rxn<UserModel> userModel = Rxn<UserModel>();
 
-
+// Funcion para guardar el usuario en el sharedPreference
+Future<void> saveUserSession(UserModel user, String role) async {
+  final prefs = await SharedPreferences.getInstance();
+  prefs.setString('user_name', user.name);
+  prefs.setString('user_email', user.email);
+  prefs.setString('user_role', 'user'); // 'user', 'admin', 'doctor'
+}
  
+/// Obtiene el usuario desde el backend y lo guarda en el controlador
+  Future<UserModel?> fetchUser() async {
+    try {
+      final username = await SessionManager.getUsername();
+      if (username != null) {
+        final user = await _userService.getUser(username);
+        userModel.value = user;
+        return user;
+      } else {
+        print('No se encontró el username en sesión');
+        return null;
+      }
+    } catch (e) {
+      print('Error al obtener el usuario: $e');
+      return null;
+    }
+  }
+
   void logIn() async {
     if (usernameLogInController.text.isEmpty || passwordLogInController.text.isEmpty) {
       Get.snackbar(
@@ -101,13 +132,7 @@ class UserController extends GetxController {
       isLoading.value = false;
     }
   }
-// Funcion para guardar el usuario en el sharedPreference
-Future<void> saveUserSession(UserModel user, String role) async {
-  final prefs = await SharedPreferences.getInstance();
-  prefs.setString('user_name', user.name);
-  prefs.setString('user_email', user.email);
-  prefs.setString('user_role', 'user'); // 'user', 'admin', 'doctor'
-}
+
 
   // Registro de usuario
 
@@ -129,7 +154,7 @@ Future<void> saveUserSession(UserModel user, String role) async {
       return;
     }
 
-    /* // Validación de formato de correo electrónico
+    // Validación de formato de correo electrónico
     if (!GetUtils.isEmail(emailController.text)) {
       errorMessage.value = 'Correo electrónico no válido';
       Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
@@ -143,7 +168,7 @@ Future<void> saveUserSession(UserModel user, String role) async {
           'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
       Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
       return;
-    }*/
+    }
 
     isLoading.value = true;
 
@@ -193,19 +218,38 @@ Future<void> saveUserSession(UserModel user, String role) async {
 
   Future<bool> updateUser(String originalUsername, UserModel originalDoctor) async {
   try {
-        isLoading.value = true;
-
+    isLoading.value = true;
     final Map<String, dynamic> updatedFields = {};
 
-    // 👇 Solo añadimos al body lo que realmente cambió
+    // 👇 Solo validamos si el email fue modificado
+    if (emailControllerEdit.text.trim().isNotEmpty &&
+        emailControllerEdit.text.trim() != originalDoctor.email) {
+      if (!GetUtils.isEmail(emailControllerEdit.text.trim())) {
+        errorMessage.value = 'Correo electrónico no válido';
+        Get.snackbar('Error', errorMessage.value,
+            snackPosition: SnackPosition.BOTTOM);
+        return false;
+      }
+      updatedFields["email"] = emailControllerEdit.text.trim();
+    }
+
+    // 👇 Solo validamos si la contraseña fue modificada
+    if (passwordControllerEdit.text.trim().isNotEmpty) {
+      final regex = RegExp(
+          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$');
+      if (!regex.hasMatch(passwordControllerEdit.text.trim())) {
+        errorMessage.value =
+            'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
+        Get.snackbar('Error', errorMessage.value,
+            snackPosition: SnackPosition.BOTTOM);
+        return false;
+      }
+      updatedFields["password"] = passwordControllerEdit.text.trim();
+    }
+
     if (usernameControllerEdit.text.trim().isNotEmpty &&
         usernameControllerEdit.text.trim() != originalDoctor.username) {
       updatedFields["username"] = usernameControllerEdit.text.trim();
-    }
-
-    if (emailControllerEdit.text.trim().isNotEmpty &&
-        emailControllerEdit.text.trim() != originalDoctor.email) {
-      updatedFields["email"] = emailControllerEdit.text.trim();
     }
 
     if (nameControllerEdit.text.trim().isNotEmpty &&
@@ -218,27 +262,27 @@ Future<void> saveUserSession(UserModel user, String role) async {
       updatedFields["lastname"] = lastnameControllerEdit.text.trim();
     }
 
-   if (birthDateControllerEdit.text.trim().isNotEmpty &&
+    if (birthDateControllerEdit.text.trim().isNotEmpty &&
         birthDateControllerEdit.text.trim() != originalDoctor.birthDate) {
       updatedFields["birthDate"] = birthDateControllerEdit.text.trim();
     }
+
     if (heightControllerEdit.text.trim().isNotEmpty &&
         heightControllerEdit.text.trim() != originalDoctor.height) {
       updatedFields["height"] = heightControllerEdit.text.trim();
     }
+
     if (weightControllerEdit.text.trim().isNotEmpty &&
         weightControllerEdit.text.trim() != originalDoctor.weight) {
       updatedFields["weight"] = weightControllerEdit.text.trim();
     }
 
-    if (passwordControllerEdit.text.trim().isNotEmpty) {
-      updatedFields["password"] = passwordControllerEdit.text.trim();
-    }
-
+    // 🚨 Si no hay cambios
     if (updatedFields.isEmpty) {
       Get.snackbar('Info', 'No se han realizado cambios');
       return false;
     }
+
     print('----------------- $updatedFields');
 
     final responseCode =
@@ -272,23 +316,58 @@ Future<void> saveUserSession(UserModel user, String role) async {
   }
 }
 
-/// Obtiene el usuario desde el backend y lo guarda en el controlador
-  Future<UserModel?> fetchUser() async {
-    try {
-      final username = await SessionManager.getUsername();
-      if (username != null) {
-        final user = await _userService.getUser(username);
-        userModel.value = user;
-        return user;
-      } else {
-        print('No se encontró el username en sesión');
-        return null;
-      }
-    } catch (e) {
-      print('Error al obtener el usuario: $e');
-      return null;
+void changePassword() async {
+  try {
+    final username = usernamePasswLostController.text.trim();
+    final newPassword = passwordPasswLostController.text.trim();
+    final confirmPassword = confirmPasswordController.text.trim();
+
+    // Validaciones
+    if (username.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
+      Get.snackbar('Error', 'Todos los campos son requeridos',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
     }
+
+    if (newPassword != confirmPassword) {
+      Get.snackbar('Error', 'Las contraseñas no coinciden',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    final regex = RegExp(
+        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$');
+    if (!regex.hasMatch(newPassword)) {
+      Get.snackbar(
+          'Error',
+          'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial',
+          snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    // 🚀 Llamada al service con el body
+    final responseCode = await _userService.updatePassword({
+      "username": username,
+      "newPassword": newPassword,
+    });
+
+print(responseCode);
+    if (responseCode == 200) {
+      Get.snackbar("Éxito", "Contraseña cambiada correctamente",
+          snackPosition: SnackPosition.BOTTOM);
+      usernamePasswLostController.clear();
+      passwordPasswLostController.clear();
+      passwordController.clear();
+    } else {
+      Get.snackbar("Error", "No se pudo cambiar la contraseña ($responseCode)",
+          snackPosition: SnackPosition.BOTTOM);
+    }
+  } catch (e) {
+    Get.snackbar("Error", "Error inesperado: $e",
+        snackPosition: SnackPosition.BOTTOM);
   }
+}
+
 
   void logout() async {
     try {

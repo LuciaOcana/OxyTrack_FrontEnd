@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:intl/intl.dart';
 import 'dart:async';
-import 'package:oxytrack_frontend/services/irServices.dart';
+import 'package:oxytrack_frontend/services/irServices.dart'; 
 import 'package:oxytrack_frontend/controllers/userController.dart';
 
 class HomePageScreen extends StatefulWidget {
@@ -54,10 +54,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
 
   @override
   Widget build(BuildContext context) {
-    String formattedTime =
-        lastTimestamp != null
-            ? DateFormat('HH:mm:ss').format(lastTimestamp!)
-            : '--:--:--';
+    String formattedTime = lastTimestamp != null
+        ? DateFormat('HH:mm:ss').format(lastTimestamp!)
+        : '--:--:--';
 
     return Scaffold(
       appBar: AppBar(
@@ -79,10 +78,9 @@ class _HomePageScreenState extends State<HomePageScreen> {
           ),
         ],
       ),
-
       body: Column(
         children: [
-          const SizedBox(height: 40),
+          const SizedBox(height: 20),
           Text(
             currentSpo2 != null
                 ? '${currentSpo2!.toStringAsFixed(1)} %'
@@ -98,49 +96,30 @@ class _HomePageScreenState extends State<HomePageScreen> {
             'Último registro: $formattedTime',
             style: const TextStyle(fontSize: 16, color: Colors.grey),
           ),
-          const SizedBox(height: 20),
-
-          SizedBox(
-            height: 540, // 🔽 Ajusta el alto como quieras (ej: 200, 250, 300)
+          const SizedBox(height: 10),
+          const Text(
+            'SpO₂ Actual',
+            style: TextStyle(fontSize: 18, color: Colors.grey),
+          ),
+          const SizedBox(height: 15),
+          Expanded(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: SfCartesianChart(
                 title: ChartTitle(
-                  text: 'SpO₂ en tiempo real\n',
+                  text: 'SpO₂ en tiempo real',
                   textStyle: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF0096C7),
-
+                    color: Colors.blue[900],
                   ),
-
                 ),
-
                 plotAreaBorderColor: const Color(0xFF0096C7).withOpacity(0),
                 plotAreaBorderWidth: 1,
                 tooltipBehavior: _tooltipBehavior,
                 primaryXAxis: NumericAxis(
-                  isVisible: true,
-                  interval:
-                      (spo2Data.isNotEmpty)
-                          ? (spo2Data.last.time / 6)
-                              .ceilToDouble() // fuerza 6 marcas
-                          : 1,
-                  axisLabelFormatter: (AxisLabelRenderDetails details) {
-                    return ChartAxisLabel('', TextStyle()); // ❌ sin etiquetas
-                  },
-                  
-                  majorTickLines: const MajorTickLines(
-                    width: 1.5, // grosor de la rayita
-                    size: 6, // tamaño de la rayita
-                    color: Color(0xFF0096C7), // color de la rayita
-                  ),
-                  majorGridLines: const MajorGridLines(
-                    width: 0,
-                  ), // ❌ sin líneas verticales
-                  title: const AxisTitle(text: 'Tiempo'),
+                  isVisible: false, // ocultar eje X
                 ),
-
                 primaryYAxis: NumericAxis(
                   minimum: 80,
                   maximum: 100,
@@ -174,31 +153,30 @@ class _HomePageScreenState extends State<HomePageScreen> {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            content: const Text(
-              "¿Estás segura de que quieres cerrar sesión?",
-              style: TextStyle(fontSize: 16),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancelar"),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB31B1B),
-                ),
-                onPressed: () {
-                  _userController.logout();
-                },
-                child: const Text("Cerrar sesión"),
-              ),
-            ],
+      builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        content: const Text(
+          "¿Estás segura de que quieres cerrar sesión?",
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancelar"),
           ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFFB31B1B),
+            ),
+            onPressed: () {
+              _userController.logout();
+            },
+            child: const Text("Cerrar sesión"),
+          ),
+        ],
+      ),
     );
   }
 }

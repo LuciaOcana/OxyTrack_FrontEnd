@@ -139,6 +139,42 @@ catch(e){print('Excepción en getUser: $e');
 
 
 
+
+Future<int> updatePassword (Map<String, dynamic> fields) async {
+    try {
+      //Verificamos que tenemos token
+      //await _tokenManager.ensureTokenInitialized();
+
+      // Obtener usuarios con paginación
+      print('Obteniendo doctores desde el backend con paginación');
+        Response response = await dio.post(
+        '$baseUrl/users/resetPassword',
+        data: fields,
+        options: Options(
+          headers: {
+            //'Authorization': "Bearer ${_tokenManager.token!}",
+            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
+          },
+        ),
+      );
+
+     
+    print("✅ Respuesta completa del servidor: ${ response.data}");
+
+  if (response.statusCode == 201) {
+        print('Usuario actualizado');
+        return 201;
+      } else {
+        print('Error en la edicióm: ${response.statusCode}');
+        return response.statusCode!;
+      }
+}
+catch(e){print('Excepción en la edición: $e');
+      return -1;}}
+
+
+
+
     Future<int> logOut() async {
     try {
       print('Enviando solicitud de LogIn');
