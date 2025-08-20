@@ -139,27 +139,31 @@ class UserDoctorServices {
     }
   }
 //usuarios paginados
-  Future<int> newPassword(String username, String newPassword) async {
-  try {
-    await _tokenManager.ensureTokenInitialized();
+  
+Future<int> updatePassword (Map<String, dynamic> fields) async {
+    try {
+      // Obtener usuarios con paginación
+      print('Obteniendo doctores desde el backend con paginación');
+        Response response = await dio.post(
+        '$baseUrl/doctors/resetPasswordDoctor',
+        data: fields
+      );
 
-    print('🔐 Enviando nueva contraseña para el usuario $username');
+     
+    print("✅ Respuesta completa del servidor: ${ response.data}");
 
-    var res = await dio.put(
-      '$baseUrl/doctors/editPassDoctor/$username',
-      data:  {'password': "$newPassword"}, // Enviar nueva contraseña
-      options: Options(
-        headers: {'Authorization': "Bearer ${_tokenManager.token!}"},
-      ),
-    );
-
-    print("✅ Contraseña actualizada: ${res.data}");
-    return 1;
-  } catch (e) {
-    print("❌ Error al actualizar la contraseña: $e");
-    throw e;
-  }
+  if (response.statusCode == 201) {
+        print('Doctor actualizado');
+        return 201;
+      } else {
+        print('Error en la edicióm: ${response.statusCode}');
+        return response.statusCode!;
+      }
 }
+catch(e){print('Excepción en la edición: $e');
+      return -1;}}
+
+
 
 Future<int> editUser(String username,Map<String, dynamic> updatedFields) async {
     try {

@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:oxytrack_frontend/services/userDoctorServices.dart';
+import 'package:oxytrack_frontend/others/sessionManager.dart';
+import 'package:oxytrack_frontend/auth/tokenManager.dart';
+
 
 class UserDoctorController extends GetxController {
   final UserDoctorServices _userDoctorServices= Get.put(UserDoctorServices());
+
+  final tokenManager = TokenManager();
 
     // Variables del Log In de doctor
   final TextEditingController usernameLogInDoctorController =
@@ -11,8 +16,16 @@ class UserDoctorController extends GetxController {
   final TextEditingController passwordLogInDoctorController =
       TextEditingController();
 
+
+        final TextEditingController passwordPasswLostControllerDoctor =
+      TextEditingController();
+  final TextEditingController confirmPasswordControllerDoctor =
+      TextEditingController();
+
+
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+
 
   void logIn() async {
     if (usernameLogInDoctorController.text.isEmpty || passwordLogInDoctorController.text.isEmpty) {
@@ -36,11 +49,17 @@ class UserDoctorController extends GetxController {
 
     try {
       final responseCode = await _userDoctorServices.logInDoctor(logInDoctor);
+      final token = await tokenManager.getToken(); // Recupera token guardado
 
       print('🔍 Respuesta del backend: $responseCode');
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
+        await SessionManager.saveSession(
+          "doctor",
+          token,
+          usernameLogInDoctorController.text,
+        );
         Get.toNamed('/doctorPatientListPage');  //ESTO HAY QUE CAMBIARLO POR LA PAGINA PRINCIPAL DE DOCTOR
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
@@ -56,30 +75,73 @@ class UserDoctorController extends GetxController {
       isLoading.value = false;
     }
   }
-void passwordChange(String newPass, String confirmNewPass) async {
-  try {
-    if (newPass == confirmNewPass && newPass.isNotEmpty) {
-      final responseCode = await _userDoctorServices.newPassword(usernameLogInDoctorController.text, newPass); // Llamada al backend
-            print('🔍 Respuesta del backend: $responseCode');
 
-if (responseCode == 200) {
-      Get.snackbar("Éxito", "Contraseña cambiada correctamente",
+void changeDoctorPassword() async {
+    try {
+      final String? username = await SessionManager.getUsername();
+      final newPassword = passwordPasswLostControllerDoctor.text.trim();
+      final confirmPassword = confirmPasswordControllerDoctor.text.trim();
+
+print(username);
+      // Validaciones de campos
+      if (newPassword.isEmpty || confirmPassword.isEmpty) {
+        Get.snackbar(
+          'Error',
+          'Todos los campos son requeridos',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.shade400,
-          colorText: Colors.white);
-    }} else {
-      Get.snackbar("Error", "Las contraseñas no coinciden",
+        );
+        return;
+      }
+
+      if (newPassword != confirmPassword) {
+        Get.snackbar(
+          'Error',
+          'Las contraseñas no coinciden',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.shade400,
-          colorText: Colors.white);
-    }
-  } catch (e) {
-    Get.snackbar("Error", "No se pudo cambiar la contraseña",
+        );
+        return;
+      }
+
+      // Validación de contraseña segura
+      final regex = RegExp(
+        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$',
+      );
+      if (!regex.hasMatch(newPassword)) {
+        Get.snackbar(
+          'Error',
+          'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial',
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        return;
+      }
+
+      // Llamada al servicio
+      final responseCode = await _userDoctorServices.updatePassword({
+        "username": username,
+        "newPassword": newPassword,
+      });
+      print('🔍 Respuesta del backend: $responseCode');
+
+      if (responseCode == 200) {
+        Get.snackbar(
+          "Éxito",
+          "Contraseña cambiada correctamente",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+        passwordPasswLostControllerDoctor.clear();
+      } else {
+        Get.snackbar(
+          "Error",
+          "No se pudo cambiar la contraseña ($responseCode)",
+          snackPosition: SnackPosition.BOTTOM,
+        );
+      }
+    } catch (e) {
+      Get.snackbar(
+        "Error",
+        "Error inesperado: $e",
         snackPosition: SnackPosition.BOTTOM,
-        backgroundColor: Colors.red.shade400,
-        colorText: Colors.white);
-    print("❌ Error en passwordChange: $e");
+      );
+    }
   }
-}
-
 }

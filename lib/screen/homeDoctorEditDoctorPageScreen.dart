@@ -69,30 +69,6 @@ class _HomeDoctorEditDoctorPageScreenState
                 _showChangePasswordDialog(context);
               },
             ),
-            const SizedBox(height: 16),
-            _actionButton(
-              icon: Icons.edit_note,
-              text: "Solicitud de cambio de perfil",
-              onTap: () {
-                _showEmailDialog(
-                  context,
-                  "Solicitud de cambio de perfil",
-                  "Describe los cambios que deseas realizar en tu perfil:",
-                );
-              },
-            ),
-            const SizedBox(height: 16),
-            _actionButton(
-              icon: Icons.people,
-              text: "Solicitud de cambio de paciente",
-              onTap: () {
-                _showEmailDialog(
-                  context,
-                  "Solicitud de cambio de paciente",
-                  "Describe los detalles de la solicitud de cambio de paciente:",
-                );
-              },
-            ),
           ],
         ),
       ),
@@ -123,8 +99,6 @@ class _HomeDoctorEditDoctorPageScreenState
 
   /// 🔹 Dialog para cambiar contraseña
   void _showChangePasswordDialog(BuildContext context) {
-    final TextEditingController passCtrl = TextEditingController();
-    final TextEditingController confirmCtrl = TextEditingController();
 
     showDialog(
       context: context,
@@ -135,12 +109,12 @@ class _HomeDoctorEditDoctorPageScreenState
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: passCtrl,
+              controller: _userDoctorController.passwordPasswLostControllerDoctor,
               decoration: const InputDecoration(labelText: "Nueva contraseña"),
               obscureText: true,
             ),
             TextField(
-              controller: confirmCtrl,
+              controller: _userDoctorController.confirmPasswordControllerDoctor,
               decoration:
                   const InputDecoration(labelText: "Confirmar contraseña"),
               obscureText: true,
@@ -156,54 +130,11 @@ class _HomeDoctorEditDoctorPageScreenState
             onPressed: () {
               
                 // 🔹 Lógica para cambiar contraseña
-                _userDoctorController.passwordChange(passCtrl.text, confirmCtrl.text);
+                _userDoctorController.changeDoctorPassword();
                 Navigator.pop(context);
                 
             },
             child: const Text("Guardar"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// 🔹 Dialog genérico para redactar email
-  void _showEmailDialog(BuildContext context, String title, String hint) {
-    final TextEditingController msgCtrl = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(title),
-        content: TextField(
-          controller: msgCtrl,
-          maxLines: 6,
-          decoration: InputDecoration(
-            hintText: hint,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (msgCtrl.text.isNotEmpty) {
-                // 🔹 Aquí enviarías el mail al admin
-                Navigator.pop(context);
-                Get.snackbar("Enviado",
-                    "Tu solicitud ha sido enviada al administrador",
-                    snackPosition: SnackPosition.BOTTOM,
-                    backgroundColor: Colors.blue.shade400,
-                    colorText: Colors.white);
-              }
-            },
-            child: const Text("Enviar"),
           ),
         ],
       ),
