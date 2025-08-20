@@ -121,7 +121,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                 tooltipBehavior: _tooltipBehavior,
                 primaryXAxis: NumericAxis(
                   isVisible: true,
-                  interval:
+                  /*interval:
                       (spo2Data.isNotEmpty)
                           ? (spo2Data.last.time / 6)
                               .ceilToDouble() // fuerza 6 marcas
@@ -137,7 +137,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
                   ),
                   majorGridLines: const MajorGridLines(
                     width: 0,
-                  ), // ❌ sin líneas verticales
+                  ), // ❌ sin líneas verticales*/
                   title: const AxisTitle(text: 'Tiempo'),
                 ),
 

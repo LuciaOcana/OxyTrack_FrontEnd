@@ -17,8 +17,10 @@ class UserProfileScreen extends StatefulWidget {
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final RxString name = ''.obs;
   final RxString email = ''.obs;
-  final UserController _userController = Get.put(UserController());
+final RxBool isLoading = false.obs; // Defínelo dentro de _UserProfileScreenState
 
+
+  final UserController _userController = Get.put(UserController());
   UserModel? userModel;
 
   @override
@@ -29,51 +31,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   }
 
   Future<void> loadUserData() async {
+    isLoading.value = true;
     final username = await SessionManager.getUsername();
     if (username != null) {
-      userModel = await _userController.fetchUser();
-      if (userModel != null) {
+      final fetchedUser = await _userController.fetchUser();
+      if (fetchedUser != null) {
+        userModel = fetchedUser;
         name.value = userModel!.name;
         email.value = userModel!.email;
       }
     }
+    isLoading.value = false;
     setState(() {});
-  }
-
-
-
-  void _showLogoutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: const Text("¿Estás segura de que quieres cerrar sesión?",
-            style: TextStyle(fontSize: 16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB31B1B),
-            ),
-            onPressed: () {
-              _userController.logout();
-            },
-            child: const Text("Cerrar sesión"),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
     if (userModel == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     return Scaffold(
@@ -96,7 +71,15 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           ),
         ],
       ),
-      body: Center(
+      
+      body: Obx(() {
+        if (isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (userModel == null) {
+          return const Center(child: Text('No se pudo cargar el usuario'));
+        }
+      return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -104,23 +87,27 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             children: [
               const Text("👤", style: TextStyle(fontSize: 80)),
               const SizedBox(height: 20),
-              Obx(() => Text(
-                    name.value,
-                    style: const TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'OpenSans',
-                    ),
-                  )),
+              Obx(
+                () => Text(
+                  name.value,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'OpenSans',
+                  ),
+                ),
+              ),
               const SizedBox(height: 8),
-              Obx(() => Text(
-                    email.value,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
-                      fontFamily: 'OpenSans',
-                    ),
-                  )),
+              Obx(
+                () => Text(
+                  email.value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                    fontFamily: 'OpenSans',
+                  ),
+                ),
+              ),
               const SizedBox(height: 40),
               ElevatedButton.icon(
                 onPressed: () {
@@ -153,13 +140,46 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     fontSize: 16,
                     fontFamily: 'OpenSans',
                     fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
+              ],
+            ),
+          ),
+        );
+      }),
+    );
+  }
+
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            content: const Text(
+              "¿Estás segura de que quieres cerrar sesión?",
+              style: TextStyle(fontSize: 16),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Cancelar"),
+              ),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB31B1B),
+                ),
+                onPressed: () {
+                  _userController.logout();
+                },
+                child: const Text("Cerrar sesión"),
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 }
@@ -170,6 +190,7 @@ void _showEditDialog(
   UserController userController,
   VoidCallback onSaved,
 ) {
+  // Inicializamos los controladores con los datos actuales
   userController.usernameControllerEdit.text = user.username;
   userController.emailControllerEdit.text = user.email;
   userController.nameControllerEdit.text = user.name;
@@ -178,17 +199,6 @@ void _showEditDialog(
   userController.heightControllerEdit.text = user.height;
   userController.weightControllerEdit.text = user.weight;
   userController.passwordControllerEdit.text = "";
-
-  bool hasUserChanged(UserModel user, UserController controller) {
-    return controller.usernameControllerEdit.text != user.username ||
-        controller.emailControllerEdit.text != user.email ||
-        controller.nameControllerEdit.text != user.name ||
-        controller.lastnameControllerEdit.text != user.lastname ||
-        controller.birthDateControllerEdit.text != user.birthDate ||
-        controller.heightControllerEdit.text != user.height ||
-        controller.weightControllerEdit.text != user.weight ||
-        controller.passwordControllerEdit.text.isNotEmpty;
-  }
 
   showDialog(
     context: context,
@@ -255,51 +265,52 @@ void _showEditDialog(
           ),
           ElevatedButton(
             onPressed: () async {
-              if (!hasUserChanged(user, userController)) {
-                Get.snackbar('Sin cambios', 'No se ha modificado ningún dato');
-                return;
-              }
+              final dialogLoading = ValueNotifier(false);
+    dialogLoading.value = true;
+              print("🔹 Botón Guardar presionado");
 
-              final updatedUser = UserModel(
-                username: userController.usernameControllerEdit.text.isNotEmpty
-                    ? userController.usernameControllerEdit.text
+              // Construimos el mapa completo para enviar al backend
+              final updatedFields = {
+                "username": userController.usernameControllerEdit.text.trim().isNotEmpty
+                    ? userController.usernameControllerEdit.text.trim()
                     : user.username,
-                email: userController.emailControllerEdit.text.isNotEmpty
-                    ? userController.emailControllerEdit.text
+                "email": userController.emailControllerEdit.text.trim().isNotEmpty
+                    ? userController.emailControllerEdit.text.trim()
                     : user.email,
-                name: userController.nameControllerEdit.text.isNotEmpty
-                    ? userController.nameControllerEdit.text
+                "name": userController.nameControllerEdit.text.trim().isNotEmpty
+                    ? userController.nameControllerEdit.text.trim()
                     : user.name,
-                lastname: userController.lastnameControllerEdit.text.isNotEmpty
-                    ? userController.lastnameControllerEdit.text
+                "lastname": userController.lastnameControllerEdit.text.trim().isNotEmpty
+                    ? userController.lastnameControllerEdit.text.trim()
                     : user.lastname,
-                birthDate: userController.birthDateControllerEdit.text.isNotEmpty
-                    ? userController.birthDateControllerEdit.text
+                "birthDate": userController.birthDateControllerEdit.text.trim().isNotEmpty
+                    ? userController.birthDateControllerEdit.text.trim()
                     : user.birthDate,
-                height: userController.heightControllerEdit.text.isNotEmpty
-                    ? userController.heightControllerEdit.text
+                "age": user.age ?? "",
+                "height": userController.heightControllerEdit.text.trim().isNotEmpty
+                    ? userController.heightControllerEdit.text.trim()
                     : user.height,
-                weight: userController.weightControllerEdit.text.isNotEmpty
-                    ? userController.weightControllerEdit.text
+                "weight": userController.weightControllerEdit.text.trim().isNotEmpty
+                    ? userController.weightControllerEdit.text.trim()
                     : user.weight,
-                password: userController.passwordControllerEdit.text.isNotEmpty
-                    ? userController.passwordControllerEdit.text
+                "medication": user.medication ?? [""],
+                "doctor": user.doctor ?? "",
+                "password": userController.passwordControllerEdit.text.trim().isNotEmpty
+                    ? userController.passwordControllerEdit.text.trim()
                     : user.password,
-                medication: user.medication,
-                doctor: user.doctor,
-                age: user.age,
-              );
+              };
 
+              print("🔹 Campos enviados al backend: $updatedFields");
 
-
-              final success = await userController.updateUser(
-                user.username,
-                updatedUser,
-              );
+              final success = await userController.updateUser(user.username, updatedFields);
+              print("🔹 Resultado de updateUser: $success");
+                  dialogLoading.value = false;
 
               if (success) {
                 Navigator.of(context).pop();
                 onSaved();
+              } else {
+                Get.snackbar('Error', 'No se pudo actualizar el usuario');
               }
             },
             child: const Text('Guardar'),
@@ -309,3 +320,4 @@ void _showEditDialog(
     },
   );
 }
+

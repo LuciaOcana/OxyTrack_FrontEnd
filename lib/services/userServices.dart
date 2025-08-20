@@ -79,7 +79,7 @@ Future<int> editUser(String username,Map<String, dynamic> updatedFields) async {
       // Obtener usuarios con paginación
       print('Obteniendo doctores desde el backend con paginación');
         Response response = await dio.put(
-        '$baseUrl/user/editUser/$username',
+        '$baseUrl/users/editUser/$username',
         data: updatedFields,
         options: Options(
           headers: {
