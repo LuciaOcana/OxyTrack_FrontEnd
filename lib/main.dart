@@ -17,6 +17,8 @@ import 'package:oxytrack_frontend/screen/homeDoctorPatientsListPageScreen.dart';
 import 'package:oxytrack_frontend/screen/homeDoctorEditDoctorPageScreen.dart';
 import 'package:oxytrack_frontend/screen/homeAdminDoctorListPageScreen.dart';
 import 'package:oxytrack_frontend/screen/homeAdminAddDoctorPageScreen.dart';
+import 'package:oxytrack_frontend/screen/homeGuestPageScreen.dart';
+
 
 // Otros widgets o pantallas compartidas
 import 'package:oxytrack_frontend/screen/bluetoothScreen.dart';
@@ -94,6 +96,9 @@ class MyApp extends StatelessWidget {
           GetPage(name: '/logIn', page: () => logInScreen()),
           GetPage(name: '/homeUser', page: () => BottomNavScaffold(child: HomePageScreen())),
           GetPage(name: '/profileUser', page: () => BottomNavScaffold(child: UserProfileScreen())),
+
+          // Ucuario invitado
+          GetPage(name: '/homeGuest', page: () => HomeGuestPageScreen()),
 
           // Doctor
           GetPage(name: '/loginDoctor', page: () => LogInDoctorScreen()),
