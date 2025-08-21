@@ -6,13 +6,13 @@ import '../controllers/userController.dart';
 class UserCard extends StatelessWidget {
   final UserModel user;
   final VoidCallback? onEdit;
-  final bool hasNotification; // 🔹 Nueva propiedad
+  final RxBool hasNotification;
 
   const UserCard({
     Key? key,
     required this.user,
     this.onEdit,
-    this.hasNotification = false, // 🔹 Por defecto false
+    required this.hasNotification,
   }) : super(key: key);
 
   @override
@@ -20,10 +20,7 @@ class UserCard extends StatelessWidget {
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(
-          color: Color(0xFF0096C7),
-          width: 2,
-        ),
+        side: const BorderSide(color: Color(0xFF0096C7), width: 2),
       ),
       elevation: 4,
       margin: const EdgeInsets.symmetric(horizontal: 2, vertical: 8),
@@ -45,13 +42,28 @@ class UserCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                if (hasNotification)
-                  const Icon(
-                    Icons.notification_important,
-                    color: Colors.red,
-                  ),
+                Obx(() => Row(
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 300),
+                          width: 12,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: hasNotification.value
+                                ? Colors.green
+                                : Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        if (hasNotification.value)
+                          const Icon(Icons.notification_important,
+                              color: Colors.red),
+                      ],
+                    )),
               ],
             ),
+
             const SizedBox(height: 8),
 
             // 🔹 Username
@@ -62,12 +74,7 @@ class UserCard extends StatelessWidget {
             const SizedBox(height: 4),
 
             // 🔹 Email
-            Text(
-              'Email: ${user.email}',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 12),
-
+            Text('Email: ${user.email}', style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 12),
 
             // 🔹 Botón Editar
@@ -102,8 +109,7 @@ class UserCard extends StatelessWidget {
   void _showEditDialog(BuildContext context) {
     final UserController _userController = UserController();
 
-    _userController.medicationControllerEdit.text =
-        user.medication.join(", ");
+    _userController.medicationControllerEdit.text = user.medication.join(", ");
 
     showDialog(
       context: context,
@@ -127,8 +133,7 @@ class UserCard extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       TextField(
-                        controller:
-                            _userController.medicationControllerEdit,
+                        controller: _userController.medicationControllerEdit,
                         decoration: const InputDecoration(
                           labelText:
                               'Medicacion (separe las diferentes medicaciones con una coma ",")',
@@ -161,20 +166,23 @@ class UserCard extends StatelessWidget {
                   "age": user.age ?? "",
                   "weight": user.weight ?? "",
                   "height": user.height ?? "",
-                  "medication": _userController.medicationControllerEdit.text
-                          .trim()
-                          .isNotEmpty
-                      ? _userController.medicationControllerEdit.text
-                          .split(",")
-                          .map((e) => e.trim())
-                          .toList()
-                      : user.medication,
+                  "medication":
+                      _userController.medicationControllerEdit.text
+                              .trim()
+                              .isNotEmpty
+                          ? _userController.medicationControllerEdit.text
+                              .split(",")
+                              .map((e) => e.trim())
+                              .toList()
+                          : user.medication,
                   "doctor": user.doctor ?? "",
-                  "password": user.password ?? ""
+                  "password": user.password ?? "",
                 };
 
                 final success = await _userController.updateUserByDoctor(
-                    user.username, updatedFields);
+                  user.username,
+                  updatedFields,
+                );
 
                 dialogLoading.value = false;
                 Navigator.of(context).pop();

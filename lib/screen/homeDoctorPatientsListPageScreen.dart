@@ -5,15 +5,20 @@ import '../controllers/userAdminController.dart';
 import '../controllers/userListController.dart';
 import '../models/user.dart';
 import '../widgets/userCard.dart';
+import '../controllers/userCardController.dart';
+import '../services/userDoctorServices.dart';
+import '../others/sessionManager.dart';
 
 class HomeDoctorPatientListPageScreen extends StatefulWidget {
   const HomeDoctorPatientListPageScreen({super.key});
 
   @override
-  State<HomeDoctorPatientListPageScreen> createState() => _HomeDoctorPatientListPageScreenState();
+  State<HomeDoctorPatientListPageScreen> createState() =>
+      _HomeDoctorPatientListPageScreenState();
 }
 
-class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListPageScreen> {
+class _HomeDoctorPatientListPageScreenState
+    extends State<HomeDoctorPatientListPageScreen> {
   final UserAdminController _userAdminController = UserAdminController();
   final UserListController _userListController = Get.put(UserListController());
 
@@ -22,7 +27,19 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
     super.initState();
     _userListController.fetchUsers();
 
-   // _userListController.initNotifications("doctorUsername"); // <-- Cambia por el username real
+    final userDoctorServices = UserDoctorServices();
+    userDoctorServices.connectWS();
+
+    userDoctorServices.notificationsStream.listen((msg) {
+        print("📩 Mensaje recibido: $msg");
+      final patientUsername = msg["patient"]?.toString().trim();
+      final targetDoctor = msg["target"]?.toString().trim();
+      final currentDoctor = SessionManager.doctorUsername?.trim();
+
+      if (patientUsername != null && targetDoctor == currentDoctor) {
+        _userListController.activateNotificationFor(patientUsername);
+      }
+    });
   }
 
   @override
@@ -71,7 +88,9 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
                 itemCount: _userListController.userList.length,
                 itemBuilder: (context, index) {
                   final user = _userListController.userList[index];
-                  final hasNotif = _userListController.userNotifications[user.username] ?? false;
+                  final hasNotif = _userListController
+                          .userNotifications[user.username] ??
+                      false.obs;
 
                   return UserCard(
                     user: user,
@@ -84,7 +103,6 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
           ],
         ),
       ),
-
       floatingActionButton: Obx(
         () => Align(
           alignment: Alignment.bottomCenter,
@@ -147,7 +165,7 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           content: const Text(
-            "¿Estás seguro de que quieres cerrar sesión?",
+            "¿Estás segura de que quieres cerrar sesión?",
             style: TextStyle(
               fontSize: 16,
               color: Color.fromARGB(255, 0, 0, 0),

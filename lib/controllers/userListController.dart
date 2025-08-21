@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:oxytrack_frontend/models/user.dart';
 import 'package:oxytrack_frontend/services/userServices.dart';
 import 'package:oxytrack_frontend/services/userDoctorServices.dart';
-
+import 'package:oxytrack_frontend/others/sessionManager.dart';
 
 class UserListController extends GetxController {
   final isLoading = false.obs;
@@ -12,18 +12,47 @@ class UserListController extends GetxController {
   final limit = 10.obs;
 
   final UserServices userService = UserServices();
-    final UserDoctorServices userDoctorService = UserDoctorServices();
-  final RxMap<String, bool> userNotifications = <String, bool>{}.obs;
+  final UserDoctorServices userDoctorService = UserDoctorServices();
 
+  // 🔔 Mapa de notificaciones por usuario
+  final Map<String, RxBool> userNotifications = {};
 
-   @override
+  @override
   void onInit() {
     super.onInit();
+    _connectToNotifications();
   }
 
+  /// 🔌 Conexión al WebSocket y escucha de notificaciones
+  void _connectToNotifications() {
+    userDoctorService.connectWS();
 
+    userDoctorService.notificationsStream.listen((msg) {
+      final patientUsername = msg["patient"]?.toString().trim();
+      final targetDoctor = msg["target"]?.toString().trim();
+      final currentDoctor = SessionManager.doctorUsername?.trim();
 
+      if (patientUsername != null && targetDoctor == currentDoctor) {
+        activateNotificationFor(patientUsername);
+      }
+    });
+  }
 
+  /// 🔔 Activar notificación visual para un usuario
+  void activateNotificationFor(String username) {
+      print("🔔 Activando notificación para $username");
+    if (!userNotifications.containsKey(username)) {
+      userNotifications[username] = false.obs;
+    }
+    userNotifications[username]!.value = true;
+
+    // 🔕 Apagar la notificación después de unos segundos
+    Future.delayed(const Duration(seconds: 5), () {
+      userNotifications[username]!.value = false;
+    });
+  }
+
+  /// 📦 Obtener usuarios desde el servicio
   Future<void> fetchUsers() async {
     try {
       isLoading.value = true;
@@ -39,6 +68,7 @@ class UserListController extends GetxController {
     }
   }
 
+  /// 📄 Cambiar límite de usuarios por página
   void setLimit(int newLimit) {
     if (limit.value != newLimit) {
       limit.value = newLimit;
@@ -47,11 +77,13 @@ class UserListController extends GetxController {
     }
   }
 
+  /// ⏭️ Página siguiente
   void nextPage() {
     currentPage.value++;
     fetchUsers();
   }
 
+  /// ⏮️ Página anterior
   void previousPage() {
     if (currentPage.value > 1) {
       currentPage.value--;
