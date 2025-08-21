@@ -42,25 +42,38 @@ class UserCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Obx(() => Row(
-                      children: [
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 300),
-                          width: 12,
-                          height: 12,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: hasNotification.value
-                                ? Colors.green
-                                : Colors.grey,
-                          ),
+                Obx(
+                  () => Row(
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 300),
+                        width: 12,
+                        height: 12,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color:
+                              hasNotification.value
+                                  ? Colors.green
+                                  : Colors.grey,
                         ),
-                        const SizedBox(width: 8),
-                        if (hasNotification.value)
-                          const Icon(Icons.notification_important,
-                              color: Colors.red),
-                      ],
-                    )),
+                      ),
+                      const SizedBox(width: 8),
+                      if (hasNotification.value)
+                        const Icon(
+                          Icons.notification_important,
+                          color: Colors.red,
+                        ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: const Icon(Icons.power_settings_new, size: 20),
+                        tooltip: 'Apagar notificación',
+                        onPressed: () {
+                          hasNotification.value = false;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
 

@@ -46,10 +46,6 @@ class UserListController extends GetxController {
     }
     userNotifications[username]!.value = true;
 
-    // 🔕 Apagar la notificación después de unos segundos
-    Future.delayed(const Duration(seconds: 5), () {
-      userNotifications[username]!.value = false;
-    });
   }
 
   /// 📦 Obtener usuarios desde el servicio

@@ -5,7 +5,6 @@ import '../controllers/userAdminController.dart';
 import '../controllers/userListController.dart';
 import '../models/user.dart';
 import '../widgets/userCard.dart';
-import '../controllers/userCardController.dart';
 import '../services/userDoctorServices.dart';
 import '../others/sessionManager.dart';
 
