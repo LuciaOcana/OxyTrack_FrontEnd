@@ -36,7 +36,7 @@ class _LogInAdminScreenState extends State<LogInAdminScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Inicio de Sesión'),
+        title: const Text('Inicio de sesión de administrador'),
         backgroundColor: const Color(0xFF0096C7),
         centerTitle: true,
         automaticallyImplyLeading: true, // ✅ Esto habilita la flecha

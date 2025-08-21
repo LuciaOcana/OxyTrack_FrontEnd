@@ -9,27 +9,20 @@ class SelectorModeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       // ✅ Si el tema es claro, fondo blanco. Si es oscuro, fondo del tema.
-      backgroundColor: Theme.of(context).brightness == Brightness.light
-          ? Colors.white
-          : Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor:
+          Theme.of(context).brightness == Brightness.light
+              ? Colors.white
+              : Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         backgroundColor: const Color(0xFF0096C7),
         centerTitle: true,
         automaticallyImplyLeading: false,
-        title: const Text(
-          'Selector de modo',
-          style: TextStyle(
-            fontFamily: 'OpenSans',
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-            color: Colors.white,
-          ),
-        ),
         // 🌙/☀️ Botón de cambiar tema
         leading: IconButton(
           icon: Icon(
             Theme.of(context).brightness == Brightness.light
-                ? Icons.dark_mode   // si está claro → mostrar luna
+                ? Icons
+                    .dark_mode // si está claro → mostrar luna
                 : Icons.light_mode, // si está oscuro → mostrar sol
             color: Colors.white,
           ),
@@ -62,9 +55,12 @@ class SelectorModeScreen extends StatelessWidget {
               children: [
                 const SizedBox(height: 20),
                 Image.asset(
-                  'lib/others/images/SpO.png',
+                  Theme.of(context).brightness == Brightness.light
+                      ? 'lib/others/images/SpO.png' // 🟢 Imagen para tema claro
+                      : 'lib/others/images/SpODark.png', // 🌑 Imagen para tema oscuro
                   height: 200,
                 ),
+
                 const SizedBox(height: 20),
                 const Text(
                   'Bienvenido a OxyTrack',

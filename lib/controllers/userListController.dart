@@ -19,20 +19,9 @@ class UserListController extends GetxController {
    @override
   void onInit() {
     super.onInit();
-    initNotifications("doctorUsername"); // aquí pasas el username del doctor
   }
 
-  void initNotifications(String doctorUsername) {
-    userDoctorService.connectWS(doctorUsername);
 
-    userDoctorService.notificationsStream.listen((msg) {
-      // Suponiendo que msg contiene 'username' del usuario notificado
-      final username = msg['username'];
-      if (username != null) {
-        userNotifications[username] = true; // marca la notificación
-      }
-    });
-  }
 
 
   Future<void> fetchUsers() async {

@@ -56,6 +56,7 @@ class UserDoctorController extends GetxController {
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
         await SessionManager.saveSession("doctor", token, usernameLogInDoctorController.text);
+  _userDoctorServices.connectWS(); // ✅ Solo una vez
 
         Get.toNamed('/doctorPatientListPage');  //ESTO HAY QUE CAMBIARLO POR LA PAGINA PRINCIPAL DE DOCTOR
       } else if (responseCode == 300) {

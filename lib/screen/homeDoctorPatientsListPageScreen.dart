@@ -21,7 +21,8 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
   void initState() {
     super.initState();
     _userListController.fetchUsers();
-    _userListController.initNotifications("doctorUsername"); // <-- Cambia por el username real
+
+   // _userListController.initNotifications("doctorUsername"); // <-- Cambia por el username real
   }
 
   @override

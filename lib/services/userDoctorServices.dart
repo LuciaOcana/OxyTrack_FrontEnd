@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:oxytrack_frontend/models/user.dart';
 
 import 'package:oxytrack_frontend/models/userDoctor.dart';
+import 'package:oxytrack_frontend/others/sessionManager.dart';
 import 'package:oxytrack_frontend/others/urlFile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -27,8 +28,7 @@ class UserDoctorServices {
   final String wsUrl = 'ws://192.168.1.51:3000/doctor'; // Ajusta IP
   WebSocket? _socket;
 
-  String? _loggedDoctor; // Guarda el doctor logueado en memoria
-
+  String? _loggedDoctor; // variable no final, permite asignar null al desconectarse
 
   final StreamController<Map<String, dynamic>> _notificationController =
       StreamController.broadcast();
@@ -36,56 +36,64 @@ class UserDoctorServices {
   Stream<Map<String, dynamic>> get notificationsStream =>
       _notificationController.stream;
 
-  Future<void> connectWS(String doctorUsername) async {
-    try {
-      _socket = await WebSocket.connect(wsUrl);
-      print('🔌 WebSocket Doctor conectado');
-      _loggedDoctor = doctorUsername; // guardamos el username del doctor logueado
-      print('🔌 WebSocket conectado como doctor $_loggedDoctor');
 
+ Future<void> connectWS() async {
+  try {
+     // Verificar que haya doctor logueado
+      final loggedDoctor = SessionManager.doctorUsername;
+      print("$loggedDoctor");
+      if (loggedDoctor == null) {
+        print("⚠️ No hay doctor logueado en sesión. Conexión WS cancelada.");
+        return;
+      }
 
-      // Enviar auth inicial
-      final authMsg = {
-        "type": "init",
-        "username": doctorUsername,
-                "role": "doctor"
-      };
-      _socket!.add(jsonEncode(authMsg));
+    _socket = await WebSocket.connect(wsUrl);
+    print('🔌 WebSocket Doctor conectado como $_loggedDoctor');
 
-      // Escuchar mensajes
-      _socket!.listen(
-        (data) {
-          print('📩 WS Doctor mensaje: $data');
-          try {
-            final msg = jsonDecode(data);
+    // Enviar auth inicial
+    final authMsg = {
+      "type": "init",
+      "username": loggedDoctor,
+      "role": "doctor",
+    };
+    _socket!.add(jsonEncode(authMsg));
 
- // 🔍 Filtrar: solo notificaciones que tengan target = doctor logueado
-           if (_loggedDoctor != null &&
-    msg["target"]?.toString().toLowerCase().trim() ==
-        _loggedDoctor!.toLowerCase().trim()) {
-  print("✅ Notificación válida para $_loggedDoctor");
-  _notificationController.add(msg);
-} else {
-  print("⚠️ Notificación ignorada (no es para $_loggedDoctor)");
-}
+    // Escuchar mensajes
+    _socket!.listen(
+      (data) {
+        print('📩 WS Doctor mensaje: $data');
+        try {
+          final msg = jsonDecode(data);
 
-          } catch (e) {
-            print('❌ Error parseando mensaje WS Doctor: $e');
+          // 🔍 Filtrar mensajes solo para el doctor logueado
+          final msgTarget = msg["target"]?.toString().trim();
+        // Comparar directamente con SessionManager
+            final currentDoctor = SessionManager.doctorUsername?.trim();
+            if (currentDoctor != null && msgTarget == currentDoctor) {
+              print("✅ Notificación válida para $currentDoctor: $msg");
+              _notificationController.add(msg);
+          } else {
+            print(
+              "⚠️ Notificación ignorada (target: $msgTarget, logged: $currentDoctor)"
+            );
           }
-        },
-        onDone: () {
-          print('🔒 WebSocket Doctor cerrado');
-          _socket = null;
-        },
-        onError: (error) {
-          print('❌ Error WebSocket Doctor: $error');
-          _socket = null;
-        },
-      );
-    } catch (e) {
-      print('❌ No se pudo conectar al WebSocket Doctor: $e');
-    }
+        } catch (e) {
+          print('❌ Error parseando mensaje WS Doctor: $e');
+        }
+      },
+      onDone: () {
+        print('🔒 WebSocket Doctor cerrado');
+        _socket = null;
+      },
+      onError: (error) {
+        print('❌ Error WebSocket Doctor: $error');
+        _socket = null;
+      },
+    );
+  } catch (e) {
+    print('❌ No se pudo conectar al WebSocket Doctor: $e');
   }
+}
 
   void sendWSMessage(Map<String, dynamic> msg) {
     if (_socket != null && _socket!.readyState == WebSocket.open) {
@@ -98,7 +106,7 @@ class UserDoctorServices {
   void disconnectWS() {
     _socket?.close();
     _notificationController.close();
-        _loggedDoctor = null; // borramos la sesión en memoria
+    _loggedDoctor = null; // permitimos borrar la sesión en memoria
 
     print("👋 WebSocket Doctor desconectado");
   }
@@ -157,41 +165,43 @@ class UserDoctorServices {
       throw e;
     }
   }
-//usuarios paginados
-  
-Future<int> updatePassword (Map<String, dynamic> fields) async {
+  //usuarios paginados
+
+  Future<int> updatePassword(Map<String, dynamic> fields) async {
     try {
       // Obtener usuarios con paginación
       print('Obteniendo doctores desde el backend con paginación');
-        Response response = await dio.post(
+      Response response = await dio.post(
         '$baseUrl/doctors/resetPasswordDoctor',
-        data: fields
+        data: fields,
       );
 
-     
-    print("✅ Respuesta completa del servidor: ${ response.data}");
+      print("✅ Respuesta completa del servidor: ${response.data}");
 
-  if (response.statusCode == 201) {
+      if (response.statusCode == 201) {
         print('Doctor actualizado');
         return 201;
       } else {
         print('Error en la edicióm: ${response.statusCode}');
         return response.statusCode!;
       }
-}
-catch(e){print('Excepción en la edición: $e');
-      return -1;}}
+    } catch (e) {
+      print('Excepción en la edición: $e');
+      return -1;
+    }
+  }
 
-
-
-Future<int> editUser(String username,Map<String, dynamic> updatedFields) async {
+  Future<int> editUser(
+    String username,
+    Map<String, dynamic> updatedFields,
+  ) async {
     try {
       //Verificamos que tenemos token
       await _tokenManager.ensureTokenInitialized();
 
       // Obtener usuarios con paginación
       print('Obteniendo doctores desde el backend con paginación');
-        Response response = await dio.put(
+      Response response = await dio.put(
         '$baseUrl/doctors/editUserDoctor/$username',
         data: updatedFields,
         options: Options(
@@ -202,20 +212,20 @@ Future<int> editUser(String username,Map<String, dynamic> updatedFields) async {
         ),
       );
 
-     
-    print("✅ Respuesta completa del servidor: ${ response.data}");
+      print("✅ Respuesta completa del servidor: ${response.data}");
 
-  if (response.statusCode == 201) {
+      if (response.statusCode == 201) {
         print('Usuario actualizado');
         return 201;
       } else {
         print('Error en la edicióm: ${response.statusCode}');
         return response.statusCode!;
       }
-}
-catch(e){print('Excepción en la edición: $e');
-      return -1;}}
-
+    } catch (e) {
+      print('Excepción en la edición: $e');
+      return -1;
+    }
+  }
 
   Map<String, dynamic> logInDoctorJson(logInDoctor) => {
     'username': logInDoctor.username,

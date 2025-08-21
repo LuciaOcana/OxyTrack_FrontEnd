@@ -67,6 +67,7 @@ flutter:
   
   assets:
     - lib/others/images/SpO.png
+    - lib/others/images/SpODark.png
   fonts:
     - family: OpenSans
       fonts:

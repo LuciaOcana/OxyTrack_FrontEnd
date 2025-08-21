@@ -53,7 +53,8 @@ class UserController extends GetxController {
   final TextEditingController birthDateControllerEdit = TextEditingController();
   final TextEditingController heightControllerEdit = TextEditingController();
   final TextEditingController weightControllerEdit = TextEditingController();
-  final TextEditingController medicationControllerEdit = TextEditingController();
+  final TextEditingController medicationControllerEdit =
+      TextEditingController();
   final TextEditingController passwordControllerEdit = TextEditingController();
 
   // ---------------------------
@@ -79,31 +80,30 @@ class UserController extends GetxController {
   /// ======================================================
 
   // Guardar datos de usuario en SharedPreferences
-Future<void> saveUserSession(UserModel user, String role) async {
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString('user_name_$role', user.name);
-  await prefs.setString('user_email_$role', user.email);
-  await prefs.setString('user_role_$role', role);
-}
-
+  Future<void> saveUserSession(UserModel user, String role) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_name_$role', user.name);
+    await prefs.setString('user_email_$role', user.email);
+    await prefs.setString('user_role_$role', role);
+  }
 
   // Obtener datos de usuario desde el backend y guardarlos en el controlador
-Future<UserModel?> fetchUser(String role) async {
-  try {
-    final username = await SessionManager.getUsername(role);
-    if (username != null) {
-      user = await _userService.getUser(username);
-      userModel.value = user;
-      return user;
-    } else {
-      print('No se encontró el username en sesión para el rol $role');
+  Future<UserModel?> fetchUser(String role) async {
+    try {
+      final username = await SessionManager.getUsername(role);
+      if (username != null) {
+        user = await _userService.getUser(username);
+        userModel.value = user;
+        return user;
+      } else {
+        print('No se encontró el username en sesión para el rol $role');
+        return null;
+      }
+    } catch (e) {
+      print('Error al obtener el usuario: $e');
       return null;
     }
-  } catch (e) {
-    print('Error al obtener el usuario: $e');
-    return null;
   }
-}
 
   /// ======================================================
   /// LOGIN
@@ -138,10 +138,10 @@ Future<UserModel?> fetchUser(String role) async {
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
         await SessionManager.saveSession(
-  "user", // 👈 rol explícito
-  token,
-  usernameLogInController.text,
-);
+          "user", // 👈 rol explícito
+          token,
+          usernameLogInController.text,
+        );
 
         _irService.connect();
         Get.toNamed('/homeUser');
@@ -160,14 +160,10 @@ Future<UserModel?> fetchUser(String role) async {
     }
   }
 
-   void logInGuest() async {
-    
+  void logInGuest() async {
     print('🟢 Iniciando sesión desde UserController...');
 
-    final logInGuest = (
-      username: "GuestPatient",
-      password: "123456Aa%",
-    );
+    final logInGuest = (username: "GuestPatient", password: "123456Aa%");
 
     isLoading.value = true;
     errorMessage.value = '';
@@ -179,14 +175,14 @@ Future<UserModel?> fetchUser(String role) async {
       print('🔍 Respuesta del backend: $responseCode');
 
       if (responseCode == 200) {
-        Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        
+        Get.snackbar('Éxito', 'Inicio de sesión exitoso, iniciando la lectura');
+
         Get.toNamed('/homeGuest');
         await SessionManager.saveSession(
-  "user", // 👈 rol explícito
-  token,
-  usernameLogInController.text,
-);
+          "user", // 👈 rol explícito
+          token,
+          usernameLogInController.text,
+        );
 
         _irService.connect();
       } else if (responseCode == 300) {
@@ -328,142 +324,160 @@ Future<UserModel?> fetchUser(String role) async {
   /// ======================================================
   /// ACTUALIZAR USUARIO
   /// ======================================================
- Future<bool> updateUser(
-  String originalUsername,
-  Map<String, dynamic> updatedFieldsFromDialog,
-) async {
-  try {
-    print("🔹 updateUser llamado con: $originalUsername y $updatedFieldsFromDialog");
+  Future<bool> updateUser(
+    String originalUsername,
+    Map<String, dynamic> updatedFieldsFromDialog,
+  ) async {
+    try {
+      print(
+        "🔹 updateUser llamado con: $originalUsername y $updatedFieldsFromDialog",
+      );
 
-    isLoading.value = true;
+      isLoading.value = true;
 
-    // Construimos los campos a enviar directamente
-    final Map<String, dynamic> updatedFields = {
-      "username": updatedFieldsFromDialog["username"]?.trim() ?? "",
-      "email": updatedFieldsFromDialog["email"]?.trim() ?? "",
-      "name": updatedFieldsFromDialog["name"]?.trim() ?? "",
-      "lastname": updatedFieldsFromDialog["lastname"]?.trim() ?? "",
-      "birthDate": updatedFieldsFromDialog["birthDate"]?.trim() ?? "",
-      "age": updatedFieldsFromDialog["age"] ?? "",
-      "height": updatedFieldsFromDialog["height"]?.trim() ?? "",
-      "weight": updatedFieldsFromDialog["weight"]?.trim() ?? "",
-      "medication": updatedFieldsFromDialog["medication"] ?? [],
-      "doctor": updatedFieldsFromDialog["doctor"] ?? "",
-      "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
-    };
+      // Construimos los campos a enviar directamente
+      final Map<String, dynamic> updatedFields = {
+        "username": updatedFieldsFromDialog["username"]?.trim() ?? "",
+        "email": updatedFieldsFromDialog["email"]?.trim() ?? "",
+        "name": updatedFieldsFromDialog["name"]?.trim() ?? "",
+        "lastname": updatedFieldsFromDialog["lastname"]?.trim() ?? "",
+        "birthDate": updatedFieldsFromDialog["birthDate"]?.trim() ?? "",
+        "age": updatedFieldsFromDialog["age"] ?? "",
+        "height": updatedFieldsFromDialog["height"]?.trim() ?? "",
+        "weight": updatedFieldsFromDialog["weight"]?.trim() ?? "",
+        "medication": updatedFieldsFromDialog["medication"] ?? [],
+        "doctor": updatedFieldsFromDialog["doctor"] ?? "",
+        "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
+      };
 
-    // Validaciones
-    if (updatedFields["email"].isNotEmpty && !GetUtils.isEmail(updatedFields["email"])) {
-      errorMessage.value = 'Correo electrónico no válido';
-      Get.snackbar('Error', errorMessage.value);
-      return false;
-    }
-
-    if (updatedFields["password"].isNotEmpty) {
-      final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{7,}$');
-      if (!regex.hasMatch(updatedFields["password"])) {
-        errorMessage.value =
-            'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
+      // Validaciones
+      if (updatedFields["email"].isNotEmpty &&
+          !GetUtils.isEmail(updatedFields["email"])) {
+        errorMessage.value = 'Correo electrónico no válido';
         Get.snackbar('Error', errorMessage.value);
         return false;
       }
-    }
 
-    if (updatedFields["birthDate"].isNotEmpty) {
-      final dateRegex = RegExp(r'^([0-2][0-9]|3[0-1])/([0][1-9]|1[0-2])/(\d{4})$');
-      final birthDate = updatedFields["birthDate"];
-      if (!dateRegex.hasMatch(birthDate)) {
-        errorMessage.value = 'Fecha inválida. Formato correcto: dd/mm/yyyy';
-        Get.snackbar('Error', errorMessage.value);
-        return false;
-      }
-      try {
-        final parts = birthDate.split('/');
-        final date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
-        if (date.day != int.parse(parts[0]) ||
-            date.month != int.parse(parts[1]) ||
-            date.year != int.parse(parts[2])) {
-          throw Exception();
+      if (updatedFields["password"].isNotEmpty) {
+        final regex = RegExp(
+          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{7,}$',
+        );
+        if (!regex.hasMatch(updatedFields["password"])) {
+          errorMessage.value =
+              'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
+          Get.snackbar('Error', errorMessage.value);
+          return false;
         }
-      } catch (_) {
-        errorMessage.value = 'Fecha inválida. Verifica los valores';
+      }
+
+      if (updatedFields["birthDate"].isNotEmpty) {
+        final dateRegex = RegExp(
+          r'^([0-2][0-9]|3[0-1])/([0][1-9]|1[0-2])/(\d{4})$',
+        );
+        final birthDate = updatedFields["birthDate"];
+        if (!dateRegex.hasMatch(birthDate)) {
+          errorMessage.value = 'Fecha inválida. Formato correcto: dd/mm/yyyy';
+          Get.snackbar('Error', errorMessage.value);
+          return false;
+        }
+        try {
+          final parts = birthDate.split('/');
+          final date = DateTime(
+            int.parse(parts[2]),
+            int.parse(parts[1]),
+            int.parse(parts[0]),
+          );
+          if (date.day != int.parse(parts[0]) ||
+              date.month != int.parse(parts[1]) ||
+              date.year != int.parse(parts[2])) {
+            throw Exception();
+          }
+        } catch (_) {
+          errorMessage.value = 'Fecha inválida. Verifica los valores';
+          Get.snackbar('Error', errorMessage.value);
+          return false;
+        }
+      }
+
+      print("🔹 Campos finales a enviar al backend: $updatedFields");
+
+      final responseCode = await _userService.editUser(
+        originalUsername,
+        updatedFields,
+      );
+
+      if (responseCode == 200 || responseCode == 201) {
+        Get.snackbar('Éxito', 'Usuario editado exitosamente');
+        // Refrescamos los datos del usuario
+        await fetchUser("user");
+        return true;
+      } else {
+        errorMessage.value = 'Error: Este E-Mail o nombre ya están en uso';
         Get.snackbar('Error', errorMessage.value);
         return false;
       }
-    }
-
-    print("🔹 Campos finales a enviar al backend: $updatedFields");
-
-    final responseCode = await _userService.editUser(originalUsername, updatedFields);
-
-    if (responseCode == 200 || responseCode == 201) {
-      Get.snackbar('Éxito', 'Usuario editado exitosamente');
-  // Refrescamos los datos del usuario
-await fetchUser("user");
-      return true;
-    } else {
-      errorMessage.value = 'Error: Este E-Mail o nombre ya están en uso';
+    } catch (e) {
+      print("🔹 Error en updateUser: $e");
+      errorMessage.value = 'Error al actualizar usuario';
       Get.snackbar('Error', errorMessage.value);
       return false;
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    print("🔹 Error en updateUser: $e");
-    errorMessage.value = 'Error al actualizar usuario';
-    Get.snackbar('Error', errorMessage.value);
-    return false;
-  } finally {
-    isLoading.value = false;
   }
-}
 
+  Future<bool> updateUserByDoctor(
+    String originalUsername,
+    Map<String, dynamic> updatedFieldsFromDialog,
+  ) async {
+    try {
+      print(
+        "🔹 updateUserByDoctor llamado con: $originalUsername y $updatedFieldsFromDialog",
+      );
 
- Future<bool> updateUserByDoctor(
-  String originalUsername,
-  Map<String, dynamic> updatedFieldsFromDialog,
-) async {
-  try {
-    print("🔹 updateUserByDoctor llamado con: $originalUsername y $updatedFieldsFromDialog");
+      isLoading.value = true;
 
-    isLoading.value = true;
+      // Construimos los campos a enviar directamente
+      final Map<String, dynamic> updatedFields = {
+        "username": updatedFieldsFromDialog["username"]?.trim() ?? "",
+        "email": updatedFieldsFromDialog["email"]?.trim() ?? "",
+        "name": updatedFieldsFromDialog["name"]?.trim() ?? "",
+        "lastname": updatedFieldsFromDialog["lastname"]?.trim() ?? "",
+        "birthDate": updatedFieldsFromDialog["birthDate"]?.trim() ?? "",
+        "age": updatedFieldsFromDialog["age"] ?? "",
+        "height": updatedFieldsFromDialog["height"]?.trim() ?? "",
+        "weight": updatedFieldsFromDialog["weight"]?.trim() ?? "",
+        "medication": updatedFieldsFromDialog["medication"] ?? [],
+        "doctor": updatedFieldsFromDialog["doctor"] ?? "",
+        "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
+      };
 
-    // Construimos los campos a enviar directamente
-    final Map<String, dynamic> updatedFields = {
-      "username": updatedFieldsFromDialog["username"]?.trim() ?? "",
-      "email": updatedFieldsFromDialog["email"]?.trim() ?? "",
-      "name": updatedFieldsFromDialog["name"]?.trim() ?? "",
-      "lastname": updatedFieldsFromDialog["lastname"]?.trim() ?? "",
-      "birthDate": updatedFieldsFromDialog["birthDate"]?.trim() ?? "",
-      "age": updatedFieldsFromDialog["age"] ?? "",
-      "height": updatedFieldsFromDialog["height"]?.trim() ?? "",
-      "weight": updatedFieldsFromDialog["weight"]?.trim() ?? "",
-      "medication": updatedFieldsFromDialog["medication"] ?? [],
-      "doctor": updatedFieldsFromDialog["doctor"] ?? "",
-      "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
-    };
+      print("🔹 Campos finales a enviar al backend: $updatedFields");
 
-    print("🔹 Campos finales a enviar al backend: $updatedFields");
+      final responseCode = await _userDoctorServices.editUser(
+        originalUsername,
+        updatedFields,
+      );
 
-    final responseCode = await _userDoctorServices.editUser(originalUsername, updatedFields);
-
-    if (responseCode == 200 || responseCode == 201) {
-      Get.snackbar('Éxito', 'Usuario editado exitosamente por el doctor');
-  // Refrescamos los datos del usuario
-await fetchUser("user");
-      return true;
-    } else {
-      errorMessage.value = 'Error: Este E-Mail o nombre ya están en uso';
+      if (responseCode == 200 || responseCode == 201) {
+        Get.snackbar('Éxito', 'Usuario editado exitosamente por el doctor');
+        // Refrescamos los datos del usuario
+        await fetchUser("user");
+        return true;
+      } else {
+        errorMessage.value = 'Error: Este E-Mail o nombre ya están en uso';
+        Get.snackbar('Error', errorMessage.value);
+        return false;
+      }
+    } catch (e) {
+      print("🔹 Error en updateUser: $e");
+      errorMessage.value = 'Error al actualizar usuario';
       Get.snackbar('Error', errorMessage.value);
       return false;
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    print("🔹 Error en updateUser: $e");
-    errorMessage.value = 'Error al actualizar usuario';
-    Get.snackbar('Error', errorMessage.value);
-    return false;
-  } finally {
-    isLoading.value = false;
   }
-}
 
   /// ======================================================
   /// CAMBIAR CONTRASEÑA
@@ -542,32 +556,35 @@ await fetchUser("user");
   /// LOGOUT
   /// ======================================================
   void logout() async {
-  try {
-    isLoading.value = true;
-    final responseCode = await _userService.logOut();
-    print('🔍 Respuesta del backend: $responseCode');
+    try {
+      isLoading.value = true;
+      final responseCode = await _userService.logOut();
+      print('🔍 Respuesta del backend: $responseCode');
 
-    // Limpiar sesión local
-await SessionManager.clearSession("user"); // 👈 solo borra la sesión del usuario
+      // Limpiar sesión local
+      await SessionManager.clearSession(
+        "user",
+      ); // 👈 solo borra la sesión del usuario
 
-    // Limpiar datos en el controlador
-    user = null;
-    userModel.value = null;
+      // Limpiar datos en el controlador
+      user = null;
+      userModel.value = null;
 
-    if (responseCode == 200) {
-      Get.snackbar('Éxito', 'Cierre de sesión exitoso');
-      Get.offAllNamed('/selectorMode'); // Usar offAll para reiniciar navegación
-    } else if (responseCode == 300) {
-      Get.snackbar('Advertencia', errorMessage.value);
-    } else {
+      if (responseCode == 200) {
+        Get.snackbar('Éxito', 'Cierre de sesión exitoso');
+        Get.offAllNamed(
+          '/selectorMode',
+        ); // Usar offAll para reiniciar navegación
+      } else if (responseCode == 300) {
+        Get.snackbar('Advertencia', errorMessage.value);
+      } else {
+        Get.snackbar('Error', errorMessage.value);
+      }
+    } catch (e) {
+      errorMessage.value = 'Error: No se pudo conectar con la API';
       Get.snackbar('Error', errorMessage.value);
+    } finally {
+      isLoading.value = false;
     }
-  } catch (e) {
-    errorMessage.value = 'Error: No se pudo conectar con la API';
-    Get.snackbar('Error', errorMessage.value);
-  } finally {
-    isLoading.value = false;
   }
-}
-
 }
