@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter/foundation.dart';
+
 import '../models/userDoctor.dart';
 import '../controllers/userAdminController.dart';
 
@@ -75,187 +77,203 @@ class DoctorCard extends StatelessWidget {
   }
 
   void _showEditDialog(BuildContext context, String usernameDoctorCard) {
-    final UserAdminController _userAdminController = UserAdminController();
+  final UserAdminController _userAdminController = UserAdminController();
 
-    // Inicializar los controladores con los datos del doctor seleccionado
-    _userAdminController.usernameDoctorControllerEdit.text = doctor.username;
-    _userAdminController.emailDoctorControllerEdit.text = doctor.email;
-    _userAdminController.nameDoctorControllerEdit.text = doctor.name;
-    _userAdminController.lastnameDoctorControllerEdit.text = doctor.lastname;
-    _userAdminController.passwordDoctorControllerEdit.text =
-        ""; // No mostramos la real
-    _userAdminController.selectedPatientsEdit.assignAll(doctor.patients ?? []);
+  // Inicializar los controladores con los datos del doctor seleccionado
+  _userAdminController.usernameDoctorControllerEdit.text = doctor.username;
+  _userAdminController.emailDoctorControllerEdit.text = doctor.email;
+  _userAdminController.nameDoctorControllerEdit.text = doctor.name;
+  _userAdminController.lastnameDoctorControllerEdit.text = doctor.lastname;
+  _userAdminController.passwordDoctorControllerEdit.text = "";
+  _userAdminController.selectedPatientsEdit.assignAll(doctor.patients ?? []);
 
-    showDialog(
-  context: context,
-  builder: (BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      title: const Text('Editar Personal', textAlign: TextAlign.center), // 👈 título centrado
-      content: SizedBox(
-        width: 500, // ancho total del popup
-        height: 400, // alto total
-        child: Center( // 👈 centramos el contenido
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 350), // 👈 límite de ancho del formulario
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: _userAdminController.usernameDoctorControllerEdit,
-                    decoration: const InputDecoration(labelText: 'Username'),
-                  ),
-                  TextField(
-                    controller: _userAdminController.emailDoctorControllerEdit,
-                    decoration: const InputDecoration(labelText: 'Email'),
-                  ),
-                  TextField(
-                    controller: _userAdminController.nameDoctorControllerEdit,
-                    decoration: const InputDecoration(labelText: 'Nombre'),
-                  ),
-                  TextField(
-                    controller: _userAdminController.lastnameDoctorControllerEdit,
-                    decoration: const InputDecoration(labelText: 'Apellido'),
-                  ),
-                  const SizedBox(height: 12),
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Editar Personal', textAlign: TextAlign.center),
+        content: SizedBox(
+          width: 500,
+          height: 400,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 350),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      controller: _userAdminController.usernameDoctorControllerEdit,
+                      decoration: const InputDecoration(labelText: 'Username'),
+                    ),
+                    TextField(
+                      controller: _userAdminController.emailDoctorControllerEdit,
+                      decoration: const InputDecoration(labelText: 'Email'),
+                    ),
+                    TextField(
+                      controller: _userAdminController.nameDoctorControllerEdit,
+                      decoration: const InputDecoration(labelText: 'Nombre'),
+                    ),
+                    TextField(
+                      controller: _userAdminController.lastnameDoctorControllerEdit,
+                      decoration: const InputDecoration(labelText: 'Apellido'),
+                    ),
+                    const SizedBox(height: 12),
+                    Obx(() {
+                      return InkWell(
+                        onTap: () async {
+                          await _userAdminController.loadPatients();
 
-                  Obx(() {
-                    return InkWell(
-                      onTap: () async {
-                        //await _userAdminController.loadPatients(); // 🔹 asegúrate de cargar la lista
-// 🔹 Cargar la lista de pacientes antes de mostrar el diálogo
-  await _userAdminController.loadPatients();
-                        final List<String>?
-                        results = await showDialog<List<String>>(
-                          context: context,
-                          builder: (context) {
-                            List<String> tempSelected = List.from(
-                              _userAdminController.selectedPatientsEdit,
-                            );
-                            return StatefulBuilder(
-                              builder: (context, setState) {
-                                return AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  title: const Text('Seleccionar pacientes'),
-                                  content: SizedBox(
-                                    width: double.maxFinite,
-                                    child: ListView(
-                                      children:
-                                          _userAdminController.patientsList.map(
-                                            (patient) {
-                                              return CheckboxListTile(
+                          final List<String>? results = await showDialog<List<String>>(
+                            context: context,
+                            builder: (context) {
+                              List<String> tempSelected = List.from(
+                                  _userAdminController.selectedPatientsEdit);
+                              return StatefulBuilder(
+                                builder: (context, setState) {
+                                  return AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(16)),
+                                    title: const Text('Seleccionar pacientes'),
+                                    content: SizedBox(
+                                      width: double.maxFinite,
+                                      child: ListView(
+                                        children: _userAdminController.patientsList
+                                            .map(
+                                              (patient) => CheckboxListTile(
                                                 title: Text(patient),
-                                                value: tempSelected.contains(
-                                                  patient,
-                                                ),
+                                                value: tempSelected.contains(patient),
                                                 onChanged: (bool? selected) {
                                                   setState(() {
                                                     if (selected == true) {
                                                       tempSelected.add(patient);
                                                     } else {
-                                                      tempSelected.remove(
-                                                        patient,
-                                                      );
+                                                      tempSelected.remove(patient);
                                                     }
                                                   });
                                                 },
-                                              );
-                                            },
-                                          ).toList(),
+                                              ),
+                                            )
+                                            .toList(),
+                                      ),
                                     ),
-                                  ),
-                                  actions: [
-                                    TextButton(
-                                      onPressed:
-                                          () => Navigator.pop(context, null),
-                                      child: const Text('Cancelar'),
-                                    ),
-                                    ElevatedButton(
-                                      onPressed:
-                                          () => Navigator.pop(
-                                            context,
-                                            tempSelected,
-                                          ),
-                                      child: const Text('Aceptar'),
-                                    ),
-                                  ],
-                                );
-                              },
-                            );
-                          },
-                        );
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, null),
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context, tempSelected),
+                                        child: const Text('Aceptar'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          );
 
-                        if (results != null) {
-                          _userAdminController.selectedPatients.value = results;
-                        }
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 18,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[100],
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          _userAdminController.selectedPatients.isEmpty
-                              ? 'Seleccionar pacientes'
-                              : _userAdminController.selectedPatients.join(
-                                ', ',
+                          if (results != null) {
+                            _userAdminController.selectedPatientsEdit.assignAll(results);
+                          }
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 18),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
                               ),
-                          style: TextStyle(fontSize: 16),
+                            ],
+                          ),
+                          child: Text(
+                            _userAdminController.selectedPatientsEdit.isEmpty
+                                ? 'Seleccionar pacientes'
+                                : _userAdminController.selectedPatientsEdit.join(', '),
+                            style: const TextStyle(fontSize: 16),
+                          ),
                         ),
-                      ),
-                    );
-                  }),
-
-                  const SizedBox(height: 12),
-
-                  TextField(
-                    controller: _userAdminController.passwordDoctorControllerEdit,
-                    decoration: const InputDecoration(labelText: 'Contraseña'),
-                    obscureText: true,
-                  ),
-                ],
+                      );
+                    }),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _userAdminController.passwordDoctorControllerEdit,
+                      decoration: const InputDecoration(labelText: 'Contraseña'),
+                      obscureText: true,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
         ),
-      ),
-      actionsAlignment: MainAxisAlignment.center, // 👈 centra los botones
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
-        ),
-        ElevatedButton(
-          onPressed: () async {
-            final originalUsername = doctor.username;
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+  onPressed: () async {
+    final originalUsername = doctor.username;
 
-            await _userAdminController.updateDoctor(originalUsername, doctor);
+    // Construimos el Map con los campos actualizados
+    final updatedDoctor = <String, dynamic>{};
 
-            Navigator.of(context).pop();
-            if (onEdit != null) onEdit!();
-          },
-          child: const Text('Guardar'),
-        ),
-      ],
-    );
+    // Solo añadimos los campos que tengan valor distinto o no vacío
+    final username = _userAdminController.usernameDoctorControllerEdit.text.trim();
+    if (username.isNotEmpty && username != doctor.username) {
+      updatedDoctor["username"] = username;
+    }
+
+    final email = _userAdminController.emailDoctorControllerEdit.text.trim();
+    if (email.isNotEmpty && email != doctor.email) {
+      updatedDoctor["email"] = email;
+    }
+
+    final name = _userAdminController.nameDoctorControllerEdit.text.trim();
+    if (name.isNotEmpty && name != doctor.name) {
+      updatedDoctor["name"] = name;
+    }
+
+    final lastname = _userAdminController.lastnameDoctorControllerEdit.text.trim();
+    if (lastname.isNotEmpty && lastname != doctor.lastname) {
+      updatedDoctor["lastname"] = lastname;
+    }
+
+    final password = _userAdminController.passwordDoctorControllerEdit.text.trim();
+    if (password.isNotEmpty) {
+      updatedDoctor["password"] = password;
+    }
+
+    // Pacientes seleccionados
+    if (_userAdminController.selectedPatientsEdit.isNotEmpty &&
+        !listEquals(_userAdminController.selectedPatientsEdit, doctor.patients ?? [])) {
+      updatedDoctor["patients"] = _userAdminController.selectedPatientsEdit.toList();
+    }
+
+    // Llamamos al controller con el Map
+    final success = await _userAdminController.updateDoctor(originalUsername, updatedDoctor);
+
+    if (success) {
+      Navigator.of(context).pop();
+      if (onEdit != null) onEdit!();
+    }
   },
-);
+  child: const Text('Guardar'),
+),
 
+        ],
+      );
+    },
+  );
 }
+
 }

@@ -24,8 +24,11 @@ class UserDoctorServices {
   final TokenManager _tokenManager = TokenManager();
 
   // ----------------- 🔌 WEBSOCKET -----------------
-  final String wsUrl = 'ws://192.168.1.48:5000/doctor'; // Ajusta IP
+  final String wsUrl = 'ws://192.168.1.51:3000/doctor'; // Ajusta IP
   WebSocket? _socket;
+
+  String? _loggedDoctor; // Guarda el doctor logueado en memoria
+
 
   final StreamController<Map<String, dynamic>> _notificationController =
       StreamController.broadcast();
@@ -37,11 +40,15 @@ class UserDoctorServices {
     try {
       _socket = await WebSocket.connect(wsUrl);
       print('🔌 WebSocket Doctor conectado');
+      _loggedDoctor = doctorUsername; // guardamos el username del doctor logueado
+      print('🔌 WebSocket conectado como doctor $_loggedDoctor');
+
 
       // Enviar auth inicial
       final authMsg = {
-        "type": "auth",
+        "type": "init",
         "username": doctorUsername,
+                "role": "doctor"
       };
       _socket!.add(jsonEncode(authMsg));
 
@@ -51,7 +58,17 @@ class UserDoctorServices {
           print('📩 WS Doctor mensaje: $data');
           try {
             final msg = jsonDecode(data);
-            _notificationController.add(msg);
+
+ // 🔍 Filtrar: solo notificaciones que tengan target = doctor logueado
+           if (_loggedDoctor != null &&
+    msg["target"]?.toString().toLowerCase().trim() ==
+        _loggedDoctor!.toLowerCase().trim()) {
+  print("✅ Notificación válida para $_loggedDoctor");
+  _notificationController.add(msg);
+} else {
+  print("⚠️ Notificación ignorada (no es para $_loggedDoctor)");
+}
+
           } catch (e) {
             print('❌ Error parseando mensaje WS Doctor: $e');
           }
@@ -81,6 +98,8 @@ class UserDoctorServices {
   void disconnectWS() {
     _socket?.close();
     _notificationController.close();
+        _loggedDoctor = null; // borramos la sesión en memoria
+
     print("👋 WebSocket Doctor desconectado");
   }
 

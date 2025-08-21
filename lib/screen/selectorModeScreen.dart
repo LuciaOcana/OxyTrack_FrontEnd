@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:oxytrack_frontend/screen/logInScreen.dart';
-import 'package:oxytrack_frontend/screen/logInDoctorScreen.dart';
-import 'package:oxytrack_frontend/others/themeController.dart'; // ✅ Importa el controlador
+import 'package:oxytrack_frontend/others/themeController.dart';
 
 class SelectorModeScreen extends StatelessWidget {
   const SelectorModeScreen({super.key});
@@ -10,10 +8,33 @@ class SelectorModeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // ✅ Si el tema es claro, fondo blanco. Si es oscuro, fondo del tema.
+      backgroundColor: Theme.of(context).brightness == Brightness.light
+          ? Colors.white
+          : Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: const Color(0xFF0096C7),
+        centerTitle: true,
         automaticallyImplyLeading: false,
+        title: const Text(
+          'Selector de modo',
+          style: TextStyle(
+            fontFamily: 'OpenSans',
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+            color: Colors.white,
+          ),
+        ),
+        // 🌙/☀️ Botón de cambiar tema
+        leading: IconButton(
+          icon: Icon(
+            Theme.of(context).brightness == Brightness.light
+                ? Icons.dark_mode   // si está claro → mostrar luna
+                : Icons.light_mode, // si está oscuro → mostrar sol
+            color: Colors.white,
+          ),
+          onPressed: () => Get.find<ThemeController>().toggleTheme(),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -21,111 +42,89 @@ class SelectorModeScreen extends StatelessWidget {
             },
             child: const Text(
               'Administrador',
-              style: TextStyle(color: Color(0xFF0077B6)),
+              style: TextStyle(
+                color: Colors.white,
+                fontFamily: 'OpenSans',
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
+          const SizedBox(width: 8),
         ],
       ),
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+      body: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 400),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const SizedBox(height: 100),
+                const SizedBox(height: 20),
                 Image.asset(
                   'lib/others/images/SpO.png',
-                  height: 300,
+                  height: 200,
                 ),
-                const SizedBox(height: 10),
-                Text(
-                  'Bienvenido a Oxytrack',
+                const SizedBox(height: 20),
+                const Text(
+                  'Bienvenido a OxyTrack',
                   style: TextStyle(
-                    fontSize: 23,
+                    fontSize: 24,
+                    color: Color(0xFF0096C7),
+                    fontFamily: 'OpenSans',
                     fontWeight: FontWeight.bold,
-                    color: const Color(0xFF00B4D8),
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 30),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.toNamed('/logIn');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: const Color(0xFF0096C7),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Soy paciente',
-                      style: TextStyle(
-                        fontSize: 19,
-                        color: Color(0xFFCAF0F8),
-                        fontFamily: 'OpenSans',
-                        fontWeight: FontWeight.bold,
-                      ),
+
+                // 🔵 Botón Soy paciente
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: const Color(0xFF0096C7),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Get.toNamed('/loginDoctor');
-                    },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      side: const BorderSide(color: Color(0xFF0077B6)),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: const Text(
-                      'Soy personal médico',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Color(0xFF0077B6),
-                        fontFamily: 'OpenSans',
-                        fontWeight: FontWeight.bold,
-                      ),
+                  onPressed: () {
+                    Get.toNamed('/logIn');
+                  },
+                  child: const Text(
+                    'Soy paciente',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFFCAF0F8),
+                      fontFamily: 'OpenSans',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
 
-                // ✅ Botón para cambiar el tema
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () => Get.find<ThemeController>().toggleTheme(),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: const Color(0xFF0077B6),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                // 🩺 Botón Soy personal médico
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: const Color(0xFF0096C7),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text(
-                      'Cambiar tema',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.white,
-                        fontFamily: 'OpenSans',
-                        fontWeight: FontWeight.bold,
-                      ),
+                  ),
+                  onPressed: () {
+                    Get.toNamed('/loginDoctor');
+                  },
+                  child: const Text(
+                    'Soy personal médico',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Color(0xFFCAF0F8),
+                      fontFamily: 'OpenSans',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-
-                const Spacer(flex: 2),
+                const SizedBox(height: 16),
               ],
             ),
           ),

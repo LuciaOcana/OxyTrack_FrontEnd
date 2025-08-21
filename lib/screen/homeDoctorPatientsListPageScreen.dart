@@ -21,6 +21,7 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
   void initState() {
     super.initState();
     _userListController.fetchUsers();
+    _userListController.initNotifications("doctorUsername"); // <-- Cambia por el username real
   }
 
   @override
@@ -69,7 +70,13 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
                 itemCount: _userListController.userList.length,
                 itemBuilder: (context, index) {
                   final user = _userListController.userList[index];
-                  return UserCard(user: user);
+                  final hasNotif = _userListController.userNotifications[user.username] ?? false;
+
+                  return UserCard(
+                    user: user,
+                    hasNotification: hasNotif,
+                    onEdit: () => _userListController.fetchUsers(),
+                  );
                 },
               );
             }),
@@ -77,7 +84,6 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
         ),
       ),
 
-      // 🔹 Botones flotantes de recarga y paginación
       floatingActionButton: Obx(
         () => Align(
           alignment: Alignment.bottomCenter,
@@ -86,7 +92,6 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Botón "Anterior"
                 FloatingActionButton(
                   heroTag: 'prev',
                   onPressed: _userListController.currentPage.value > 1
@@ -99,7 +104,6 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
                   tooltip: 'Página anterior',
                 ),
                 const SizedBox(width: 16),
-                // Botón de recarga
                 FloatingActionButton(
                   heroTag: 'refresh',
                   onPressed: _userListController.fetchUsers,
@@ -112,7 +116,6 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
                   tooltip: 'Recargar lista',
                 ),
                 const SizedBox(width: 16),
-                // Botón "Siguiente"
                 FloatingActionButton(
                   heroTag: 'next',
                   onPressed: _userListController.userList.length ==
@@ -135,7 +138,6 @@ class _HomeDoctorPatientListPageScreenState extends State<HomeDoctorPatientListP
     );
   }
 
-  /// 🔹 Función para mostrar el pop up de confirmación
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,

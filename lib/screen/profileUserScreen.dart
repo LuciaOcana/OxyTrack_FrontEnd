@@ -32,9 +32,9 @@ final RxBool isLoading = false.obs; // Defínelo dentro de _UserProfileScreenSta
 
   Future<void> loadUserData() async {
     isLoading.value = true;
-    final username = await SessionManager.getUsername();
+final username = await SessionManager.getUsername("user");
     if (username != null) {
-      final fetchedUser = await _userController.fetchUser();
+final fetchedUser = await _userController.fetchUser("user");
       if (fetchedUser != null) {
         userModel = fetchedUser;
         name.value = userModel!.name;

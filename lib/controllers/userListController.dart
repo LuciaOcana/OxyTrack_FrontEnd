@@ -13,13 +13,27 @@ class UserListController extends GetxController {
 
   final UserServices userService = UserServices();
     final UserDoctorServices userDoctorService = UserDoctorServices();
+  final RxMap<String, bool> userNotifications = <String, bool>{}.obs;
 
 
-  @override
+   @override
   void onInit() {
     super.onInit();
-    fetchUsers(); // Llamada inicial
+    initNotifications("doctorUsername"); // aquí pasas el username del doctor
   }
+
+  void initNotifications(String doctorUsername) {
+    userDoctorService.connectWS(doctorUsername);
+
+    userDoctorService.notificationsStream.listen((msg) {
+      // Suponiendo que msg contiene 'username' del usuario notificado
+      final username = msg['username'];
+      if (username != null) {
+        userNotifications[username] = true; // marca la notificación
+      }
+    });
+  }
+
 
   Future<void> fetchUsers() async {
     try {

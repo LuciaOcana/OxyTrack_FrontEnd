@@ -55,11 +55,8 @@ class UserDoctorController extends GetxController {
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        await SessionManager.saveSession(
-          "doctor",
-          token,
-          usernameLogInDoctorController.text,
-        );
+        await SessionManager.saveSession("doctor", token, usernameLogInDoctorController.text);
+
         Get.toNamed('/doctorPatientListPage');  //ESTO HAY QUE CAMBIARLO POR LA PAGINA PRINCIPAL DE DOCTOR
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
@@ -77,71 +74,45 @@ class UserDoctorController extends GetxController {
   }
 
 void changeDoctorPassword() async {
-    try {
-      final String? username = await SessionManager.getUsername();
-      final newPassword = passwordPasswLostControllerDoctor.text.trim();
-      final confirmPassword = confirmPasswordControllerDoctor.text.trim();
+  try {
+    final String? username = await SessionManager.getUsername("doctor");
+    final newPassword = passwordPasswLostControllerDoctor.text.trim();
+    final confirmPassword = confirmPasswordControllerDoctor.text.trim();
 
-print(username);
-      // Validaciones de campos
-      if (newPassword.isEmpty || confirmPassword.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Todos los campos son requeridos',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        return;
-      }
+    print(username);
 
-      if (newPassword != confirmPassword) {
-        Get.snackbar(
-          'Error',
-          'Las contraseñas no coinciden',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        return;
-      }
-
-      // Validación de contraseña segura
-      final regex = RegExp(
-        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$',
-      );
-      if (!regex.hasMatch(newPassword)) {
-        Get.snackbar(
-          'Error',
-          'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial',
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        return;
-      }
-
-      // Llamada al servicio
-      final responseCode = await _userDoctorServices.updatePassword({
-        "username": username,
-        "newPassword": newPassword,
-      });
-      print('🔍 Respuesta del backend: $responseCode');
-
-      if (responseCode == 200) {
-        Get.snackbar(
-          "Éxito",
-          "Contraseña cambiada correctamente",
-          snackPosition: SnackPosition.BOTTOM,
-        );
-        passwordPasswLostControllerDoctor.clear();
-      } else {
-        Get.snackbar(
-          "Error",
-          "No se pudo cambiar la contraseña ($responseCode)",
-          snackPosition: SnackPosition.BOTTOM,
-        );
-      }
-    } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Error inesperado: $e",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    if (newPassword.isEmpty || confirmPassword.isEmpty) {
+      Get.snackbar('Error', 'Todos los campos son requeridos', snackPosition: SnackPosition.BOTTOM);
+      return;
     }
+
+    if (newPassword != confirmPassword) {
+      Get.snackbar('Error', 'Las contraseñas no coinciden', snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$');
+    if (!regex.hasMatch(newPassword)) {
+      Get.snackbar('Error', 'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial', snackPosition: SnackPosition.BOTTOM);
+      return;
+    }
+
+    final responseCode = await _userDoctorServices.updatePassword({
+      "username": username,
+      "newPassword": newPassword,
+    });
+
+    print('🔍 Respuesta del backend: $responseCode');
+
+    if (responseCode == 200) {
+      Get.snackbar("Éxito", "Contraseña cambiada correctamente", snackPosition: SnackPosition.BOTTOM);
+      passwordPasswLostControllerDoctor.clear();
+    } else {
+      Get.snackbar("Error", "No se pudo cambiar la contraseña ($responseCode)", snackPosition: SnackPosition.BOTTOM);
+    }
+  } catch (e) {
+    Get.snackbar("Error", "Error inesperado: $e", snackPosition: SnackPosition.BOTTOM);
   }
+}
+
 }

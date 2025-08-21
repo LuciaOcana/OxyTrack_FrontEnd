@@ -79,23 +79,24 @@ class UserController extends GetxController {
   /// ======================================================
 
   // Guardar datos de usuario en SharedPreferences
-  Future<void> saveUserSession(UserModel user, String role) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('user_name', user.name);
-    prefs.setString('user_email', user.email);
-    prefs.setString('user_role', role); // 'user', 'admin', 'doctor'
-  }
+Future<void> saveUserSession(UserModel user, String role) async {
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('user_name_$role', user.name);
+  await prefs.setString('user_email_$role', user.email);
+  await prefs.setString('user_role_$role', role);
+}
+
 
   // Obtener datos de usuario desde el backend y guardarlos en el controlador
-  Future<UserModel?> fetchUser() async {
+Future<UserModel?> fetchUser(String role) async {
   try {
-    final username = await SessionManager.getUsername();
+    final username = await SessionManager.getUsername(role);
     if (username != null) {
-      user = await _userService.getUser(username); // ya no da error
-      userModel.value = user; // si usas Rx
+      user = await _userService.getUser(username);
+      userModel.value = user;
       return user;
     } else {
-      print('No se encontró el username en sesión');
+      print('No se encontró el username en sesión para el rol $role');
       return null;
     }
   } catch (e) {
@@ -103,7 +104,6 @@ class UserController extends GetxController {
     return null;
   }
 }
-
 
   /// ======================================================
   /// LOGIN
@@ -138,10 +138,11 @@ class UserController extends GetxController {
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
         await SessionManager.saveSession(
-          "user",
-          token,
-          usernameLogInController.text,
-        );
+  "user", // 👈 rol explícito
+  token,
+  usernameLogInController.text,
+);
+
         _irService.connect();
         Get.toNamed('/homeUser');
       } else if (responseCode == 300) {
@@ -182,10 +183,11 @@ class UserController extends GetxController {
         
         Get.toNamed('/homeGuest');
         await SessionManager.saveSession(
-          "user",
-          token,
-          logInGuest.username,
-        );
+  "user", // 👈 rol explícito
+  token,
+  usernameLogInController.text,
+);
+
         _irService.connect();
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
@@ -397,7 +399,7 @@ class UserController extends GetxController {
     if (responseCode == 200 || responseCode == 201) {
       Get.snackbar('Éxito', 'Usuario editado exitosamente');
   // Refrescamos los datos del usuario
-  await fetchUser(); // ahora safe porque user es opcional  
+await fetchUser("user");
       return true;
     } else {
       errorMessage.value = 'Error: Este E-Mail o nombre ya están en uso';
@@ -446,7 +448,7 @@ class UserController extends GetxController {
     if (responseCode == 200 || responseCode == 201) {
       Get.snackbar('Éxito', 'Usuario editado exitosamente por el doctor');
   // Refrescamos los datos del usuario
-  await fetchUser(); // ahora safe porque user es opcional  
+await fetchUser("user");
       return true;
     } else {
       errorMessage.value = 'Error: Este E-Mail o nombre ya están en uso';
@@ -546,7 +548,7 @@ class UserController extends GetxController {
     print('🔍 Respuesta del backend: $responseCode');
 
     // Limpiar sesión local
-    await SessionManager.clearSession();
+await SessionManager.clearSession("user"); // 👈 solo borra la sesión del usuario
 
     // Limpiar datos en el controlador
     user = null;

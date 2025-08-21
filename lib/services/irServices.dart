@@ -19,7 +19,7 @@ class IrService {
   IrService._internal();
   // ---------------------------------------------------
 
-  final String wsUrl = 'ws://192.168.1.48:3000';
+  final String wsUrl = 'ws://192.168.1.51:3000';
   WebSocket? _socket;
 
   // StreamController broadcast para que múltiples listeners puedan escuchar
@@ -37,7 +37,7 @@ class IrService {
   // Conectar al WebSocket
   Future<void> connect() async {
     try {
-      String? username = await SessionManager.getUsername();
+String? username = await SessionManager.getUsername("user");
       print("Conectando a WebSocket en: $wsUrl");
 
       if (username == null || username.isEmpty) {

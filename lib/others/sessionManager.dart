@@ -1,40 +1,45 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionManager {
-  static const String _keyRole = "role";
-  static const String _keyToken = "token";
-  static const String _keyUsername = "username";
-
-
-  /// Guardar sesión
-  static Future<void> saveSession(String role, String token, String username,
-) async {
+  /// Guardar sesión por rol
+  static Future<void> saveSession(String role, String token, String username) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_keyRole, role);
-    await prefs.setString(_keyToken, token);
-    await prefs.setString(_keyUsername, username);
+    await prefs.setString('token_$role', token);
+    await prefs.setString('username_$role', username);
   }
 
-  /// Obtener rol
-  static Future<String?> getRole() async {
+  /// Obtener token por rol
+  static Future<String?> getToken(String role) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyRole);
+    return prefs.getString('token_$role');
   }
 
-  /// Obtener token
-  static Future<String?> getToken() async {
+  /// Obtener username por rol
+  static Future<String?> getUsername(String role) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyToken);
+    return prefs.getString('username_$role');
   }
 
-  /// Obtener username
-  static Future<String?> getUsername() async {
+  /// Cerrar sesión por rol
+  static Future<void> clearSession(String role) async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_keyUsername);
+    await prefs.remove('token_$role');
+    await prefs.remove('username_$role');
   }
-  /// Cerrar sesión
-  static Future<void> clearSession() async {
+
+  /// Cerrar todas las sesiones (opcional)
+  static Future<void> clearAllSessions() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
+    final roles = ['admin', 'doctor', 'user'];
+    for (final role in roles) {
+      await prefs.remove('token_$role');
+      await prefs.remove('username_$role');
+    }
+  }
+
+  /// Verificar si hay sesión activa para un rol
+  static Future<bool> isLoggedIn(String role) async {
+    final token = await getToken(role);
+    return token != null && token.isNotEmpty;
   }
 }

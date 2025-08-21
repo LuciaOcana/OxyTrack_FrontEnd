@@ -49,68 +49,56 @@ class UserAdminController extends GetxController {
   // ✅ Pacientes seleccionados como lista reactiva
 
   void logIn() async {
-    if (usernameAdminController.text.isEmpty ||
-        passwordAdminController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Campos vacíos',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-      return;
-    }
-
-    print('🟢 Iniciando sesión desde UserController...');
-
-    final logInAdmin = (
-      username: usernameAdminController.text,
-      password: passwordAdminController.text,
-    );
-
-    isLoading.value = true;
-    errorMessage.value = '';
-
-    try {
-      final responseCode = await _userAdminServices.logIn(logInAdmin);
-
-      final token =
-          await tokenManager.getToken(); // 🔹 recupera el token guardado
-
-      print("Token disponible en controller: $token");
-      print('🔍 Respuesta del backend: $responseCode');
-
-      if (responseCode == 200) {
-        Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        await SessionManager.saveSession(
-          "admin",
-          token,
-          usernameAdminController.text,
-        );
-
-        // 🔹 Comprobamos que se guardó bien
-        final savedRole = await SessionManager.getRole();
-        final savedToken = await SessionManager.getToken();
-        final savedUsername = await SessionManager.getUsername();
-
-        print("✅ Sesión guardada correctamente");
-        print("Rol: $savedRole");
-        print("Token: $savedToken");
-        print("Username: $savedUsername");
-
-        Get.toNamed('/adminDoctorListPage');
-      } else if (responseCode == 300) {
-        errorMessage.value = 'Usuario deshabilitado'.tr;
-        Get.snackbar('Advertencia', errorMessage.value);
-      } else {
-        errorMessage.value = 'Usuario o contraseña incorrectos'.tr;
-        Get.snackbar('Error', errorMessage.value);
-      }
-    } catch (e) {
-      errorMessage.value = 'Error: No se pudo conectar con la API';
-      Get.snackbar('Error', errorMessage.value);
-    } finally {
-      isLoading.value = false;
-    }
+  if (usernameAdminController.text.isEmpty || passwordAdminController.text.isEmpty) {
+    Get.snackbar('Error', 'Campos vacíos', snackPosition: SnackPosition.BOTTOM);
+    return;
   }
+
+  print('🟢 Iniciando sesión desde UserController...');
+
+  final logInAdmin = (
+    username: usernameAdminController.text,
+    password: passwordAdminController.text,
+  );
+
+  isLoading.value = true;
+  errorMessage.value = '';
+
+  try {
+    final responseCode = await _userAdminServices.logIn(logInAdmin);
+    final token = await tokenManager.getToken();
+
+    print("Token disponible en controller: $token");
+    print('🔍 Respuesta del backend: $responseCode');
+
+    if (responseCode == 200) {
+      Get.snackbar('Éxito', 'Inicio de sesión exitoso');
+
+      await SessionManager.saveSession("admin", token, usernameAdminController.text);
+
+      final savedToken = await SessionManager.getToken("admin");
+      final savedUsername = await SessionManager.getUsername("admin");
+
+      print("✅ Sesión guardada correctamente");
+      print("Token: $savedToken");
+      print("Username: $savedUsername");
+
+      Get.toNamed('/adminDoctorListPage');
+    } else if (responseCode == 300) {
+      errorMessage.value = 'Usuario deshabilitado'.tr;
+      Get.snackbar('Advertencia', errorMessage.value);
+    } else {
+      errorMessage.value = 'Usuario o contraseña incorrectos'.tr;
+      Get.snackbar('Error', errorMessage.value);
+    }
+  } catch (e) {
+    errorMessage.value = 'Error: No se pudo conectar con la API';
+    Get.snackbar('Error', errorMessage.value);
+  } finally {
+    isLoading.value = false;
+  }
+}
+
 
   // Registro de usuario
 
@@ -186,39 +174,19 @@ class UserAdminController extends GetxController {
     }
   }
 
-  Future<bool> updateDoctor(String originalUsername, UserDoctorModel originalDoctor) async {
+  Future<bool> updateDoctor(String originalUsername, Map<String, dynamic> updatedFieldsFromDialog) async {
   try {
-    final Map<String, dynamic> updatedFields = {};
 
-    // 👇 Solo añadimos al body lo que realmente cambió
-    if (usernameDoctorControllerEdit.text.trim().isNotEmpty &&
-        usernameDoctorControllerEdit.text.trim() != originalDoctor.username) {
-      updatedFields["username"] = usernameDoctorControllerEdit.text.trim();
-    }
+ // Construimos los campos a enviar directamente
+    final Map<String, dynamic> updatedFields = {
+      "username": updatedFieldsFromDialog["username"]?.trim() ?? "",
+      "email": updatedFieldsFromDialog["email"]?.trim() ?? "",
+      "name": updatedFieldsFromDialog["name"]?.trim() ?? "",
+      "lastname": updatedFieldsFromDialog["lastname"]?.trim() ?? "",
+      "patients": updatedFieldsFromDialog["patients"] ?? [],
+      "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
+    };
 
-    if (emailDoctorControllerEdit.text.trim().isNotEmpty &&
-        emailDoctorControllerEdit.text.trim() != originalDoctor.email) {
-      updatedFields["email"] = emailDoctorControllerEdit.text.trim();
-    }
-
-    if (nameDoctorControllerEdit.text.trim().isNotEmpty &&
-        nameDoctorControllerEdit.text.trim() != originalDoctor.name) {
-      updatedFields["name"] = nameDoctorControllerEdit.text.trim();
-    }
-
-    if (lastnameDoctorControllerEdit.text.trim().isNotEmpty &&
-        lastnameDoctorControllerEdit.text.trim() != originalDoctor.lastname) {
-      updatedFields["lastname"] = lastnameDoctorControllerEdit.text.trim();
-    }
-
-    if (selectedPatientsEdit.isNotEmpty &&
-        !listEquals(selectedPatientsEdit, originalDoctor.patients ?? [])) {
-      updatedFields["patients"] = selectedPatientsEdit.toList();
-    }
-
-    if (passwordDoctorControllerEdit.text.trim().isNotEmpty) {
-      updatedFields["password"] = passwordDoctorControllerEdit.text.trim();
-    }
 
     if (updatedFields.isEmpty) {
       Get.snackbar('Info', 'No se han realizado cambios');
@@ -273,7 +241,7 @@ class UserAdminController extends GetxController {
     try {
       final responseCode = await _userAdminServices.logOut();
       // 🔹 Llamada correcta a función async
-      await SessionManager.clearSession();
+await SessionManager.clearSession("admin"); // 👈 solo borra la sesión del admin
       print('🔍 Respuesta del backend: $responseCode');
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
