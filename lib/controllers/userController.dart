@@ -6,7 +6,6 @@ import 'package:oxytrack_frontend/models/user.dart';
 import 'package:oxytrack_frontend/services/userServices.dart';
 import 'package:oxytrack_frontend/services/userDoctorServices.dart';
 import 'package:oxytrack_frontend/services/irServices.dart';
-import 'package:oxytrack_frontend/services/backendService.dart';
 
 import 'package:oxytrack_frontend/others/sessionManager.dart';
 import 'package:oxytrack_frontend/auth/tokenManager.dart';
@@ -144,11 +143,6 @@ class UserController extends GetxController {
           token,
           usernameLogInController.text,
         );
-// 🔹 Indicar al BackendService quién es el usuario logueado
-    //BackendService.instance.setLoggedInUser(usernameLogInController.text);
-//await _bleListener.sendLogin(); // <- Esto envía el "1" al ESP32
-
-    // 🔹 Enviar loginStatus al ESP32 para que pueda reaccionar
         _irService.connect();
         Get.toNamed('/homeUser');
       } else if (responseCode == 300) {
@@ -187,7 +181,7 @@ class UserController extends GetxController {
         await SessionManager.saveSession(
           "user", // 👈 rol explícito
           token,
-          usernameLogInController.text,
+          "GuestPatient",
         );
 
     // 🔹 Enviar loginStatus al ESP32 para que pueda reaccionar

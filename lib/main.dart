@@ -24,7 +24,6 @@ import 'package:oxytrack_frontend/widgets/navBarUser.dart';
 import 'package:oxytrack_frontend/widgets/navBarAdmin.dart';
 import 'package:oxytrack_frontend/widgets/navBarDoctor.dart';
 
-import 'package:oxytrack_frontend/services/backendService.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
