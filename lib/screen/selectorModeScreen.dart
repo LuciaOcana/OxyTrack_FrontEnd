@@ -7,23 +7,24 @@ class SelectorModeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
+    // 🎨 Paleta dinámica
+    final appBarColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonTextColor = isLight ? Colors.white : const Color(0xFFCAF0F8);
+    final titleColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final textPrimary = isLight ? Colors.black87 : Colors.white;
+
     return Scaffold(
-      // ✅ Si el tema es claro, fondo blanco. Si es oscuro, fondo del tema.
-      backgroundColor:
-          Theme.of(context).brightness == Brightness.light
-              ? Colors.white
-              : Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: isLight ? Colors.white : Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0096C7),
+        backgroundColor: appBarColor,
         centerTitle: true,
         automaticallyImplyLeading: false,
-        // 🌙/☀️ Botón de cambiar tema
         leading: IconButton(
           icon: Icon(
-            Theme.of(context).brightness == Brightness.light
-                ? Icons
-                    .dark_mode // si está claro → mostrar luna
-                : Icons.light_mode, // si está oscuro → mostrar sol
+            isLight ? Icons.dark_mode : Icons.light_mode,
             color: Colors.white,
           ),
           onPressed: () => Get.find<ThemeController>().toggleTheme(),
@@ -55,18 +56,18 @@ class SelectorModeScreen extends StatelessWidget {
               children: [
                 const SizedBox(height: 20),
                 Image.asset(
-                  Theme.of(context).brightness == Brightness.light
-                      ? 'lib/others/images/SpO.png' // 🟢 Imagen para tema claro
-                      : 'lib/others/images/SpODark.png', // 🌑 Imagen para tema oscuro
+                  isLight
+                      ? 'lib/others/images/SpO.png'
+                      : 'lib/others/images/SpODark.png',
                   height: 200,
                 ),
 
                 const SizedBox(height: 20),
-                const Text(
+                Text(
                   'Bienvenido a OxyTrack',
                   style: TextStyle(
                     fontSize: 24,
-                    color: Color(0xFF0096C7),
+                    color: titleColor,
                     fontFamily: 'OpenSans',
                     fontWeight: FontWeight.bold,
                   ),
@@ -78,7 +79,7 @@ class SelectorModeScreen extends StatelessWidget {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: const Color(0xFF0096C7),
+                    backgroundColor: buttonColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -86,11 +87,11 @@ class SelectorModeScreen extends StatelessWidget {
                   onPressed: () {
                     Get.toNamed('/logIn');
                   },
-                  child: const Text(
+                  child: Text(
                     'Soy paciente',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Color(0xFFCAF0F8),
+                      color: buttonTextColor,
                       fontFamily: 'OpenSans',
                       fontWeight: FontWeight.bold,
                     ),
@@ -102,7 +103,7 @@ class SelectorModeScreen extends StatelessWidget {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: const Color(0xFF0096C7),
+                    backgroundColor: buttonColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -110,17 +111,26 @@ class SelectorModeScreen extends StatelessWidget {
                   onPressed: () {
                     Get.toNamed('/loginDoctor');
                   },
-                  child: const Text(
+                  child: Text(
                     'Soy personal médico',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Color(0xFFCAF0F8),
+                      color: buttonTextColor,
                       fontFamily: 'OpenSans',
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 const SizedBox(height: 16),
+
+                Text(
+                  'Este texto también cambia con el tema',
+                  style: TextStyle(
+                    color: textPrimary,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),
