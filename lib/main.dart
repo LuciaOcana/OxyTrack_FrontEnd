@@ -25,24 +25,11 @@ import 'package:oxytrack_frontend/widgets/navBarAdmin.dart';
 import 'package:oxytrack_frontend/widgets/navBarDoctor.dart';
 
 import 'package:oxytrack_frontend/services/backendService.dart';
-import 'package:oxytrack_frontend/ble/bleListener.dart'; // Tu BLE listener
-import 'package:oxytrack_frontend/ble/blePermissions.dart';
-
-//final BleListener _bleListener = BleListener();
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init(); // ✅ Inicializa GetStorage
   Get.put(ThemeController());
-
-  await requestBLEPermissions();  // 🔹 Pedimos permisos al inicio
-
-// Iniciar escaneo y conexión automática
-  
-
-  // 🔹 Iniciar escaneo y conexión automática
-  //await _bleListener.scanAndConnect();
 
   final initialRoute = await getInitialRoute();
   runApp(MyApp(initialRoute: initialRoute));

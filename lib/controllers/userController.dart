@@ -10,10 +10,6 @@ import 'package:oxytrack_frontend/services/backendService.dart';
 
 import 'package:oxytrack_frontend/others/sessionManager.dart';
 import 'package:oxytrack_frontend/auth/tokenManager.dart';
-import 'package:oxytrack_frontend/ble/bleListener.dart'; // Tu BLE listener
-import 'package:oxytrack_frontend/ble/blePermissions.dart';
-
-
 
 /// ======================================================
 /// CONTROLADOR DE USUARIO
@@ -193,14 +189,6 @@ class UserController extends GetxController {
           token,
           usernameLogInController.text,
         );
-            await requestBLEPermissions();  // 🔹 Pedimos permisos aquí
-
-// 🔹 Indicar al BackendService quién es el usuario logueado
-    //BackendService.instance.setLoggedInUser(usernameLogInController.text);
-
-// 🔹 Enviar loginStatus al ESP32 para que pueda reaccionar
-//await _bleListener.sendLogin(); // <- Esto envía el "1" al ESP32
-
 
     // 🔹 Enviar loginStatus al ESP32 para que pueda reaccionar
         _irService.connect();

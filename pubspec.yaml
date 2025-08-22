@@ -13,13 +13,13 @@ dependencies:
     sdk: flutter
   dio: ^5.0.0 # Verifica la última versión disponible
   get: ^4.7.2
-  flutter_reactive_ble: ^5.4.0
-  permission_handler: ^11.3.1  # ← agrega esto
+  #flutter_reactive_ble: ^5.4.0
+  #permission_handler: ^11.3.1  # ← agrega esto
   http: ^1.1.0
   cupertino_icons: ^1.0.8
   syncfusion_flutter_charts: ^30.1.38
   shared_preferences: ^2.0.15
-  collection: ^1.18.0
+  #collection: ^1.18.0
 
 
 dev_dependencies:
