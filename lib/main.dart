@@ -19,22 +19,32 @@ import 'package:oxytrack_frontend/screen/homeAdminDoctorListPageScreen.dart';
 import 'package:oxytrack_frontend/screen/homeAdminAddDoctorPageScreen.dart';
 import 'package:oxytrack_frontend/screen/homeGuestPageScreen.dart';
 
-
 // Otros widgets o pantallas compartidas
-import 'package:oxytrack_frontend/screen/bluetoothScreen.dart';
 import 'package:oxytrack_frontend/widgets/navBarUser.dart';
 import 'package:oxytrack_frontend/widgets/navBarAdmin.dart';
 import 'package:oxytrack_frontend/widgets/navBarDoctor.dart';
+
+import 'package:oxytrack_frontend/services/backendService.dart';
+import 'package:oxytrack_frontend/ble/bleListener.dart'; // Tu BLE listener
+import 'package:oxytrack_frontend/ble/blePermissions.dart';
+
+//final BleListener _bleListener = BleListener();
 
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await GetStorage.init(); // ✅ Inicializa GetStorage
-  // Inicializa el controlador de tema
   Get.put(ThemeController());
 
-  final initialRoute = await getInitialRoute();
+  await requestBLEPermissions();  // 🔹 Pedimos permisos al inicio
 
+// Iniciar escaneo y conexión automática
+  
+
+  // 🔹 Iniciar escaneo y conexión automática
+  //await _bleListener.scanAndConnect();
+
+  final initialRoute = await getInitialRoute();
   runApp(MyApp(initialRoute: initialRoute));
 }
 
@@ -54,12 +64,18 @@ class MyApp extends StatelessWidget {
 
         // Tema claro personalizado
         theme: ThemeData.light().copyWith(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.light),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.teal,
+            brightness: Brightness.light,
+          ),
           useMaterial3: true,
           scaffoldBackgroundColor: const Color(0xFFE0F7FA),
           appBarTheme: const AppBarTheme(
             backgroundColor: Color(0xFF89AFAF),
-            titleTextStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
+            titleTextStyle: TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           textTheme: const TextTheme(
             bodyLarge: TextStyle(color: Colors.black),
@@ -70,12 +86,18 @@ class MyApp extends StatelessWidget {
 
         // Tema oscuro personalizado
         darkTheme: ThemeData.dark().copyWith(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal, brightness: Brightness.dark),
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.teal,
+            brightness: Brightness.dark,
+          ),
           useMaterial3: true,
           scaffoldBackgroundColor: const Color(0xFF121212),
           appBarTheme: AppBarTheme(
             backgroundColor: Colors.grey[850],
-            titleTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            titleTextStyle: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           textTheme: const TextTheme(
             bodyLarge: TextStyle(color: Colors.white),
@@ -86,7 +108,8 @@ class MyApp extends StatelessWidget {
           iconTheme: const IconThemeData(color: Colors.white70),
         ),
 
-        themeMode: themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
+        themeMode:
+            themeController.isDarkMode.value ? ThemeMode.dark : ThemeMode.light,
         initialRoute: initialRoute,
         getPages: [
           // General
@@ -94,24 +117,48 @@ class MyApp extends StatelessWidget {
 
           // Usuario
           GetPage(name: '/logIn', page: () => logInScreen()),
-          GetPage(name: '/homeUser', page: () => BottomNavScaffold(child: HomePageScreen())),
-          GetPage(name: '/profileUser', page: () => BottomNavScaffold(child: UserProfileScreen())),
+          GetPage(
+            name: '/homeUser',
+            page: () => BottomNavScaffold(child: HomePageScreen()),
+          ),
+          GetPage(
+            name: '/profileUser',
+            page: () => BottomNavScaffold(child: UserProfileScreen()),
+          ),
 
           // Ucuario invitado
           GetPage(name: '/homeGuest', page: () => HomeGuestPageScreen()),
 
           // Doctor
           GetPage(name: '/loginDoctor', page: () => LogInDoctorScreen()),
-          GetPage(name: '/doctorPatientListPage', page: () => BottomNavScaffoldDoctor (child:HomeDoctorPatientListPageScreen())),
-          GetPage(name: '/doctorEditDoctorPage', page: () => BottomNavScaffoldDoctor (child: HomeDoctorEditDoctorPageScreen())),
+          GetPage(
+            name: '/doctorPatientListPage',
+            page:
+                () => BottomNavScaffoldDoctor(
+                  child: HomeDoctorPatientListPageScreen(),
+                ),
+          ),
+          GetPage(
+            name: '/doctorEditDoctorPage',
+            page:
+                () => BottomNavScaffoldDoctor(
+                  child: HomeDoctorEditDoctorPageScreen(),
+                ),
+          ),
 
           // Admin
           GetPage(name: '/loginAdmin', page: () => LogInAdminScreen()),
-          GetPage(name: '/adminDoctorListPage', page: () => BottomNavScaffoldAdmin(child: AdminDoctorListPageScreen())),
-          GetPage(name: '/adminAddDoctorPage', page: () => BottomNavScaffoldAdmin(child: AdminAddDoctorPageScreen())),
-
-          // Común
-          GetPage(name: '/bluetooth', page: () => BluetoothPage()),
+          GetPage(
+            name: '/adminDoctorListPage',
+            page:
+                () =>
+                    BottomNavScaffoldAdmin(child: AdminDoctorListPageScreen()),
+          ),
+          GetPage(
+            name: '/adminAddDoctorPage',
+            page:
+                () => BottomNavScaffoldAdmin(child: AdminAddDoctorPageScreen()),
+          ),
         ],
       );
     });
