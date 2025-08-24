@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import '../models/userDoctor.dart';
 
 import '../controllers/userDoctorController.dart';
+import 'package:oxytrack_frontend/others/themeController.dart';
+import 'package:oxytrack_frontend/others/sessionManager.dart';
+
+
 
 class HomeDoctorEditDoctorPageScreen extends StatefulWidget {
   const HomeDoctorEditDoctorPageScreen({super.key});
@@ -13,69 +18,143 @@ class HomeDoctorEditDoctorPageScreen extends StatefulWidget {
 
 class _HomeDoctorEditDoctorPageScreenState
     extends State<HomeDoctorEditDoctorPageScreen> {
+   final RxString name = ''.obs;
+  final RxString email = ''.obs;
+final RxBool isLoading = false.obs; // Defínelo dentro de _UserProfileScreenState
+  UserDoctorModel? userDoctorModel;
+
   final UserDoctorController _userDoctorController = UserDoctorController();
 
   @override
-  Widget build(BuildContext context) {
+void initState() {
+    super.initState();
+    loadUserData();
+  }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: Text("Perfil del Doctor"),
-        backgroundColor: const Color(0xFF0096C7),
-        centerTitle: true,
-        elevation: 4,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout, 
-              color: Color(0xFFe2fdff),),
-            
-            tooltip: 'Cerrar sesión',
-            onPressed: () => _showLogoutDialog(context),
+  Future<void> loadUserData() async {
+    isLoading.value = true;
+final username = await SessionManager.getUsername("doctor");
+    if (username != null) {
+final fetchedUser = await _userDoctorController.fetchUser("doctor");
+      if (fetchedUser != null) {
+        userDoctorModel = fetchedUser;
+        name.value = userDoctorModel!.name;
+        email.value = userDoctorModel!.email;
+      }
+    }
+    isLoading.value = false;
+    setState(() {});
+  }
+
+ @override
+Widget build(BuildContext context) {
+
+
+  final isLight = Theme.of(context).brightness == Brightness.light;
+
+    // 🎨 Colores dinámicos
+    final appBarColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final altButtonBg =
+        isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
+    final altButtonText =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final titleColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
+
+  return Scaffold(
+backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    appBar: AppBar(
+      title: const Text("Perfil doctor"),
+      backgroundColor: appBarColor,
+      automaticallyImplyLeading: false,
+       leading: IconButton(
+          icon: Icon(
+            isLight ? Icons.dark_mode : Icons.light_mode,
+            color: Colors.white,
           ),
-        ],
+          onPressed: () => Get.find<ThemeController>().toggleTheme(),
+        ),
+      centerTitle: true,
+      titleTextStyle: const TextStyle(
+        fontFamily: 'OpenSans',
+        fontWeight: FontWeight.bold,
+        fontSize: 20,
+        color: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          children: [
-            // 🔹 Avatar + Bienvenida
-            CircleAvatar(
-              radius: 50,
-              backgroundColor: Colors.blue.shade100,
-              child: const Icon(Icons.person, size: 60, color: Colors.white),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              "Bienvenido",
-              style: TextStyle(
-                fontSize: 20,
-                color: Colors.grey.shade700,
-              ),
-            ),
-            Text(
-              _userDoctorController.usernameLogInDoctorController.text,
-              style: const TextStyle(
-                fontSize: 26,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF023E8A),
-              ),
-            ),
-            const SizedBox(height: 40),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.logout, color: Color(0xFFe2fdff)),
+          tooltip: 'Cerrar sesión',
+onPressed: () {
+              _showLogoutDialog(context);
+            },        ),
+      ],
+    ),
+    body: Obx(() {
+        if (isLoading.value) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (userDoctorModel == null) {
+          return const Center(child: Text('No se pudo cargar el usuario'));
+        }
+      return Center(
+        child: Padding(
+                  padding: const EdgeInsets.all(24),
+          child: Column(
 
-            // 🔹 Botones de opciones
-            _actionButton(
-              icon: Icons.lock_reset,
-              text: "Cambiar contraseña",
-              onTap: () {
-                _showChangePasswordDialog(context);
-              },
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+             const Text("👤", style: TextStyle(fontSize: 80)),
+              const SizedBox(height: 20),
+            Obx(
+                () => Text(
+                  name.value,
+                  style: const TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'OpenSans',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Obx(
+                () => Text(
+                  email.value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                    fontFamily: 'OpenSans',
+                  ),
+                ),
+              ),
+            const SizedBox(height: 20),
+           
+            // Botón de acción estilizado
+            ElevatedButton.icon(
+              onPressed: () => _showChangePasswordDialog(context, textColor),
+              icon: const Icon(Icons.lock_reset, color: Colors.white),
+              label: Text('Cambiar contraseña', style: TextStyle(color: textColor)),
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 60),
+                backgroundColor: buttonColor,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
         ),
       ),
     );
-  }
+}),
+  );
+}
+
 
   /// 🔹 Widget para botones elegantes
   Widget _actionButton({
@@ -100,7 +179,7 @@ class _HomeDoctorEditDoctorPageScreenState
   }
 
   /// 🔹 Dialog para cambiar contraseña
-  void _showChangePasswordDialog(BuildContext context) {
+  void _showChangePasswordDialog(BuildContext context, Color textColor) {
 
     showDialog(
       context: context,
@@ -126,7 +205,7 @@ class _HomeDoctorEditDoctorPageScreenState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
+            child: Text('Cancelar', style: TextStyle(color: textColor)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -136,38 +215,67 @@ class _HomeDoctorEditDoctorPageScreenState
                 Navigator.pop(context);
                 
             },
-            child: const Text("Guardar"),
+            child: Text('Guardar', style: TextStyle(color: textColor)),
           ),
         ],
       ),
     );
   }
 
-  /// 🔹 Dialog de cierre de sesión
+
   void _showLogoutDialog(BuildContext context) {
+     final isLight = Theme.of(context).brightness == Brightness.light;
+
+        final textColor = isLight ? Colors.black87 : Colors.white;
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        content: const Text("¿Estás seguro de que quieres cerrar sesión?",
-            style: TextStyle(fontSize: 16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFB31B1B),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          content: Text(
+            "¿Estás segura de que quieres cerrar sesión?",
+            style: TextStyle(
+              fontSize: 16,
+              color: textColor,
+              fontFamily: 'OpenSans',
             ),
-            onPressed: () {
-              // 🔹 Aquí cerrar sesión
-              Navigator.pop(context);
-            },
-            child: const Text("Cerrar sesión"),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFE4E1)),
+              child: const Text(
+                "Cancelar",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFFB31B1B),
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _userDoctorController.logout();
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB31B1B)),
+              child: const Text(
+                "Cerrar sesión",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFFFFE4E1),
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -6,6 +6,8 @@ import 'package:oxytrack_frontend/controllers/userController.dart';
 import 'package:oxytrack_frontend/services/userServices.dart';
 import 'package:oxytrack_frontend/others/sessionManager.dart';
 import 'package:oxytrack_frontend/models/user.dart';
+import 'package:oxytrack_frontend/others/themeController.dart';
+
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -47,6 +49,23 @@ final fetchedUser = await _userController.fetchUser("user");
 
   @override
   Widget build(BuildContext context) {
+
+  final isLight = Theme.of(context).brightness == Brightness.light;
+
+    // 🎨 Colores dinámicos
+    final appBarColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final altButtonBg =
+        isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
+    final altButtonText =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final titleColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
+
     if (userModel == null) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -54,8 +73,15 @@ final fetchedUser = await _userController.fetchUser("user");
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil'),
-        backgroundColor: const Color(0xFF0096C7),
+        backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
+          leading: IconButton(
+          icon: Icon(
+            isLight ? Icons.dark_mode : Icons.light_mode,
+            color: Colors.white,
+          ),
+          onPressed: () => Get.find<ThemeController>().toggleTheme(),
+        ),
         centerTitle: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'OpenSans',
@@ -65,7 +91,7 @@ final fetchedUser = await _userController.fetchUser("user");
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Color(0xFFe2fdff)),
             tooltip: 'Cerrar sesión',
             onPressed: () => _showLogoutDialog(context),
           ),
@@ -116,9 +142,11 @@ final fetchedUser = await _userController.fetchUser("user");
                       context,
                       userModel!,
                       _userController,
+                      
                       () async {
                         await loadUserData();
                       },
+                      textColor
                     );
                   } else {
                     Get.snackbar('Error', 'No se pudo cargar el usuario');
@@ -127,7 +155,7 @@ final fetchedUser = await _userController.fetchUser("user");
                 icon: const Icon(Icons.edit),
                 label: const Text('Editar perfil'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF0096C7),
+                  backgroundColor: buttonColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32,
@@ -153,33 +181,58 @@ final fetchedUser = await _userController.fetchUser("user");
 
 
   void _showLogoutDialog(BuildContext context) {
+     final isLight = Theme.of(context).brightness == Brightness.light;
+
+        final textColor = isLight ? Colors.black87 : Colors.white;
     showDialog(
       context: context,
-      builder:
-          (_) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          content: Text(
+            "¿Estás segura de que quieres cerrar sesión?",
+            style: TextStyle(
+              fontSize: 16,
+              color: textColor,
+              fontFamily: 'OpenSans',
             ),
-            content: const Text(
-              "¿Estás segura de que quieres cerrar sesión?",
-              style: TextStyle(fontSize: 16),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text("Cancelar"),
-              ),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB31B1B),
-                ),
-                onPressed: () {
-                  _userController.logout();
-                },
-                child: const Text("Cerrar sesión"),
-              ),
-            ],
           ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFFFE4E1)),
+              child: const Text(
+                "Cancelar",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFFB31B1B),
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _userController.logout();
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFB31B1B)),
+              child: const Text(
+                "Cerrar sesión",
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Color(0xFFFFE4E1),
+                  fontFamily: 'OpenSans',
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -189,6 +242,7 @@ void _showEditDialog(
   UserModel user,
   UserController userController,
   VoidCallback onSaved,
+  Color textColor
 ) {
   // Inicializamos los controladores con los datos actuales
   userController.usernameControllerEdit.text = user.username;
@@ -205,13 +259,13 @@ void _showEditDialog(
     builder: (BuildContext context) {
       return AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'Editar Perfil',
+        title: Text(
+          'Editar perfil',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: 'OpenSans',
             fontWeight: FontWeight.bold,
-            color: Color(0xFF0096C7),
+            color: textColor,
           ),
         ),
         content: SizedBox(
@@ -261,7 +315,7 @@ void _showEditDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancelar'),
+            child: Text('Cancelar', style: TextStyle(color: textColor)),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -313,7 +367,7 @@ void _showEditDialog(
                 Get.snackbar('Error', 'No se pudo actualizar el usuario');
               }
             },
-            child: const Text('Guardar'),
+            child: Text('Guardar', style: TextStyle(color: textColor)),
           ),
         ],
       );

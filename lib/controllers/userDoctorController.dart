@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:oxytrack_frontend/models/userDoctor.dart';
+
 import 'package:oxytrack_frontend/services/userDoctorServices.dart';
 import 'package:oxytrack_frontend/others/sessionManager.dart';
 import 'package:oxytrack_frontend/auth/tokenManager.dart';
@@ -25,6 +27,27 @@ class UserDoctorController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
+    final Rxn<UserDoctorModel> userDoctorModel = Rxn<UserDoctorModel>();
+
+  UserDoctorModel? doctor;
+
+// Obtener datos de usuario desde el backend y guardarlos en el controlador
+  Future<UserDoctorModel?> fetchUser(String role) async {
+    try {
+      final username = await SessionManager.getUsername(role);
+      if (username != null) {
+        doctor = await _userDoctorServices.getDoctor(username);
+        userDoctorModel.value = doctor;
+        return doctor;
+      } else {
+        print('No se encontró el username en sesión para el rol $role');
+        return null;
+      }
+    } catch (e) {
+      print('Error al obtener el usuario: $e');
+      return null;
+    }
+  }
 
 
   void logIn() async {
@@ -108,6 +131,7 @@ void changeDoctorPassword() async {
     if (responseCode == 200) {
       Get.snackbar("Éxito", "Contraseña cambiada correctamente", snackPosition: SnackPosition.BOTTOM);
       passwordPasswLostControllerDoctor.clear();
+      confirmPasswordControllerDoctor.clear();
     } else {
       Get.snackbar("Error", "No se pudo cambiar la contraseña ($responseCode)", snackPosition: SnackPosition.BOTTOM);
     }
@@ -115,5 +139,30 @@ void changeDoctorPassword() async {
     Get.snackbar("Error", "Error inesperado: $e", snackPosition: SnackPosition.BOTTOM);
   }
 }
+
+
+
+  void logout() async {
+    try {
+      final responseCode = await _userDoctorServices.logOut();
+      // 🔹 Llamada correcta a función async
+await SessionManager.clearSession("doctor"); // 👈 solo borra la sesión del admin
+      print('🔍 Respuesta del backend: $responseCode');
+      if (responseCode == 200) {
+        Get.snackbar('Éxito', 'Inicio de sesión exitoso');
+
+        Get.toNamed('/selectorMode');
+      } else if (responseCode == 300) {
+        Get.snackbar('Advertencia', errorMessage.value);
+      } else {
+        Get.snackbar('Error', errorMessage.value);
+      }
+    } catch (e) {
+      errorMessage.value = 'Error: No se pudo conectar con la API';
+      Get.snackbar('Error', errorMessage.value);
+    } finally {
+      isLoading.value = false;
+    }
+  }
 
 }

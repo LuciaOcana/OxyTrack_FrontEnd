@@ -25,7 +25,9 @@ class UserDoctorServices {
   final TokenManager _tokenManager = TokenManager();
 
   // ----------------- 🔌 WEBSOCKET -----------------
-  final String wsUrl = 'ws://172.20.10.5:3000/doctor'; // Ajusta IP
+  //final String wsUrl = 'ws://172.20.10.5:3000/doctor'; // Ajusta IP
+  final String wsUrl = 'ws://192.168.1.48:3000/doctor'; // Ajusta IP
+
   WebSocket? _socket;
 
   String? _loggedDoctor; // variable no final, permite asignar null al desconectarse
@@ -227,17 +229,61 @@ class UserDoctorServices {
     }
   }
 
+
+
+Future<UserDoctorModel> getDoctor(String username) async {
+    try {
+      //Verificamos que tenemos token
+      await _tokenManager.ensureTokenInitialized();
+
+      // Obtener usuarios con paginación
+      print('Obteniendo doctores desde el backend con paginación');
+        Response response = await dio.get(
+        '$baseUrl/doctors/getDoctor/$username',
+        options: Options(
+          headers: {
+            'Authorization': "Bearer ${_tokenManager.token!}",
+            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
+          },
+        ),
+      );
+
+     
+    print("✅ Respuesta completa del servidor: ${ response.data}");
+    print("✅ Respuesta completa del servidor: ${ response.data}");
+
+  if (response.statusCode == 200) {
+        print('Usuario actualizado');
+        // Suponiendo que UserModel tiene un fromJson
+      return UserDoctorModel.fromJson(response.data);
+      } else {
+            throw Exception('Error al obtener usuario: ${response.statusCode}');
+
+      }
+}
+catch(e){print('Excepción en getUser: $e');
+    throw Exception('Error en la petición de usuario');}}
+
+
+
+
+
   Map<String, dynamic> logInDoctorJson(logInDoctor) => {
     'username': logInDoctor.username,
     'password': logInDoctor.password,
   };
 
-  Future<int> logOut(logIn) async {
+  Future<int> logOut() async {
     try {
-      print('Enviando solicitud de LogIn');
-      Response response = await dio.post('$baseUrl/doctors/logout');
+      Response response = await dio.post('$baseUrl/doctors/logout',
+       options: Options(
+          headers: {
+            "Authorization": "Bearer $_tokenManager.token!",
+            //'Token': _tokenManager.token!, // 🔐 Token desde memoria
+          },));
 
       if (response.statusCode == 200) {
+        disconnectWS();
         return 200;
       } else {
         print('Error en logout: ${response.statusCode}');

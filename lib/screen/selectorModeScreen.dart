@@ -123,14 +123,6 @@ class SelectorModeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                Text(
-                  'Este texto también cambia con el tema',
-                  style: TextStyle(
-                    color: textPrimary,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
               ],
             ),
           ),

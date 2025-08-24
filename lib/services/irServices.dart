@@ -19,7 +19,7 @@ class IrService {
   IrService._internal();
   // ---------------------------------------------------
 
-  final String wsUrl = 'ws://172.20.10.5:3000';
+  final String wsUrl = 'ws://192.168.1.48:3000';
   WebSocket? _socket;
 
   // StreamController broadcast para que múltiples listeners puedan escuchar

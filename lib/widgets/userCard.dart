@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/user.dart';
 import '../controllers/userController.dart';
+import 'package:flutter/foundation.dart'; // <-- necesario para listEquals
 
 class UserCard extends StatelessWidget {
   final UserModel user;
@@ -17,6 +18,19 @@ class UserCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final nameColor =
+        isLight
+            ? const Color(0xFF023E8A)
+            : const Color.fromARGB(255, 119, 220, 237);
+    final userAndEmailColor =
+        isLight
+            ? Colors.grey.shade500
+            : const Color.fromARGB(255, 208, 241, 247);
+    final buttonColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final textColor = isLight ? Colors.black87 : Colors.white;
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -35,10 +49,10 @@ class UserCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     user.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF023E8A),
+                      color: nameColor,
                     ),
                   ),
                 ),
@@ -77,17 +91,20 @@ class UserCard extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 8),
+            //const SizedBox(height: 8),
 
             // 🔹 Username
             Text(
-              'Username: ${user.username}',
-              style: const TextStyle(fontSize: 16),
+              'Nombre de usuario: ${user.username}',
+              style: TextStyle(fontSize: 16, color: userAndEmailColor),
             ),
             const SizedBox(height: 4),
 
             // 🔹 Email
-            Text('Email: ${user.email}', style: const TextStyle(fontSize: 16)),
+            Text(
+              'Correo electrónico: ${user.email}',
+              style: TextStyle(fontSize: 16, color: userAndEmailColor),
+            ),
             const SizedBox(height: 12),
 
             // 🔹 Botón Editar
@@ -96,12 +113,15 @@ class UserCard extends StatelessWidget {
               children: [
                 ElevatedButton.icon(
                   onPressed: () {
-                    _showEditDialog(context);
+                    _showEditDialog(context, textColor);
                   },
                   icon: const Icon(Icons.edit),
-                  label: const Text('Editar'),
+                  label: const Text(
+                    'Editar',
+                    style: TextStyle(color: Color(0xFFCAF0F8)),
+                  ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF0096C7),
+                    backgroundColor: buttonColor,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 12,
@@ -119,7 +139,7 @@ class UserCard extends StatelessWidget {
     );
   }
 
-  void _showEditDialog(BuildContext context) {
+  void _showEditDialog(BuildContext context, Color textColor) {
     final UserController _userController = UserController();
 
     _userController.medicationControllerEdit.text = user.medication.join(", ");
@@ -131,8 +151,9 @@ class UserCard extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: const Text(
-            'Editar medicació del usuario',
+          title: Text(
+            'Editar medicación usuario',
+            style: TextStyle(color: textColor),
             textAlign: TextAlign.center,
           ),
           content: SizedBox(
@@ -148,8 +169,9 @@ class UserCard extends StatelessWidget {
                       TextField(
                         controller: _userController.medicationControllerEdit,
                         decoration: const InputDecoration(
-                          labelText:
-                              'Medicacion (separe las diferentes medicaciones con una coma ",")',
+                          labelText: 'Medicación',
+                          helperText:
+                              'Ingrese medicaciones separadas por comas', // nota debajo del campo
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -163,34 +185,29 @@ class UserCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancelar'),
+              child: Text('Cancelar', style: TextStyle(color: textColor)),
             ),
             ElevatedButton(
               onPressed: () async {
                 final dialogLoading = ValueNotifier(false);
                 dialogLoading.value = true;
+                final updatedFields = <String, dynamic>{};
 
-                final updatedFields = {
-                  "username": user.username ?? "",
-                  "email": user.email ?? "",
-                  "name": user.name ?? "",
-                  "lastname": user.lastname ?? "",
-                  "birthDate": user.birthDate ?? "",
-                  "age": user.age ?? "",
-                  "weight": user.weight ?? "",
-                  "height": user.height ?? "",
-                  "medication":
-                      _userController.medicationControllerEdit.text
-                              .trim()
-                              .isNotEmpty
-                          ? _userController.medicationControllerEdit.text
-                              .split(",")
-                              .map((e) => e.trim())
-                              .toList()
-                          : user.medication,
-                  "doctor": user.doctor ?? "",
-                  "password": user.password ?? "",
-                };
+                // Tomamos el texto del TextField
+                final medicationText =
+                    _userController.medicationControllerEdit.text.trim();
+
+                // Solo actualizamos si el campo no está vacío y es distinto del valor anterior
+                if (medicationText.isNotEmpty &&
+                    !listEquals(
+                      medicationText.split(',').map((e) => e.trim()).toList(),
+                      user.medication,
+                    )) {
+                  updatedFields["medication"] =
+                      medicationText.split(',').map((e) => e.trim()).toList();
+                }
+
+                print("USUARIO:$updatedFields");
 
                 final success = await _userController.updateUserByDoctor(
                   user.username,
@@ -201,7 +218,7 @@ class UserCard extends StatelessWidget {
                 Navigator.of(context).pop();
                 if (onEdit != null) onEdit!();
               },
-              child: const Text('Guardar'),
+              child: Text('Guardar', style: TextStyle(color: textColor)),
             ),
           ],
         );

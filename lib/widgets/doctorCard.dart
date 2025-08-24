@@ -52,14 +52,16 @@ class DoctorCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Correo electrónico: ${doctor.email}',
-              style: TextStyle(fontSize: 16, color: userAndEmailColor),
-            ),
-            const SizedBox(height: 4),
-            Text(
               'Nombre de usuario: ${doctor.username}',
               style: TextStyle(fontSize: 16, color: userAndEmailColor),
             ),
+            const SizedBox(height: 4),
+
+            Text(
+              'Correo electrónico: ${doctor.email}',
+              style: TextStyle(fontSize: 16, color: userAndEmailColor),
+            ),
+
             const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -261,7 +263,9 @@ class DoctorCard extends StatelessWidget {
                             }
                           },
                           child: Container(
-                            width: double.infinity, // ← esto hace que ocupe todo el ancho
+                            width:
+                                double
+                                    .infinity, // ← esto hace que ocupe todo el ancho
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 18,
@@ -290,9 +294,7 @@ class DoctorCard extends StatelessWidget {
                                       .join(', '),
                               style: const TextStyle(fontSize: 16),
                             ),
-                            
                           ),
-                          
                         );
                       }),
                       //const SizedBox(height: 8),
@@ -314,7 +316,7 @@ class DoctorCard extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Cancelar', style: TextStyle(color: textColor),),
+              child: Text('Cancelar', style: TextStyle(color: textColor)),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -333,7 +335,17 @@ class DoctorCard extends StatelessWidget {
 
                 final email =
                     _userAdminController.emailDoctorControllerEdit.text.trim();
+
+                // Validación de formato de correo electrónico
                 if (email.isNotEmpty && email != doctor.email) {
+                  if (!GetUtils.isEmail(email)) {
+                    Get.snackbar(
+                      'Error',
+                      'Correo electrónico no válido',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                    return; // O return false si estás en un Future<bool>
+                  }
                   updatedDoctor["email"] = email;
                 }
 
@@ -353,7 +365,21 @@ class DoctorCard extends StatelessWidget {
                 final password =
                     _userAdminController.passwordDoctorControllerEdit.text
                         .trim();
+
+                // Validación de contraseña segura
+                final regex = RegExp(
+                  r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$',
+                );
+
                 if (password.isNotEmpty) {
+                  if (!regex.hasMatch(password)) {
+                    Get.snackbar(
+                      'Error',
+                      'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial',
+                      snackPosition: SnackPosition.BOTTOM,
+                    );
+                    return; // O return false si estás en un Future<bool>
+                  }
                   updatedDoctor["password"] = password;
                 }
 
@@ -367,6 +393,9 @@ class DoctorCard extends StatelessWidget {
                       _userAdminController.selectedPatientsEdit.toList();
                 }
 
+                print("DOCTOR $updatedDoctor");
+
+
                 // Llamamos al controller con el Map
                 final success = await _userAdminController.updateDoctor(
                   originalUsername,
@@ -375,10 +404,11 @@ class DoctorCard extends StatelessWidget {
 
                 if (success) {
                   Navigator.of(context).pop();
+                  _userAdminController.loadPatients();
                   if (onEdit != null) onEdit!();
                 }
               },
-              child: Text('Guardar',style: TextStyle(color: textColor),),
+              child: Text('Guardar', style: TextStyle(color: textColor)),
             ),
           ],
         );

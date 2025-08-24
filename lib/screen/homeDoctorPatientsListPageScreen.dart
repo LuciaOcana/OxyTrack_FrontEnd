@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controllers/userAdminController.dart';
 import '../controllers/userListController.dart';
 import '../models/user.dart';
 import '../widgets/userCard.dart';
 import '../services/userDoctorServices.dart';
 import '../others/sessionManager.dart';
+import 'package:oxytrack_frontend/others/themeController.dart';
+import '../controllers/userDoctorController.dart';
+
 
 class HomeDoctorPatientListPageScreen extends StatefulWidget {
   const HomeDoctorPatientListPageScreen({super.key});
@@ -18,8 +20,9 @@ class HomeDoctorPatientListPageScreen extends StatefulWidget {
 
 class _HomeDoctorPatientListPageScreenState
     extends State<HomeDoctorPatientListPageScreen> {
-  final UserAdminController _userAdminController = UserAdminController();
   final UserListController _userListController = Get.put(UserListController());
+  final UserDoctorController _userDoctorController = UserDoctorController();
+
 
   @override
   void initState() {
@@ -43,11 +46,36 @@ class _HomeDoctorPatientListPageScreenState
 
   @override
   Widget build(BuildContext context) {
+
+  final isLight = Theme.of(context).brightness == Brightness.light;
+
+    // 🎨 Colores dinámicos
+    final appBarColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final altButtonBg =
+        isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
+    final altButtonText =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final titleColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lista de usuarios'),
-        backgroundColor: const Color(0xFF0096C7),
+        backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
+          leading: IconButton(
+          icon: Icon(
+            isLight ? Icons.dark_mode : Icons.light_mode,
+            color: Colors.white,
+          ),
+          onPressed: () => Get.find<ThemeController>().toggleTheme(),
+        ),
         centerTitle: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'OpenSans',
@@ -57,7 +85,7 @@ class _HomeDoctorPatientListPageScreenState
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Color(0xFFe2fdff)),
             tooltip: 'Cerrar sesión',
             onPressed: () {
               _showLogoutDialog(context);
@@ -107,30 +135,44 @@ class _HomeDoctorPatientListPageScreenState
           alignment: Alignment.bottomCenter,
           child: Padding(
             padding: const EdgeInsets.only(bottom: 16.0),
+             child: SizedBox(
+              width: double.infinity, // 👈 fuerza el Row a ocupar todo el ancho
             child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+ mainAxisAlignment:
+                    MainAxisAlignment.center, // 👈 centra el contenido
+                                  children: [
                 FloatingActionButton(
                   heroTag: 'prev',
                   onPressed: _userListController.currentPage.value > 1
                       ? _userListController.previousPage
                       : null,
                   backgroundColor: _userListController.currentPage.value > 1
-                      ? const Color(0xFF0096C7)
-                      : Colors.grey,
-                  child: const Icon(Icons.arrow_back),
-                  tooltip: 'Página anterior',
+                      ? buttonColor
+                      : (isLight ? Colors.grey[500]! : Colors.grey[700]!),
+child: Icon(
+                      Icons.arrow_back,
+                      color:
+                          isLight
+                              ? Colors.white
+                              : Colors.white, // 👈 aquí eliges el color
+                    ),                  tooltip: 'Página anterior',
                 ),
                 const SizedBox(width: 16),
                 FloatingActionButton(
                   heroTag: 'refresh',
                   onPressed: _userListController.fetchUsers,
-                  backgroundColor: const Color(0xFF0096C7),
+                  backgroundColor: buttonColor,
                   child: _userListController.isLoading.value
                       ? const CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation(Colors.white),
                         )
-                      : const Icon(Icons.refresh),
+                      : Icon(
+                              Icons.refresh,
+                              color:
+                                  isLight
+                                      ? Colors.white
+                                      : Colors.white, // 👈 aquí eliges el color
+                            ),
                   tooltip: 'Recargar lista',
                 ),
                 const SizedBox(width: 16),
@@ -143,9 +185,15 @@ class _HomeDoctorPatientListPageScreenState
                   backgroundColor:
                       _userListController.userList.length ==
                               _userListController.limit.value
-                          ? const Color(0xFF0096C7)
-                          : Colors.grey,
-                  child: const Icon(Icons.arrow_forward),
+                          ? buttonColor
+                          : (isLight ? Colors.grey[500]! : Colors.grey[700]!),
+                   child: Icon(
+                      Icons.arrow_forward,
+                      color:
+                          isLight
+                              ? Colors.white
+                              : Colors.white, // 👈 aquí eliges el color
+                    ),
                   tooltip: 'Página siguiente',
                 ),
               ],
@@ -153,21 +201,25 @@ class _HomeDoctorPatientListPageScreenState
           ),
         ),
       ),
+       ),
     );
   }
 
   void _showLogoutDialog(BuildContext context) {
+     final isLight = Theme.of(context).brightness == Brightness.light;
+
+        final textColor = isLight ? Colors.black87 : Colors.white;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          content: const Text(
+          content: Text(
             "¿Estás segura de que quieres cerrar sesión?",
             style: TextStyle(
               fontSize: 16,
-              color: Color.fromARGB(255, 0, 0, 0),
+              color: textColor,
               fontFamily: 'OpenSans',
             ),
           ),
@@ -188,7 +240,7 @@ class _HomeDoctorPatientListPageScreenState
             ),
             ElevatedButton(
               onPressed: () {
-                _userAdminController.logout();
+                _userDoctorController.logout();
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(

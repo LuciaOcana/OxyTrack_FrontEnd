@@ -194,7 +194,6 @@ catch(e){print('Excepción en creación: $e');
 
   Future<int> logOut() async {
     try {
-      print('Enviando solicitud de LogIn');
       Response response = await dio.post(
         '$baseUrl/admin/logout',
         options: Options(

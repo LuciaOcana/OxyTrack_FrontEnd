@@ -201,6 +201,10 @@ class _AdminDoctorListPageScreenState extends State<AdminDoctorListPageScreen> {
 
   /// 🔹 Función para mostrar el pop up de confirmación
   void _showLogoutDialog(BuildContext context) {
+           final isLight = Theme.of(context).brightness == Brightness.light;
+
+        final textColor = isLight ? Colors.black87 : Colors.white;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -208,11 +212,11 @@ class _AdminDoctorListPageScreenState extends State<AdminDoctorListPageScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          content: const Text(
+          content: Text(
             "¿Estás seguro de que quieres cerrar sesión?",
             style: TextStyle(
               fontSize: 16,
-              color: Color.fromARGB(255, 0, 0, 0),
+              color: textColor,
               fontFamily: 'OpenSans',
             ),
           ),
