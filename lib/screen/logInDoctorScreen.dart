@@ -73,7 +73,7 @@ final isLight = Theme.of(context).brightness == Brightness.light;
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _userDoctorController.usernameLogInDoctorController,
-                    decoration: _inputDecoration('Usuario', isLight),
+                    decoration: _inputDecoration('Nombre de usuario', isLight),
                     validator: (value) =>
                         value!.isEmpty ? 'Ingrese su usuario' : null,
                   ),

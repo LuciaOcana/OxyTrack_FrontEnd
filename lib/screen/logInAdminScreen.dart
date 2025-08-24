@@ -84,7 +84,7 @@ class _LogInAdminScreenState extends State<LogInAdminScreen> {
                   // Campo Usuario
                   TextFormField(
                     controller: _userAdminController.usernameAdminController,
-                    decoration: _inputDecoration('Usuario', isLight),
+                    decoration: _inputDecoration('Nombre de usuario', isLight),
                     validator: (value) =>
                         value!.isEmpty ? 'Ingrese su usuario' : null,
                   ),
@@ -116,7 +116,7 @@ class _LogInAdminScreenState extends State<LogInAdminScreen> {
                       }
                     },
                     child: const Text(
-                      'Iniciar Sesión',
+                      'Iniciar sesión',
                       style: TextStyle(
                         fontSize: 18,
                         color: Color(0xFFCAF0F8),

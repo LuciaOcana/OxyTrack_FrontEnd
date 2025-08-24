@@ -118,7 +118,7 @@ class UserAdminController extends GetxController {
     }
 
     // Validación de formato de correo electrónico
-    if (!GetUtils.isEmail(emailDoctorController.text)) {
+    if (!GetUtils.isEmail(emailDoctorControllerEdit.text)) {
       errorMessage.value = 'Correo electrónico no válido';
       Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
       return false;
@@ -126,7 +126,7 @@ class UserAdminController extends GetxController {
 
     // Validación de contraseña segura
     final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$');
-    if (!regex.hasMatch(passwordDoctorController.text)) {
+    if (!regex.hasMatch(passwordDoctorControllerEdit.text)) {
       errorMessage.value =
           'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
       Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
@@ -187,6 +187,22 @@ class UserAdminController extends GetxController {
       "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
     };
 
+
+    // Validación de formato de correo electrónico
+    if (!GetUtils.isEmail(emailDoctorController.text)) {
+      errorMessage.value = 'Correo electrónico no válido';
+      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
+      return false;
+    }
+
+    // Validación de contraseña segura
+    final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$');
+    if (!regex.hasMatch(passwordDoctorController.text)) {
+      errorMessage.value =
+          'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
+      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
+      return false;
+    }
 
     if (updatedFields.isEmpty) {
       Get.snackbar('Info', 'No se han realizado cambios');

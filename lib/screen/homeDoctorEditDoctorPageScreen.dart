@@ -27,7 +27,9 @@ class _HomeDoctorEditDoctorPageScreenState
         elevation: 4,
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, 
+              color: Color(0xFFe2fdff),),
+            
             tooltip: 'Cerrar sesión',
             onPressed: () => _showLogoutDialog(context),
           ),

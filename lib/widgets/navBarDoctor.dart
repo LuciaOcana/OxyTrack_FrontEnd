@@ -28,13 +28,12 @@ class BottomNavScaffoldDoctor extends StatelessWidget {
             } 
           },
           elevation: 5, // Sombra suave para el diseño
-          type:
-              BottomNavigationBarType
+          type: BottomNavigationBarType
                   .fixed, // Fija para mantener los elementos en su lugar
           // 👇 Colores personalizados
-          selectedItemColor: const Color(0xFF0096C7), // color activo
-          unselectedItemColor: Colors.grey, // color inactivo
-          backgroundColor: Colors.white, // color de fondo
+         // selectedItemColor: const Color(0xFF0096C7), // color activo
+         // unselectedItemColor: Colors.grey, // color inactivo
+          //backgroundColor: Colors.white, // color de fondo
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.list_alt),

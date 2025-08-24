@@ -119,14 +119,14 @@ void _showRegisterDialog(bool isLight, Color dialogBg, Color textColor, Color bu
                     children: [
                       TextFormField(
                         controller: _userController.usernameController,
-                        decoration: _inputDecoration('Username', isLight),
+                        decoration: _inputDecoration('Nombre de usuario', isLight),
                         validator: (value) =>
                             value!.isEmpty ? 'Campo requerido' : null,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _userController.emailController,
-                        decoration: _inputDecoration('Email', isLight),
+                        decoration: _inputDecoration('Correo electrónico', isLight),
                         validator: (value) =>
                             value!.isEmpty ? 'Campo requerido' : null,
                       ),
@@ -257,7 +257,7 @@ void _showPasswordLostDialog(bool isLight, Color dialogBg, Color textColor, Colo
                       TextFormField(
                         controller:
                             _userController.usernamePasswLostController,
-                        decoration: _inputDecoration('Username', isLight),
+                        decoration: _inputDecoration('Nombre de usuario', isLight),
                         validator: (value) =>
                             value!.isEmpty ? 'Campo requerido' : null,
                       ),
@@ -383,7 +383,7 @@ _userController.logInGuest();
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _userController.usernameLogInController,
-                    decoration: _inputDecoration('Usuario', isLight),
+                    decoration: _inputDecoration('Nombre de usuario', isLight),
                     validator: (value) =>
                         value!.isEmpty ? 'Ingrese su usuario' : null,
                   ),

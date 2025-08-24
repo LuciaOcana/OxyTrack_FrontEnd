@@ -6,6 +6,7 @@ import 'package:oxytrack_frontend/controllers/doctorListController.dart';
 
 import 'package:oxytrack_frontend/models/userDoctor.dart';
 import 'package:oxytrack_frontend/widgets/doctorCard.dart';
+import 'package:oxytrack_frontend/others/themeController.dart';
 
 class AdminDoctorListPageScreen extends StatefulWidget {
   const AdminDoctorListPageScreen({super.key});
@@ -15,10 +16,21 @@ class AdminDoctorListPageScreen extends StatefulWidget {
       _AdminDoctorListPageScreenState();
 }
 
-class _AdminDoctorListPageScreenState
-    extends State<AdminDoctorListPageScreen> {
+class _AdminDoctorListPageScreenState extends State<AdminDoctorListPageScreen> {
   final UserAdminController _userAdminController = UserAdminController();
   final DoctorListController _doctorListController = DoctorListController();
+
+  InputDecoration _inputDecoration(String label, bool isLight) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: isLight ? Colors.grey[100] : Colors.grey[800],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -28,11 +40,34 @@ class _AdminDoctorListPageScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
+    // 🎨 Colores dinámicos
+    final appBarColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final altButtonBg =
+        isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
+    final altButtonText =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final titleColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Personal médico registrado'),
-        backgroundColor: const Color(0xFF0096C7),
+        title: const Text('Registro médico'),
+        backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(
+            isLight ? Icons.dark_mode : Icons.light_mode,
+            color: Colors.white,
+          ),
+          onPressed: () => Get.find<ThemeController>().toggleTheme(),
+        ),
         centerTitle: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'OpenSans',
@@ -42,7 +77,7 @@ class _AdminDoctorListPageScreenState
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Color(0xFFe2fdff)),
             tooltip: 'Cerrar sesión',
             onPressed: () {
               _showLogoutDialog(context);
@@ -80,61 +115,87 @@ class _AdminDoctorListPageScreenState
         ),
       ),
       // 🔹 Botones flotantes de recarga y paginación
-     floatingActionButton: Obx(
-  () => Align(
-    alignment: Alignment.bottomCenter,
-    child: Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Botón "Anterior"
-          FloatingActionButton(
-            heroTag: 'prev',
-            onPressed: _doctorListController.currentPage.value > 1
-                ? _doctorListController.previousPage
-                : null,
-            backgroundColor: _doctorListController.currentPage.value > 1
-                ? const Color(0xFF0096C7)
-                : Colors.grey,
-            child: const Icon(Icons.arrow_back),
-            tooltip: 'Página anterior',
-          ),
-          const SizedBox(width: 16),
-          // Botón de recarga
-          FloatingActionButton(
-            heroTag: 'refresh',
-            onPressed: _doctorListController.fetchDoctors,
-            backgroundColor: const Color(0xFF0096C7),
-            child: _doctorListController.isLoading.value
-                ? const CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.white),
-                  )
-                : const Icon(Icons.refresh),
-            tooltip: 'Recargar lista',
-          ),
-          const SizedBox(width: 16),
-          // Botón "Siguiente"
-          FloatingActionButton(
-            heroTag: 'next',
-            onPressed: _doctorListController.doctorList.length ==
-                    _doctorListController.limit.value
-                ? _doctorListController.nextPage
-                : null,
-            backgroundColor:
-                _doctorListController.doctorList.length ==
-                        _doctorListController.limit.value
-                    ? const Color(0xFF0096C7)
-                    : Colors.grey,
-            child: const Icon(Icons.arrow_forward),
-            tooltip: 'Página siguiente',
-          ),
-        ],
-      ),
-    ),
-  ),
-),
+      floatingActionButton: Obx(
+        () => Align(
+          alignment: Alignment.bottomCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 16.0),
+            child: SizedBox(
+              width: double.infinity, // 👈 fuerza el Row a ocupar todo el ancho
+              child: Row(
+                mainAxisAlignment:
+                    MainAxisAlignment.center, // 👈 centra el contenido
 
+                children: [
+                  // Botón "Anterior"
+                  FloatingActionButton(
+                    heroTag: 'prev',
+                    onPressed:
+                        _doctorListController.currentPage.value > 1
+                            ? _doctorListController.previousPage
+                            : null,
+                    backgroundColor:
+                        _doctorListController.currentPage.value > 1
+                            ? buttonColor
+                            : (isLight ? Colors.grey[500]! : Colors.grey[700]!),
+                    child: Icon(
+                      Icons.arrow_back,
+                      color:
+                          isLight
+                              ? Colors.white
+                              : Colors.white, // 👈 aquí eliges el color
+                    ),
+                    tooltip: 'Página anterior',
+                  ),
+                  const SizedBox(width: 16),
+                  // Botón de recarga
+                  FloatingActionButton(
+                    heroTag: 'refresh',
+                    onPressed: _doctorListController.fetchDoctors,
+                    backgroundColor: buttonColor,
+                    child:
+                        _doctorListController.isLoading.value
+                            ? const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation(Colors.white),
+                            )
+                            : Icon(
+                              Icons.refresh,
+                              color:
+                                  isLight
+                                      ? Colors.white
+                                      : Colors.white, // 👈 aquí eliges el color
+                            ),
+                    tooltip: 'Recargar lista',
+                  ),
+                  const SizedBox(width: 16),
+                  // Botón "Siguiente"
+                  FloatingActionButton(
+                    heroTag: 'next',
+                    onPressed:
+                        _doctorListController.doctorList.length ==
+                                _doctorListController.limit.value
+                            ? _doctorListController.nextPage
+                            : null,
+                    backgroundColor:
+                        _doctorListController.doctorList.length ==
+                                _doctorListController.limit.value
+                            ? buttonColor
+                            : (isLight ? Colors.grey[500]! : Colors.grey[700]!),
+                    child: Icon(
+                      Icons.arrow_forward,
+                      color:
+                          isLight
+                              ? Colors.white
+                              : Colors.white, // 👈 aquí eliges el color
+                    ),
+                    tooltip: 'Página siguiente',
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -144,8 +205,9 @@ class _AdminDoctorListPageScreenState
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           content: const Text(
             "¿Estás seguro de que quieres cerrar sesión?",
             style: TextStyle(
@@ -158,7 +220,8 @@ class _AdminDoctorListPageScreenState
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFE4E1)),
+                backgroundColor: const Color(0xFFFFE4E1),
+              ),
               child: const Text(
                 "Cancelar",
                 style: TextStyle(
@@ -175,7 +238,8 @@ class _AdminDoctorListPageScreenState
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB31B1B)),
+                backgroundColor: const Color(0xFFB31B1B),
+              ),
               child: const Text(
                 "Cerrar sesión",
                 style: TextStyle(

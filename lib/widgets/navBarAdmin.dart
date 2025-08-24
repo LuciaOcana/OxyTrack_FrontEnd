@@ -22,10 +22,8 @@ class BottomNavScaffoldAdmin extends StatelessWidget {
         () => BottomNavigationBar(
           currentIndex: navController.selectedIndex.value,
           onTap: (index) {
-            if (index == 2) {
-              // Índice correspondiente al chat
-              Get.toNamed('/chat'); // Navegar a la lista de usuarios
-            } else {
+            if (index != 2) {
+              
               navController.navigateTo(index); // Navegar a otras pantallas
             }
           },
@@ -34,9 +32,9 @@ class BottomNavScaffoldAdmin extends StatelessWidget {
               BottomNavigationBarType
                   .fixed, // Fija para mantener los elementos en su lugar
           // 👇 Colores personalizados
-          selectedItemColor: const Color(0xFF0096C7), // color activo
-          unselectedItemColor: Colors.grey, // color inactivo
-          backgroundColor: Colors.white, // color de fondo
+          //selectedItemColor: const Color(0xFF0096C7), // color activo
+          //unselectedItemColor: Colors.grey, // color inactivo
+          //backgroundColor: Colors.white, // color de fondo
           items: [
             BottomNavigationBarItem(
               icon: Icon(Icons.list_alt),
@@ -52,3 +50,4 @@ class BottomNavScaffoldAdmin extends StatelessWidget {
     );
   }
 }
+

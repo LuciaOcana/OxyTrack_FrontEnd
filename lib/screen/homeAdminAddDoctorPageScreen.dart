@@ -5,6 +5,7 @@ import 'package:multi_select_flutter/multi_select_flutter.dart';
 import 'package:oxytrack_frontend/controllers/userAdminController.dart';
 import 'package:oxytrack_frontend/controllers/doctorListController.dart';
 import 'package:oxytrack_frontend/services/userAdminServices.dart';
+import 'package:oxytrack_frontend/others/themeController.dart';
 
 class AdminAddDoctorPageScreen extends StatefulWidget {
   const AdminAddDoctorPageScreen({super.key});
@@ -23,17 +24,11 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
     DoctorListController(),
   );
 
-  @override
-  void initState() {
-    super.initState();
-    _userAdminController.loadPatients(); // Carga pacientes al iniciar
-  }
-
-  InputDecoration _inputDecoration(String label) {
+  InputDecoration _inputDecoration(String label, bool isLight) {
     return InputDecoration(
       labelText: label,
       filled: true,
-      fillColor: Colors.grey[100],
+      fillColor: isLight ? Colors.grey[100] : Colors.grey[800],
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -42,12 +37,41 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _userAdminController.loadPatients(); // Carga pacientes al iniciar
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
+
+    // 🎨 Colores dinámicos
+    final appBarColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final altButtonBg =
+        isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
+    final altButtonText =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final titleColor =
+        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gestión del personal médico'),
-        backgroundColor: const Color(0xFF0096C7),
+        title: const Text('Gestión del personal'),
+        backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(
+            isLight ? Icons.dark_mode : Icons.light_mode,
+            color: Colors.white,
+          ),
+          onPressed: () => Get.find<ThemeController>().toggleTheme(),
+        ),
         centerTitle: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'OpenSans', // tu fuente
@@ -57,7 +81,7 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
         ), // ✅ Esto centra el título
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Color(0xFFe2fdff)),
             tooltip: 'Cerrar sesión',
             onPressed: () {
               _showLogoutDialog(context);
@@ -75,11 +99,11 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Registrar Doctor',
+                  Text(
+                    'Registrar doctor',
                     style: TextStyle(
                       fontSize: 24,
-                      color: Color(0xFF0097C7),
+                      color: titleColor,
                       fontFamily: 'OpenSans',
                       fontWeight: FontWeight.bold,
                     ),
@@ -90,7 +114,7 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                   // Campos de formulario
                   TextFormField(
                     controller: _userAdminController.usernameDoctorController,
-                    decoration: _inputDecoration('Username'),
+                    decoration: _inputDecoration('Nombre de usuario', isLight),
                     validator:
                         (value) =>
                             value!.isEmpty ? 'Este campo es obligatorio' : null,
@@ -98,7 +122,7 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _userAdminController.emailDoctorController,
-                    decoration: _inputDecoration('Email'),
+                    decoration: _inputDecoration('Correo electrónico', isLight),
                     validator:
                         (value) =>
                             value!.isEmpty ? 'Este campo es obligatorio' : null,
@@ -106,7 +130,7 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _userAdminController.nameDoctorController,
-                    decoration: _inputDecoration('Nombre'),
+                    decoration: _inputDecoration('Nombre', isLight),
                     validator:
                         (value) =>
                             value!.isEmpty ? 'Este campo es obligatorio' : null,
@@ -114,12 +138,12 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                   const SizedBox(height: 12),
                   TextFormField(
                     controller: _userAdminController.lastnameDoctorController,
-                    decoration: _inputDecoration('Apellido'),
+                    decoration: _inputDecoration('Apellido', isLight),
                     validator:
                         (value) =>
                             value!.isEmpty ? 'Este campo es obligatorio' : null,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
 
                   // Selector múltiple de pacientes
                   Obx(() {
@@ -135,10 +159,14 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                             return StatefulBuilder(
                               builder: (context, setState) {
                                 return AlertDialog(
+                                  backgroundColor: dialogBg,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(16),
                                   ),
-                                  title: const Text('Seleccionar pacientes'),
+                                  title: Text(
+                                    'Seleccionar pacientes',
+                                    style: TextStyle(color: textColor),
+                                  ),
                                   content: SizedBox(
                                     width: double.maxFinite,
                                     child: ListView(
@@ -170,7 +198,10 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                                     TextButton(
                                       onPressed:
                                           () => Navigator.pop(context, null),
-                                      child: const Text('Cancelar'),
+                                      child: Text(
+                                        'Cancelar',
+                                        style: TextStyle(color: textColor),
+                                      ),
                                     ),
                                     ElevatedButton(
                                       onPressed:
@@ -178,7 +209,10 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                                             context,
                                             tempSelected,
                                           ),
-                                      child: const Text('Aceptar'),
+                                      child: Text(
+                                        'Aceptar',
+                                        style: TextStyle(color: textColor),
+                                      ),
                                     ),
                                   ],
                                 );
@@ -197,13 +231,19 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                           vertical: 18,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.grey[100],
+                          color:
+                              isLight
+                                  ? Colors.grey[100]
+                                  : Colors.grey[800], // 👈 dinámico
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black12,
+                              color:
+                                  isLight
+                                      ? Colors.black12
+                                      : Colors.black54, // 👈 dinámico
                               blurRadius: 4,
-                              offset: Offset(0, 2),
+                              offset: const Offset(0, 2),
                             ),
                           ],
                         ),
@@ -213,16 +253,19 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                               : _userAdminController.selectedPatients.join(
                                 ', ',
                               ),
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: textColor,
+                          ), // 👈 dinámico
                         ),
                       ),
                     );
                   }),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 12),
 
                   TextFormField(
                     controller: _userAdminController.passwordDoctorController,
-                    decoration: _inputDecoration('Contraseña'),
+                    decoration: _inputDecoration('Contraseña', isLight),
                     obscureText: true,
                     validator:
                         (value) =>
@@ -233,7 +276,7 @@ class _AdminAddDoctorPageScreenState extends State<AdminAddDoctorPageScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: const Color(0xFF0096C7),
+                      backgroundColor: buttonColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
