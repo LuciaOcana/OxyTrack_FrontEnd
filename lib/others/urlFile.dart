@@ -1,8 +1,3 @@
-  //final String baseUrl = "http://192.168.1.48:3000/api"; // Para Android Emulator
-    final String baseUrl = "http://192.168.1.48:3000/api"; // Para Android Emulator
-
-  //final String baseUrl = "https://192.168.1.48:5000/api"; // Para Android Emulator
-
-  //final String baseUrl = "http://192.168.1.67:5000/api/users"; // Para Android Emulator
-  //final String baseUrl = "http://10.0.2.2:5000/api/users"; // Para Android Emulator
-  //*final String baseUrl = "http://0.0.0.0:5000/api/users"; // Para Android Emulator
+final String baseUrl = "http://192.168.1.48:3000/api"; // Para conexión "XiConn_5G"
+//final String baseUrl = "http://192.168.1.48:3000/api"; // Para conexión "XiConn"
+//final String baseUrl = "http://172.20.10.5:3000/api"; // Para conexion "datos"

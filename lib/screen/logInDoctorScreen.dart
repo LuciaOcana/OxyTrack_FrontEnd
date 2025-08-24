@@ -10,11 +10,11 @@ class _LogInDoctorScreenState extends State<LogInDoctorScreen> {
   final _loginFormKey = GlobalKey<FormState>();
   final UserDoctorController _userDoctorController = UserDoctorController();
 
-  InputDecoration _inputDecoration(String label) {
+  InputDecoration _inputDecoration(String label, bool isLight) {
     return InputDecoration(
       labelText: label,
       filled: true,
-      fillColor: Colors.grey[100],
+      fillColor: isLight ? Colors.grey[100] : Colors.grey[800],
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none,
@@ -24,10 +24,23 @@ class _LogInDoctorScreenState extends State<LogInDoctorScreen> {
 
   @override
   Widget build(BuildContext context) {
+
+final isLight = Theme.of(context).brightness == Brightness.light;
+
+    // 🎨 Colores dinámicos
+    final appBarColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final altButtonBg = isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
+    final altButtonText = isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final titleColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
+
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio de sesión de doctor'),
-        backgroundColor: const Color(0xFF0096C7),
+        backgroundColor: appBarColor,
         centerTitle: true,
         automaticallyImplyLeading: true,
         titleTextStyle: const TextStyle(
@@ -47,11 +60,11 @@ class _LogInDoctorScreenState extends State<LogInDoctorScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
+                  Text(
                     'Bienvenido doctor',
                     style: TextStyle(
                       fontSize: 26,
-                      color: Color(0xFF0096C7),
+                      color: titleColor,
                       fontFamily: 'OpenSans',
                       fontWeight: FontWeight.bold,
                     ),
@@ -60,14 +73,14 @@ class _LogInDoctorScreenState extends State<LogInDoctorScreen> {
                   const SizedBox(height: 24),
                   TextFormField(
                     controller: _userDoctorController.usernameLogInDoctorController,
-                    decoration: _inputDecoration('Usuario'),
+                    decoration: _inputDecoration('Usuario', isLight),
                     validator: (value) =>
                         value!.isEmpty ? 'Ingrese su usuario' : null,
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
                     controller: _userDoctorController.passwordLogInDoctorController,
-                    decoration: _inputDecoration('Contraseña'),
+                    decoration: _inputDecoration('Contraseña', isLight),
                     obscureText: true,
                     validator: (value) =>
                         value!.isEmpty ? 'Ingrese su contraseña' : null,
@@ -76,7 +89,7 @@ class _LogInDoctorScreenState extends State<LogInDoctorScreen> {
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      backgroundColor: const Color(0xFF0096C7),
+                      backgroundColor: buttonColor,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

@@ -10,6 +10,7 @@ class logInScreen extends StatefulWidget {
   @override
   _logInScreenState createState() => _logInScreenState();
 }
+bool _obscurePassword = true; // 👈 estado para controlar visibilidad
 
 class _logInScreenState extends State<logInScreen> {
   // 🔑 Claves separadas para cada formulario
@@ -100,6 +101,9 @@ void _showRegisterDialog(bool isLight, Color dialogBg, Color textColor, Color bu
               ),
             ],
           ),
+          child: SizedBox(
+      height: MediaQuery.of(context).size.height * 0.75, // 👈 limita el alto
+      child: SingleChildScrollView( // 👈 agrega scroll si se pasa
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -139,22 +143,38 @@ void _showRegisterDialog(bool isLight, Color dialogBg, Color textColor, Color bu
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _userController.birthDateController,
-                        decoration: _inputDecoration('Fecha de nacimiento', isLight),
-                      ),
+                        decoration: _inputDecoration('Fecha de nacimiento', isLight).copyWith(
+    hintText: 'dd/mm/yyyy', // 👈 Aparece dentro del campo
+    hintStyle: TextStyle(
+      color: Colors.grey,
+      fontSize: 14,
+    ),  ),
+),
+                      
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _userController.heightController,
-                        decoration: _inputDecoration('Altura', isLight),
-                      ),
+                        decoration: _inputDecoration('Altura', isLight).copyWith(
+    hintText: 'en cm', // 👈 Aparece dentro del campo
+    hintStyle: TextStyle(
+      color: Colors.grey,
+      fontSize: 14,
+    ),  ),
+),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _userController.weightController,
-                        decoration: _inputDecoration('Peso', isLight),
-                      ),
+                        decoration: _inputDecoration('Peso', isLight).copyWith(
+    hintText: 'en kg', // 👈 Aparece dentro del campo
+    hintStyle: TextStyle(
+      color: Colors.grey,
+      fontSize: 14,
+    ),  ),
+),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _userController.passwordController,
-                        obscureText: true,
+                          obscureText: _obscurePassword, // 👈 depende del estado
                         decoration: _inputDecoration('Contraseña', isLight),
                         validator: (value) =>
                             value!.isEmpty ? 'Campo requerido' : null,
@@ -185,11 +205,13 @@ void _showRegisterDialog(bool isLight, Color dialogBg, Color textColor, Color bu
                       //_register();
                       Navigator.of(context).pop();
                     },
-                    child: const Text('Registrar'),
+                    child: Text('Registrar', style: TextStyle(color: textColor)),
                   ),
                 ],
               ),
             ],
+          ),
+        ),
           ),
         ),
       );
@@ -295,7 +317,7 @@ void _showPasswordLostDialog(bool isLight, Color dialogBg, Color textColor, Colo
                         Navigator.of(context).pop();
                       }
                     },
-                    child: const Text('Registrar'),
+                    child: Text('Registrar', style: TextStyle(color: textColor)),
                   ),
                 ],
               ),
@@ -311,19 +333,7 @@ void _guestPatient (){
 _userController.logInGuest();
 }
 
-  /*InputDecoration _inputDecoration(String label) {
-    return InputDecoration(
-      labelText: label,
-      filled: true,
-      fillColor: Colors.grey[100],
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
-    );
-  }*/
-
-  @override
+   @override
   Widget build(BuildContext context) {
 
   final isLight = Theme.of(context).brightness == Brightness.light;

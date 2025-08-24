@@ -25,7 +25,7 @@ class UserDoctorServices {
   final TokenManager _tokenManager = TokenManager();
 
   // ----------------- 🔌 WEBSOCKET -----------------
-  final String wsUrl = 'ws://192.168.1.48:3000/doctor'; // Ajusta IP
+  final String wsUrl = 'ws://172.20.10.5:3000/doctor'; // Ajusta IP
   WebSocket? _socket;
 
   String? _loggedDoctor; // variable no final, permite asignar null al desconectarse
