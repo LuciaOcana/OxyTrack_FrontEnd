@@ -64,7 +64,7 @@ class SelectorModeScreen extends StatelessWidget {
 
                 const SizedBox(height: 20),
                 Text(
-                  'Bienvenido a OxyTrack',
+                  'Bienvenido a MiOxi',
                   style: TextStyle(
                     fontSize: 24,
                     color: titleColor,

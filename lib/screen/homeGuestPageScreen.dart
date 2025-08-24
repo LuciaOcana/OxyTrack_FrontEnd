@@ -96,7 +96,7 @@ bool _infoShown = false;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OxyTrack'),
+        title: const Text('MiOxi'),
         backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
           leadingWidth: 120, // 👈 espacio extra para dos botones
