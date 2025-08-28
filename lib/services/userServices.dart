@@ -1,9 +1,9 @@
-import 'package:oxytrack_frontend/models/user.dart';
+import 'package:mioxy_frontend/models/user.dart';
 import 'package:dio/dio.dart';
-import 'package:oxytrack_frontend/others/urlFile.dart';
+import 'package:mioxy_frontend/others/urlFile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:oxytrack_frontend/auth/tokenManager.dart';
+import 'package:mioxy_frontend/auth/tokenManager.dart';
 
 
 class UserServices {

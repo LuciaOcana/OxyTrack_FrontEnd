@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:oxytrack_frontend/models/userDoctor.dart';
-import 'package:oxytrack_frontend/services/userDoctorServices.dart';
+import 'package:mioxy_frontend/models/userDoctor.dart';
+import 'package:mioxy_frontend/services/userDoctorServices.dart';
 
-import 'package:oxytrack_frontend/services/userAdminServices.dart';
+import 'package:mioxy_frontend/services/userAdminServices.dart';
 
 class DoctorListController extends GetxController {
   final isLoading = false.obs;

@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 
 import 'dart:async';
-import 'package:oxytrack_frontend/services/irServices.dart';
-import 'package:oxytrack_frontend/controllers/userController.dart';
-import 'package:oxytrack_frontend/others/themeController.dart';
+import 'package:mioxy_frontend/services/irServices.dart';
+import 'package:mioxy_frontend/controllers/userController.dart';
+import 'package:mioxy_frontend/others/themeController.dart';
 
 class HomePageScreen extends StatefulWidget {
   @override
@@ -22,8 +22,7 @@ class _HomePageScreenState extends State<HomePageScreen> {
   late StreamSubscription _spo2Subscription;
   final UserController _userController = UserController();
 
-bool _infoShown = false;
-
+  bool _infoShown = false;
 
   @override
   void initState() {
@@ -49,14 +48,13 @@ bool _infoShown = false;
 
     irService.connect();
 
-
     // 📌 Mostrar popup al iniciar la pantalla
     WidgetsBinding.instance.addPostFrameCallback((_) {
-       if (!_infoShown) {        // 👈 solo si no se mostró antes
-      _showInfoDialog(context);
-      _infoShown = true;      // 👈 marcar como mostrado
-    }
-
+      if (!_infoShown) {
+        // 👈 solo si no se mostró antes
+        _showInfoDialog(context);
+        _infoShown = true; // 👈 marcar como mostrado
+      }
     });
   }
 
@@ -88,7 +86,7 @@ bool _infoShown = false;
         title: const Text('MiOxi'),
         backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
-  leadingWidth: 120, // 👈 espacio extra para dos botones
+        leadingWidth: 120, // 👈 espacio extra para dos botones
         leading: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -99,7 +97,7 @@ bool _infoShown = false;
               ),
               onPressed: () => Get.find<ThemeController>().toggleTheme(),
             ),
-                const SizedBox(width: 8), // 👈 separación entre los botones
+            const SizedBox(width: 8), // 👈 separación entre los botones
 
             IconButton(
               icon: const Icon(Icons.info_outline, color: Colors.white),
@@ -108,7 +106,7 @@ bool _infoShown = false;
             ),
           ],
         ),
-        
+
         centerTitle: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'OpenSans',
@@ -159,7 +157,10 @@ bool _infoShown = false;
                 plotAreaBorderColor: const Color(0xFF0096C7).withOpacity(0),
                 plotAreaBorderWidth: 1,
                 tooltipBehavior: _tooltipBehavior,
-                primaryXAxis: NumericAxis(isVisible: false, title: const AxisTitle(text: 'Tiempo')),
+                primaryXAxis: NumericAxis(
+                  isVisible: false,
+                  title: const AxisTitle(text: 'Tiempo'),
+                ),
                 primaryYAxis: NumericAxis(
                   minimum: 80,
                   maximum: 100,
@@ -191,46 +192,45 @@ bool _infoShown = false;
   }
 
   void _showInfoDialog(BuildContext context) {
-  final isLight = Theme.of(context).brightness == Brightness.light;
-  final textColor = isLight ? Colors.black87 : Colors.white;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final textColor = isLight ? Colors.black87 : Colors.white;
 
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        title: Text(
-          "Información sobre las mediciones",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontFamily: 'OpenSans',
-            color: textColor
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-        ),
-        content: Text(
-          "Las mediciones de oxígeno en sangre (%SpO₂) se realizan automáticamente cada 2 minutos y 30 segundos.\n\n"
-          "Para garantizar resultados confiables, la aplicación calcula el valor final a partir de un promedio de las últimas 5 mediciones consecutivas.\n\n"
-          "Esto significa que el resultado definitivo puede tardar aproximadamente 12 minutos y 30 segundos en mostrarse.\n\n"
-          "Mientras tanto, podrá visualizar en la gráfica los valores intermedios en tiempo real.",
-          style: TextStyle(
-            fontSize: 16,
-            color: textColor, // ✅ color interno
-            fontFamily: 'OpenSans',
+          title: Text(
+            "Información sobre las mediciones",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontFamily: 'OpenSans',
+              color: textColor,
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            child: const Text("Entendido"),
-            onPressed: () => Navigator.of(context).pop(),
+          content: Text(
+            "Las mediciones de oxígeno en sangre (%SpO₂) se realizan automáticamente cada 10 segundos aproximadamente.\n\n"
+            "Para garantizar resultados confiables, la aplicación calcula el valor final a partir de un promedio de las últimas 5 mediciones consecutivas.\n\n"
+            "Esto significa que el resultado definitivo puede tardar aproximadamente 1 minutos en mostrarse.\n\n"
+            "Mientras tanto, podrá visualizar en la gráfica los valores intermedios en tiempo real.",
+            style: TextStyle(
+              fontSize: 16,
+              color: textColor, // ✅ color interno
+              fontFamily: 'OpenSans',
+            ),
           ),
-        ],
-      );
-    },
-  );
-}
-
+          actions: [
+            TextButton(
+              child: const Text("Entendido"),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   void _showLogoutDialog(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
@@ -240,8 +240,9 @@ bool _infoShown = false;
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           content: Text(
             "¿Estás segura de que quieres cerrar sesión?",
             style: TextStyle(
@@ -254,7 +255,8 @@ bool _infoShown = false;
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFE4E1)),
+                backgroundColor: const Color(0xFFFFE4E1),
+              ),
               child: const Text(
                 "Cancelar",
                 style: TextStyle(
@@ -268,11 +270,15 @@ bool _infoShown = false;
             ElevatedButton(
               onPressed: () {
                 _userController.logout();
-                _infoShown= false;
+                  // 🔌 cerrar socket y 🗑️ resetear datos
+    irService.disconnect();
+    irService.reset();
+                _infoShown = false;
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB31B1B)),
+                backgroundColor: const Color(0xFFB31B1B),
+              ),
               child: const Text(
                 "Cerrar sesión",
                 style: TextStyle(

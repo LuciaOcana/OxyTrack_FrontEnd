@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:oxytrack_frontend/controllers/userAdminController.dart';
-import 'package:oxytrack_frontend/controllers/doctorListController.dart';
+import 'package:mioxy_frontend/controllers/userAdminController.dart';
+import 'package:mioxy_frontend/controllers/doctorListController.dart';
 
-import 'package:oxytrack_frontend/models/userDoctor.dart';
-import 'package:oxytrack_frontend/widgets/doctorCard.dart';
-import 'package:oxytrack_frontend/others/themeController.dart';
+import 'package:mioxy_frontend/models/userDoctor.dart';
+import 'package:mioxy_frontend/widgets/doctorCard.dart';
+import 'package:mioxy_frontend/others/themeController.dart';
 
 class AdminDoctorListPageScreen extends StatefulWidget {
   const AdminDoctorListPageScreen({super.key});

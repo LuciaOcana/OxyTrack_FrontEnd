@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:oxytrack_frontend/services/irServices.dart';
-import 'package:oxytrack_frontend/controllers/userController.dart';
-import 'package:oxytrack_frontend/services/userServices.dart';
-import 'package:oxytrack_frontend/others/sessionManager.dart';
-import 'package:oxytrack_frontend/models/user.dart';
-import 'package:oxytrack_frontend/others/themeController.dart';
+import 'package:mioxy_frontend/services/irServices.dart';
+import 'package:mioxy_frontend/controllers/userController.dart';
+import 'package:mioxy_frontend/services/userServices.dart';
+import 'package:mioxy_frontend/others/sessionManager.dart';
+import 'package:mioxy_frontend/models/user.dart';
+import 'package:mioxy_frontend/others/themeController.dart';
 
 
 class UserProfileScreen extends StatefulWidget {
@@ -182,6 +182,7 @@ final fetchedUser = await _userController.fetchUser("user");
 
   void _showLogoutDialog(BuildContext context) {
      final isLight = Theme.of(context).brightness == Brightness.light;
+final IrService irService = IrService();
 
         final textColor = isLight ? Colors.black87 : Colors.white;
     showDialog(
@@ -216,6 +217,9 @@ final fetchedUser = await _userController.fetchUser("user");
             ElevatedButton(
               onPressed: () {
                 _userController.logout();
+                  irService.disconnect();
+                // 👇 Limpiar valores al cerrar sesión
+                irService.reset();
                 Navigator.of(context).pop();
               },
               style: ElevatedButton.styleFrom(

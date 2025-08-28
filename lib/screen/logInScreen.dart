@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:oxytrack_frontend/models/user.dart';
-import 'package:oxytrack_frontend/services/userServices.dart';
-import 'package:oxytrack_frontend/screen/homePageScreen.dart';
-import 'package:oxytrack_frontend/controllers/userController.dart';
+import 'package:mioxy_frontend/models/user.dart';
+import 'package:mioxy_frontend/services/userServices.dart';
+import 'package:mioxy_frontend/screen/homePageScreen.dart';
+import 'package:mioxy_frontend/controllers/userController.dart';
 
 class logInScreen extends StatefulWidget {
   @override

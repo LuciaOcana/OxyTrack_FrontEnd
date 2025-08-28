@@ -1,4 +1,4 @@
-package com.example.oxytrack_frontend
+package com.example.mioxy_frontend
 
 import io.flutter.embedding.android.FlutterActivity
 

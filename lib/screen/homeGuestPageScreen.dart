@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 
 import 'dart:async';
-import 'package:oxytrack_frontend/services/irServices.dart';
-import 'package:oxytrack_frontend/controllers/userController.dart';
-import 'package:oxytrack_frontend/others/themeController.dart';
+import 'package:mioxy_frontend/services/irServices.dart';
+import 'package:mioxy_frontend/controllers/userController.dart';
+import 'package:mioxy_frontend/others/themeController.dart';
 
 
 class HomeGuestPageScreen extends StatefulWidget {

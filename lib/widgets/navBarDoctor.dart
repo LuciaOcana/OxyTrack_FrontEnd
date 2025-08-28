@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:oxytrack_frontend/controllers/navBarDoctorController.dart';
+import 'package:mioxy_frontend/controllers/navBarDoctorController.dart';
 
 class BottomNavScaffoldDoctor extends StatelessWidget {
   final Widget child;

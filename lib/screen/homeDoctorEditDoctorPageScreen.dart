@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/userDoctor.dart';
 
-import '../controllers/userDoctorController.dart';
-import 'package:oxytrack_frontend/others/themeController.dart';
-import 'package:oxytrack_frontend/others/sessionManager.dart';
+import 'package:mioxy_frontend/controllers/userDoctorController.dart';
+import 'package:mioxy_frontend/others/themeController.dart';
+import 'package:mioxy_frontend/others/sessionManager.dart';
 
 
 

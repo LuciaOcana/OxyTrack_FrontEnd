@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:oxytrack_frontend/others/sessionManager.dart';
+import 'package:mioxy_frontend/others/sessionManager.dart';
 
 // Clase que representa un dato de SpO2
 class SpO2Data {
@@ -19,7 +19,7 @@ class IrService {
   IrService._internal();
   // ---------------------------------------------------
 
-  final String wsUrl = 'ws://192.168.1.48:3000';
+  final String wsUrl = 'wss://192.168.1.34:3000';
   WebSocket? _socket;
 
   // StreamController broadcast para que múltiples listeners puedan escuchar
@@ -111,6 +111,15 @@ String? username = await SessionManager.getUsername("user");
     } else {
       print('⚠️ WebSocket no conectado para enviar mensaje');
     }
+  }
+
+ // 👇 Aquí agregas el reset()
+  void reset() {
+    spo2Data.clear();
+    currentSpo2 = null;
+    lastTimestamp = null;
+    timeIndex = 0;
+    print('🗑️ Datos del IrService reseteados');
   }
 
   // Cerrar conexión y stream

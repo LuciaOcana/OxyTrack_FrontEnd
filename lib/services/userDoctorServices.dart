@@ -4,14 +4,14 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
-import 'package:oxytrack_frontend/models/user.dart';
+import 'package:mioxy_frontend/models/user.dart';
 
-import 'package:oxytrack_frontend/models/userDoctor.dart';
-import 'package:oxytrack_frontend/others/sessionManager.dart';
-import 'package:oxytrack_frontend/others/urlFile.dart';
+import 'package:mioxy_frontend/models/userDoctor.dart';
+import 'package:mioxy_frontend/others/sessionManager.dart';
+import 'package:mioxy_frontend/others/urlFile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:oxytrack_frontend/auth/tokenManager.dart';
+import 'package:mioxy_frontend/auth/tokenManager.dart';
 
 class UserDoctorServices {
   final Dio dio = Dio(
@@ -26,7 +26,8 @@ class UserDoctorServices {
 
   // ----------------- 🔌 WEBSOCKET -----------------
   //final String wsUrl = 'ws://172.20.10.5:3000/doctor'; // Ajusta IP
-  final String wsUrl = 'ws://192.168.1.48:3000/doctor'; // Ajusta IP
+  final String wsUrl = 'wss://192.168.1.34:3000/doctor'; // Ajusta IP
+
 
   WebSocket? _socket;
 
@@ -37,7 +38,6 @@ class UserDoctorServices {
 
   Stream<Map<String, dynamic>> get notificationsStream =>
       _notificationController.stream;
-
 
  Future<void> connectWS() async {
   try {
@@ -149,10 +149,18 @@ class UserDoctorServices {
     try {
       await _tokenManager
           .ensureTokenInitialized(); // Obtener usuarios con paginación
+          final userDoc = await SessionManager.getUsername("doctor");
+      
+      if (userDoc == null) {
+      print("⚠️ No hay doctor en sesión, no se puede obtener usuarios.");
+      return [];
+    }
+
+      
       print('Obteniendo usuarios desde el backend con paginación');
 
       var res = await dio.get(
-        '$baseUrl/doctors/getUsers/$page/$limit',
+        '$baseUrl/doctors/getUsers/$userDoc/$page/$limit',
         options: Options(
           headers: {'Authorization': "Bearer ${_tokenManager.token!}"},
         ),

@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../controllers/userListController.dart';
-import '../models/user.dart';
-import '../widgets/userCard.dart';
-import '../services/userDoctorServices.dart';
-import '../others/sessionManager.dart';
-import 'package:oxytrack_frontend/others/themeController.dart';
-import '../controllers/userDoctorController.dart';
+import 'package:mioxy_frontend/controllers/userListController.dart';
+import 'package:mioxy_frontend/models/user.dart';
+import 'package:mioxy_frontend/widgets/userCard.dart';
+import 'package:mioxy_frontend/services/userDoctorServices.dart';
+import 'package:mioxy_frontend/others/sessionManager.dart';
+import 'package:mioxy_frontend/others/themeController.dart';
+import 'package:mioxy_frontend/controllers/userDoctorController.dart';
 
 
 class HomeDoctorPatientListPageScreen extends StatefulWidget {
@@ -115,9 +115,11 @@ class _HomeDoctorPatientListPageScreenState
                 itemCount: _userListController.userList.length,
                 itemBuilder: (context, index) {
                   final user = _userListController.userList[index];
-                  final hasNotif = _userListController
-                          .userNotifications[user.username] ??
-                      false.obs;
+                  final hasNotif = _userListController.userNotifications.putIfAbsent(
+  user.username,
+  () => false.obs,
+);
+
 
                   return UserCard(
                     user: user,
