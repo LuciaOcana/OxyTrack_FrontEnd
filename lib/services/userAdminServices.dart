@@ -1,11 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mioxy_frontend/models/userAdmin.dart';
-import 'package:mioxy_frontend/models/userDoctor.dart';
-import 'package:mioxy_frontend/others/urlFile.dart';
+import 'package:mioxi_frontend/models/userAdmin.dart';
+import 'package:mioxi_frontend/models/userDoctor.dart';
+import 'package:mioxi_frontend/others/urlFile.dart';
 
-import 'package:mioxy_frontend/auth/tokenManager.dart';
+import 'package:mioxi_frontend/auth/tokenManager.dart';
 
 class UserAdminServices {
   final Dio dio = Dio(

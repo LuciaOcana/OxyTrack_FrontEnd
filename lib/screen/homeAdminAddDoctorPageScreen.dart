@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:multi_select_flutter/multi_select_flutter.dart';
 
-import 'package:mioxy_frontend/controllers/userAdminController.dart';
-import 'package:mioxy_frontend/controllers/doctorListController.dart';
-import 'package:mioxy_frontend/services/userAdminServices.dart';
-import 'package:mioxy_frontend/others/themeController.dart';
+import 'package:mioxi_frontend/controllers/userAdminController.dart';
+import 'package:mioxi_frontend/controllers/doctorListController.dart';
+import 'package:mioxi_frontend/services/userAdminServices.dart';
+import 'package:mioxi_frontend/others/themeController.dart';
 
 class AdminAddDoctorPageScreen extends StatefulWidget {
   const AdminAddDoctorPageScreen({super.key});

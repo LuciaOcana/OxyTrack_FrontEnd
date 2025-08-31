@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mioxy_frontend/controllers/userDoctorController.dart';
+import 'package:mioxi_frontend/controllers/userDoctorController.dart';
 
 class LogInDoctorScreen extends StatefulWidget {
   @override

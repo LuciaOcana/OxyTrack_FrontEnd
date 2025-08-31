@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:mioxy_frontend/controllers/userListController.dart';
-import 'package:mioxy_frontend/models/user.dart';
-import 'package:mioxy_frontend/widgets/userCard.dart';
-import 'package:mioxy_frontend/services/userDoctorServices.dart';
-import 'package:mioxy_frontend/others/sessionManager.dart';
-import 'package:mioxy_frontend/others/themeController.dart';
-import 'package:mioxy_frontend/controllers/userDoctorController.dart';
+import 'package:mioxi_frontend/controllers/userListController.dart';
+import 'package:mioxi_frontend/models/user.dart';
+import 'package:mioxi_frontend/widgets/userCard.dart';
+import 'package:mioxi_frontend/services/userDoctorServices.dart';
+import 'package:mioxi_frontend/others/sessionManager.dart';
+import 'package:mioxi_frontend/others/themeController.dart';
+import 'package:mioxi_frontend/controllers/userDoctorController.dart';
 
 
 class HomeDoctorPatientListPageScreen extends StatefulWidget {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mioxy_frontend/others/themeController.dart';
+import 'package:mioxi_frontend/others/themeController.dart';
 
 class SelectorModeScreen extends StatelessWidget {
   const SelectorModeScreen({super.key});

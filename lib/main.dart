@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:mioxy_frontend/others/themeController.dart';
+import 'package:mioxi_frontend/others/themeController.dart';
 import 'package:get_storage/get_storage.dart';
 
 // Pantallas principales del sistema
-import 'package:mioxy_frontend/screen/selectorModeScreen.dart';
-import 'package:mioxy_frontend/screen/logInScreen.dart';
-import 'package:mioxy_frontend/screen/logInDoctorScreen.dart';
-import 'package:mioxy_frontend/screen/logInAdminScreen.dart';
+import 'package:mioxi_frontend/screen/selectorModeScreen.dart';
+import 'package:mioxi_frontend/screen/logInScreen.dart';
+import 'package:mioxi_frontend/screen/logInDoctorScreen.dart';
+import 'package:mioxi_frontend/screen/logInAdminScreen.dart';
 
 // Pantallas para cada rol
-import 'package:mioxy_frontend/screen/homePageScreen.dart';
-import 'package:mioxy_frontend/screen/profileUserScreen.dart';
-import 'package:mioxy_frontend/screen/homeDoctorPatientsListPageScreen.dart';
-import 'package:mioxy_frontend/screen/homeDoctorEditDoctorPageScreen.dart';
-import 'package:mioxy_frontend/screen/homeAdminDoctorListPageScreen.dart';
-import 'package:mioxy_frontend/screen/homeAdminAddDoctorPageScreen.dart';
-import 'package:mioxy_frontend/screen/homeGuestPageScreen.dart';
+import 'package:mioxi_frontend/screen/homePageScreen.dart';
+import 'package:mioxi_frontend/screen/profileUserScreen.dart';
+import 'package:mioxi_frontend/screen/homeDoctorPatientsListPageScreen.dart';
+import 'package:mioxi_frontend/screen/homeDoctorEditDoctorPageScreen.dart';
+import 'package:mioxi_frontend/screen/homeAdminDoctorListPageScreen.dart';
+import 'package:mioxi_frontend/screen/homeAdminAddDoctorPageScreen.dart';
+import 'package:mioxi_frontend/screen/homeGuestPageScreen.dart';
 
 // Otros widgets o pantallas compartidas
-import 'package:mioxy_frontend/widgets/navBarUser.dart';
-import 'package:mioxy_frontend/widgets/navBarAdmin.dart';
-import 'package:mioxy_frontend/widgets/navBarDoctor.dart';
+import 'package:mioxi_frontend/widgets/navBarUser.dart';
+import 'package:mioxi_frontend/widgets/navBarAdmin.dart';
+import 'package:mioxi_frontend/widgets/navBarDoctor.dart';
 
 import 'dart:io';
 

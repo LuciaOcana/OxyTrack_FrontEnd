@@ -1,9 +1,9 @@
-import 'package:mioxy_frontend/models/user.dart';
+import 'package:mioxi_frontend/models/user.dart';
 import 'package:dio/dio.dart';
-import 'package:mioxy_frontend/others/urlFile.dart';
+import 'package:mioxi_frontend/others/urlFile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:mioxy_frontend/auth/tokenManager.dart';
+import 'package:mioxi_frontend/auth/tokenManager.dart';
 
 
 class UserServices {

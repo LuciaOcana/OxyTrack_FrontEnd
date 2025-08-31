@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter/foundation.dart'; // 👈 para listEquals
 
-import 'package:mioxy_frontend/services/userAdminServices.dart';
-import 'package:mioxy_frontend/models/user.dart';
-import 'package:mioxy_frontend/models/userDoctor.dart';
-import 'package:mioxy_frontend/services/userDoctorServices.dart';
-import 'package:mioxy_frontend/others/sessionManager.dart';
-import 'package:mioxy_frontend/auth/tokenManager.dart';
+import 'package:mioxi_frontend/services/userAdminServices.dart';
+import 'package:mioxi_frontend/models/user.dart';
+import 'package:mioxi_frontend/models/userDoctor.dart';
+import 'package:mioxi_frontend/services/userDoctorServices.dart';
+import 'package:mioxi_frontend/others/sessionManager.dart';
+import 'package:mioxi_frontend/auth/tokenManager.dart';
 
 
 class UserAdminController extends GetxController {

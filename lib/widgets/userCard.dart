@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:mioxy_frontend/others/sessionManager.dart';
+import 'package:mioxi_frontend/others/sessionManager.dart';
 import '../models/user.dart';
 import '../controllers/userController.dart';
 import 'package:flutter/foundation.dart'; // <-- necesario para listEquals

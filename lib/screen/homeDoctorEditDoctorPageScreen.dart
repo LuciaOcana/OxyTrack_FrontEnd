@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/userDoctor.dart';
 
-import 'package:mioxy_frontend/controllers/userDoctorController.dart';
-import 'package:mioxy_frontend/services/userDoctorServices.dart';
+import 'package:mioxi_frontend/controllers/userDoctorController.dart';
+import 'package:mioxi_frontend/services/userDoctorServices.dart';
 
-import 'package:mioxy_frontend/others/themeController.dart';
-import 'package:mioxy_frontend/others/sessionManager.dart';
+import 'package:mioxi_frontend/others/themeController.dart';
+import 'package:mioxi_frontend/others/sessionManager.dart';
 
 
 

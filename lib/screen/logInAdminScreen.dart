@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import 'package:mioxy_frontend/models/userAdmin.dart';
-import 'package:mioxy_frontend/services/userAdminServices.dart';
-import 'package:mioxy_frontend/controllers/userAdminController.dart';
-import 'package:mioxy_frontend/screen/homePageScreen.dart';
+import 'package:mioxi_frontend/models/userAdmin.dart';
+import 'package:mioxi_frontend/services/userAdminServices.dart';
+import 'package:mioxi_frontend/controllers/userAdminController.dart';
+import 'package:mioxi_frontend/screen/homePageScreen.dart';
 
 class LogInAdminScreen extends StatefulWidget {
   @override

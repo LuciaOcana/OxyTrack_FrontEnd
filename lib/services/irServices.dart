@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:mioxy_frontend/others/sessionManager.dart';
+import 'package:mioxi_frontend/others/sessionManager.dart';
 
 // Clase que representa un dato de SpO2
 class SpO2Data {

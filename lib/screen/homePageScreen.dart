@@ -4,9 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 
 import 'dart:async';
-import 'package:mioxy_frontend/services/irServices.dart';
-import 'package:mioxy_frontend/controllers/userController.dart';
-import 'package:mioxy_frontend/others/themeController.dart';
+import 'package:mioxi_frontend/services/irServices.dart';
+import 'package:mioxi_frontend/controllers/userController.dart';
+import 'package:mioxi_frontend/others/themeController.dart';
 
 class HomePageScreen extends StatefulWidget {
   @override

@@ -1,9 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:mioxy_frontend/models/user.dart';
-import 'package:mioxy_frontend/services/userServices.dart';
-import 'package:mioxy_frontend/services/userDoctorServices.dart';
-import 'package:mioxy_frontend/others/sessionManager.dart';
+import 'package:mioxi_frontend/models/user.dart';
+import 'package:mioxi_frontend/services/userServices.dart';
+import 'package:mioxi_frontend/services/userDoctorServices.dart';
+import 'package:mioxi_frontend/others/sessionManager.dart';
 
 class UserListController extends GetxController {
   final isLoading = false.obs;
