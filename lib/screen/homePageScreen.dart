@@ -211,10 +211,10 @@ class _HomePageScreenState extends State<HomePageScreen> {
             ),
           ),
           content: Text(
-            "Las mediciones de oxígeno en sangre (%SpO₂) se realizan automáticamente cada 10 segundos aproximadamente.\n\n"
-            "Para garantizar resultados confiables, la aplicación calcula el valor final a partir de un promedio de las últimas 5 mediciones consecutivas.\n\n"
-            "Esto significa que el resultado definitivo puede tardar aproximadamente 1 minutos en mostrarse.\n\n"
-            "Mientras tanto, podrá visualizar en la gráfica los valores intermedios en tiempo real.",
+            "Las mediciones de oxígeno en sangre (%SpO₂) se realizan automáticamente aproximadamente cada 10 segundos.\n\n"
+          "Para garantizar resultados confiables, la aplicación calcula el valor final a partir de un promedio de las últimas 5 mediciones consecutivas.\n\n"
+          "Esto significa que el resultado definitivo puede tardar aproximadamente un minuto en mostrarse.\n\n"
+          "Mientras tanto, podrá visualizar en la gráfica los valores intermedios en tiempo real.",
             style: TextStyle(
               fontSize: 16,
               color: textColor, // ✅ color interno

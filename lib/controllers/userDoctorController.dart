@@ -150,6 +150,7 @@ await SessionManager.clearSession("doctor"); // 👈 solo borra la sesión del a
       print('🔍 Respuesta del backend: $responseCode');
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
+        UserDoctorServices().disconnectWS();
 
         Get.toNamed('/selectorMode');
       } else if (responseCode == 300) {

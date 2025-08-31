@@ -37,7 +37,7 @@ class IrService {
   // Conectar al WebSocket
   Future<void> connect() async {
     try {
-String? username = await SessionManager.getUsername("user");
+      String? username = await SessionManager.getUsername("user");
       print("Conectando a WebSocket en: $wsUrl");
 
       if (username == null || username.isEmpty) {

@@ -14,6 +14,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mioxy_frontend/auth/tokenManager.dart';
 
 class UserDoctorServices {
+
+// -------------------- SINGLETON --------------------
+  static final UserDoctorServices _instance = UserDoctorServices._internal();
+  factory UserDoctorServices() => _instance;
+  UserDoctorServices._internal();
+  // ---------------------------------------------------
+
   final Dio dio = Dio(
     BaseOptions(
       validateStatus: (status) => status! < 500,
@@ -21,6 +28,11 @@ class UserDoctorServices {
       maxRedirects: 5,
     ),
   );
+  WebSocket? _socket;
+ final StreamController<Map<String, dynamic>> _notificationController =
+      StreamController.broadcast();
+Stream<Map<String, dynamic>> get notificationsStream =>
+      _notificationController.stream;
 
   final TokenManager _tokenManager = TokenManager();
 
@@ -28,28 +40,25 @@ class UserDoctorServices {
   //final String wsUrl = 'ws://172.20.10.5:3000/doctor'; // Ajusta IP
   final String wsUrl = 'wss://192.168.1.34:3000/doctor'; // Ajusta IP
 
-
-  WebSocket? _socket;
-
   String? _loggedDoctor; // variable no final, permite asignar null al desconectarse
-
-  final StreamController<Map<String, dynamic>> _notificationController =
-      StreamController.broadcast();
-
-  Stream<Map<String, dynamic>> get notificationsStream =>
-      _notificationController.stream;
 
  Future<void> connectWS() async {
   try {
      // Verificar que haya doctor logueado
       final loggedDoctor = SessionManager.doctorUsername;
       print("$loggedDoctor");
+            print("Conectando a WebSocket en: $wsUrl");
+
       if (loggedDoctor == null) {
         print("⚠️ No hay doctor logueado en sesión. Conexión WS cancelada.");
         return;
       }
-
+if (_socket != null && _socket!.readyState == WebSocket.open) {
+        print("🔄 WebSocket ya está conectado");
+        return;
+      }
     _socket = await WebSocket.connect(wsUrl);
+    
     print('🔌 WebSocket Doctor conectado como $_loggedDoctor');
 
     // Enviar auth inicial

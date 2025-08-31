@@ -184,7 +184,7 @@ class UserController extends GetxController {
           "GuestPatient",
         );
 
-    // 🔹 Enviar loginStatus al ESP32 para que pueda reaccionar
+        // 🔹 Enviar loginStatus al ESP32 para que pueda reaccionar
         _irService.connect();
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
@@ -398,6 +398,15 @@ class UserController extends GetxController {
           Get.snackbar('Error', errorMessage.value);
           return false;
         }
+      }
+
+      if (updatedFields["username"] != originalUsername) {
+        final currentToken = await tokenManager.getToken();
+        await SessionManager.saveSession(
+          "user", // rol
+          currentToken,
+          updatedFields["username"],
+        );
       }
 
       print("🔹 Campos finales a enviar al backend: $updatedFields");

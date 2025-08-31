@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:mioxy_frontend/others/sessionManager.dart';
 import '../models/user.dart';
 import '../controllers/userController.dart';
 import 'package:flutter/foundation.dart'; // <-- necesario para listEquals
@@ -208,9 +209,10 @@ class UserCard extends StatelessWidget {
                 }
 
                 print("USUARIO:$updatedFields");
-
+                final currentUsername = await SessionManager.getUsername("user") ?? user.username;
                 final success = await _userController.updateUserByDoctor(
-                  user.username,
+                  //user.username,
+                  currentUsername,
                   updatedFields,
                 );
 

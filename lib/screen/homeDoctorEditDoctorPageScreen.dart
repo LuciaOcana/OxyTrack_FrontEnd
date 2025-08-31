@@ -3,6 +3,8 @@ import 'package:get/get.dart';
 import '../models/userDoctor.dart';
 
 import 'package:mioxy_frontend/controllers/userDoctorController.dart';
+import 'package:mioxy_frontend/services/userDoctorServices.dart';
+
 import 'package:mioxy_frontend/others/themeController.dart';
 import 'package:mioxy_frontend/others/sessionManager.dart';
 
@@ -24,11 +26,13 @@ final RxBool isLoading = false.obs; // Defínelo dentro de _UserProfileScreenSta
   UserDoctorModel? userDoctorModel;
 
   final UserDoctorController _userDoctorController = UserDoctorController();
-
+final UserDoctorServices userDoctorServices = UserDoctorServices();
   @override
 void initState() {
     super.initState();
     loadUserData();
+    userDoctorServices.connectWS();
+
   }
 
   Future<void> loadUserData() async {
@@ -138,10 +142,11 @@ onPressed: () {
             ElevatedButton.icon(
               onPressed: () => _showChangePasswordDialog(context, textColor),
               icon: const Icon(Icons.lock_reset, color: Colors.white),
-              label: Text('Cambiar contraseña', style: TextStyle(color: textColor)),
+              label: Text('Cambiar contraseña'),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 60),
                 backgroundColor: buttonColor,
+                foregroundColor: textColor, // 🔹 esto controla el color del texto
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                 textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -185,7 +190,7 @@ onPressed: () {
       context: context,
       builder: (_) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text("Cambiar contraseña"),
+        title: Text("Cambiar contraseña", style: TextStyle(color: textColor)),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
