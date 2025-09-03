@@ -1,3 +1,8 @@
+// ======================================================
+// UserListController: Controlador para lista de usuarios
+// Maneja: Fetch de usuarios, paginación y notificaciones
+// ======================================================
+
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:mioxi_frontend/models/user.dart';
@@ -6,24 +11,37 @@ import 'package:mioxi_frontend/services/userDoctorServices.dart';
 import 'package:mioxi_frontend/others/sessionManager.dart';
 
 class UserListController extends GetxController {
+  // ------------------------------
+  // Variables reactivas
+  // ------------------------------
   final isLoading = false.obs;
   final userList = <UserModel>[].obs;
   final currentPage = 1.obs;
   final limit = 10.obs;
 
+  // ------------------------------
+  // Servicios
+  // ------------------------------
   final UserServices userService = UserServices();
   final UserDoctorServices userDoctorService = UserDoctorServices();
 
-  // 🔔 Mapa de notificaciones por usuario
+  // ------------------------------
+  // Notificaciones por usuario
+  // ------------------------------
   final Map<String, RxBool> userNotifications = {};
 
+  // ------------------------------
+  // Inicialización
+  // ------------------------------
   @override
   void onInit() {
     super.onInit();
     _connectToNotifications();
   }
 
-  /// 🔌 Conexión al WebSocket y escucha de notificaciones
+  // ======================================================
+  // Conexión al WebSocket y escucha de notificaciones
+  // ======================================================
   void _connectToNotifications() {
     userDoctorService.connectWS();
 
@@ -38,17 +56,20 @@ class UserListController extends GetxController {
     });
   }
 
-  /// 🔔 Activar notificación visual para un usuario
+  // ======================================================
+  // Activar notificación visual para un usuario
+  // ======================================================
   void activateNotificationFor(String username) {
-      print("🔔 Activando notificación para $username");
+    print("🔔 Activando notificación para $username");
     if (!userNotifications.containsKey(username)) {
       userNotifications[username] = false.obs;
     }
     userNotifications[username]!.value = true;
-
   }
 
-  /// 📦 Obtener usuarios desde el servicio
+  // ======================================================
+  // Obtener usuarios desde el servicio
+  // ======================================================
   Future<void> fetchUsers() async {
     try {
       isLoading.value = true;
@@ -64,7 +85,9 @@ class UserListController extends GetxController {
     }
   }
 
-  /// 📄 Cambiar límite de usuarios por página
+  // ======================================================
+  // Cambiar límite de usuarios por página
+  // ======================================================
   void setLimit(int newLimit) {
     if (limit.value != newLimit) {
       limit.value = newLimit;
@@ -73,13 +96,14 @@ class UserListController extends GetxController {
     }
   }
 
-  /// ⏭️ Página siguiente
+  // ======================================================
+  // Paginación
+  // ======================================================
   void nextPage() {
     currentPage.value++;
     fetchUsers();
   }
 
-  /// ⏮️ Página anterior
   void previousPage() {
     if (currentPage.value > 1) {
       currentPage.value--;

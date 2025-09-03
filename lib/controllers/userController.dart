@@ -1,38 +1,36 @@
+// ======================================================
+// UserController: Controlador para usuario
+// Maneja: Login, Registro, Edición, Cambio de contraseña y Logout
+// ======================================================
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:mioxi_frontend/models/user.dart';
 import 'package:mioxi_frontend/services/userServices.dart';
 import 'package:mioxi_frontend/services/userDoctorServices.dart';
 import 'package:mioxi_frontend/services/irServices.dart';
-
 import 'package:mioxi_frontend/others/sessionManager.dart';
 import 'package:mioxi_frontend/auth/tokenManager.dart';
 
-/// ======================================================
-/// CONTROLADOR DE USUARIO
-/// Maneja: Login, Registro, Edición, Cambio de contraseña y Logout
-/// ======================================================
-
 class UserController extends GetxController {
-  // ---------------------------
-  // 🔹 Servicios y dependencias
-  // ---------------------------
+  // ------------------------------
+  // Servicios y dependencias
+  // ------------------------------
   final UserServices _userService = Get.put(UserServices());
   final UserDoctorServices _userDoctorServices = Get.put(UserDoctorServices());
   final IrService _irService = IrService();
   final tokenManager = TokenManager();
-  //final BleListener _bleListener = BleListener();
-  // ---------------------------
-  // 🔹 Controladores para Login
-  // ---------------------------
+
+  // ------------------------------
+  // Controladores de texto para Login
+  // ------------------------------
   final TextEditingController usernameLogInController = TextEditingController();
   final TextEditingController passwordLogInController = TextEditingController();
 
-  // ---------------------------
-  // 🔹 Controladores para Registro
-  // ---------------------------
+  // ------------------------------
+  // Controladores de texto para Registro
+  // ------------------------------
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
@@ -44,9 +42,9 @@ class UserController extends GetxController {
   final TextEditingController medicationController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // ---------------------------
-  // 🔹 Controladores para Edición
-  // ---------------------------
+  // ------------------------------
+  // Controladores de texto para Edición
+  // ------------------------------
   final TextEditingController usernameControllerEdit = TextEditingController();
   final TextEditingController emailControllerEdit = TextEditingController();
   final TextEditingController nameControllerEdit = TextEditingController();
@@ -54,33 +52,29 @@ class UserController extends GetxController {
   final TextEditingController birthDateControllerEdit = TextEditingController();
   final TextEditingController heightControllerEdit = TextEditingController();
   final TextEditingController weightControllerEdit = TextEditingController();
-  final TextEditingController medicationControllerEdit =
-      TextEditingController();
+  final TextEditingController medicationControllerEdit = TextEditingController();
   final TextEditingController passwordControllerEdit = TextEditingController();
 
-  // ---------------------------
-  // 🔹 Controladores para Recuperar Contraseña
-  // ---------------------------
-  final TextEditingController usernamePasswLostController =
-      TextEditingController();
-  final TextEditingController passwordPasswLostController =
-      TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  // ------------------------------
+  // Controladores de texto para Recuperar Contraseña
+  // ------------------------------
+  final TextEditingController usernamePasswLostController = TextEditingController();
+  final TextEditingController passwordPasswLostController = TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
-  // ---------------------------
-  // 🔹 Variables reactivas (estado)
-  // ---------------------------
+  // ------------------------------
+  // Variables reactivas
+  // ------------------------------
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
   final Rxn<UserModel> userModel = Rxn<UserModel>();
   UserModel? user;
 
-  /// ======================================================
-  /// FUNCIONES DE SESIÓN
-  /// ======================================================
+  // ======================================================
+  // Funciones de sesión
+  // ======================================================
 
-  // Guardar datos de usuario en SharedPreferences
+  // Guardar datos del usuario en SharedPreferences
   Future<void> saveUserSession(UserModel user, String role) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('user_name_$role', user.name);
@@ -88,7 +82,7 @@ class UserController extends GetxController {
     await prefs.setString('user_role_$role', role);
   }
 
-  // Obtener datos de usuario desde el backend y guardarlos en el controlador
+  // Obtener usuario desde backend y guardar en controlador
   Future<UserModel?> fetchUser(String role) async {
     try {
       final username = await SessionManager.getUsername(role);
@@ -106,43 +100,26 @@ class UserController extends GetxController {
     }
   }
 
-  /// ======================================================
-  /// LOGIN
-  /// ======================================================
+  // ======================================================
+  // Login
+  // ======================================================
   void logIn() async {
-    if (usernameLogInController.text.isEmpty ||
-        passwordLogInController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Campos vacíos',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    if (usernameLogInController.text.isEmpty || passwordLogInController.text.isEmpty) {
+      Get.snackbar('Error', 'Campos vacíos', snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    print('🟢 Iniciando sesión desde UserController...');
-
-    final logIn = (
-      username: usernameLogInController.text,
-      password: passwordLogInController.text,
-    );
-
+    final logIn = (username: usernameLogInController.text, password: passwordLogInController.text);
     isLoading.value = true;
     errorMessage.value = '';
 
     try {
       final responseCode = await _userService.logIn(logIn);
-      final token = await tokenManager.getToken(); // Recupera token guardado
-
-      print('🔍 Respuesta del backend: $responseCode');
+      final token = await tokenManager.getToken();
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        await SessionManager.saveSession(
-          "user", // 👈 rol explícito
-          token,
-          usernameLogInController.text,
-        );
+        await SessionManager.saveSession("user", token, usernameLogInController.text);
         _irService.connect();
         Get.toNamed('/homeUser');
       } else if (responseCode == 300) {
@@ -161,30 +138,18 @@ class UserController extends GetxController {
   }
 
   void logInGuest() async {
-    print('🟢 Iniciando sesión desde UserController...');
-
     final logInGuest = (username: "GuestPatient", password: "123456Aa%");
-
     isLoading.value = true;
     errorMessage.value = '';
 
     try {
       final responseCode = await _userService.logIn(logInGuest);
-      final token = await tokenManager.getToken(); // Recupera token guardado
-
-      print('🔍 Respuesta del backend: $responseCode');
+      final token = await tokenManager.getToken();
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso, iniciando la lectura');
-
         Get.toNamed('/homeGuest');
-        await SessionManager.saveSession(
-          "user", // 👈 rol explícito
-          token,
-          "GuestPatient",
-        );
-
-        // 🔹 Enviar loginStatus al ESP32 para que pueda reaccionar
+        await SessionManager.saveSession("user", token, "GuestPatient");
         _irService.connect();
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
@@ -201,11 +166,11 @@ class UserController extends GetxController {
     }
   }
 
-  /// ======================================================
-  /// REGISTRO DE USUARIO
-  /// ======================================================
+  // ======================================================
+  // Registro de usuario
+  // ======================================================
   void signUp() async {
-    // Validación de campos obligatorios
+    // Validaciones de campos
     if (usernameController.text.isEmpty ||
         passwordController.text.isEmpty ||
         emailController.text.isEmpty ||
@@ -215,78 +180,45 @@ class UserController extends GetxController {
         heightController.text.isEmpty ||
         weightController.text.isEmpty) {
       errorMessage.value = 'Campos vacíos';
-      Get.snackbar(
-        'Error',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    // Validación de correo electrónico
     if (!GetUtils.isEmail(emailController.text)) {
       errorMessage.value = 'Correo electrónico no válido';
-      Get.snackbar(
-        'Error',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    // Validación de contraseña segura
-    final regex = RegExp(
-      r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$',
-    );
+    final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{7,}$');
     if (!regex.hasMatch(passwordController.text)) {
       errorMessage.value =
           'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
-      Get.snackbar(
-        'Error',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    // Validación de fecha en formato dd/mm/yyyy
-    final dateRegex = RegExp(
-      r'^([0-2][0-9]|(3)[0-1])/([0][1-9]|1[0-2])/(\d{4})$',
-    );
-
+    final dateRegex = RegExp(r'^([0-2][0-9]|3[0-1])/([0][1-9]|1[0-2])/(\d{4})$');
     if (!dateRegex.hasMatch(birthDateController.text)) {
       errorMessage.value = 'Fecha inválida. Formato correcto: dd/mm/yyyy';
-      Get.snackbar(
-        'Error',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
-    // Verificar que la fecha sea real (no 31/02/2025)
+    // Validar fecha real
     try {
       final parts = birthDateController.text.split('/');
-      final day = int.parse(parts[0]);
-      final month = int.parse(parts[1]);
-      final year = int.parse(parts[2]);
-
-      final date = DateTime(year, month, day);
-      if (date.day != day || date.month != month || date.year != year) {
-        throw Exception('Fecha inválida');
+      final date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+      if (date.day != int.parse(parts[0]) || date.month != int.parse(parts[1]) || date.year != int.parse(parts[2])) {
+        throw Exception();
       }
     } catch (e) {
       errorMessage.value = 'Fecha inválida. Verifica los valores';
-      Get.snackbar(
-        'Error',
-        errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
       return;
     }
 
     isLoading.value = true;
-
     try {
       final newUser = UserModel(
         username: usernameController.text.trim(),
@@ -303,40 +235,26 @@ class UserController extends GetxController {
       );
 
       final responseCode = await _userService.createUser(newUser);
-      print('🔍 Respuesta del backend: $responseCode');
 
       if (responseCode != null && responseCode == 201) {
         Get.snackbar('Éxito', 'Usuario creado exitosamente');
         Get.toNamed('/login');
       } else {
-        errorMessage.value =
-            'Error: Este E-Mail o nombre de usuario ya están en uso';
-        Get.snackbar(
-          'Error',
-          errorMessage.value,
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        errorMessage.value = 'Error: Este E-Mail o nombre de usuario ya están en uso';
+        Get.snackbar('Error', errorMessage.value, snackPosition: SnackPosition.BOTTOM);
       }
     } finally {
       isLoading.value = false;
     }
   }
 
-  /// ======================================================
-  /// ACTUALIZAR USUARIO
-  /// ======================================================
-  Future<bool> updateUser(
-    String originalUsername,
-    Map<String, dynamic> updatedFieldsFromDialog,
-  ) async {
+  // ======================================================
+  // Actualizar usuario
+  // ======================================================
+  Future<bool> updateUser(String originalUsername, Map<String, dynamic> updatedFieldsFromDialog) async {
     try {
-      print(
-        "🔹 updateUser llamado con: $originalUsername y $updatedFieldsFromDialog",
-      );
-
       isLoading.value = true;
 
-      // Construimos los campos a enviar directamente
       final Map<String, dynamic> updatedFields = {
         "username": updatedFieldsFromDialog["username"]?.trim() ?? "",
         "email": updatedFieldsFromDialog["email"]?.trim() ?? "",
@@ -351,18 +269,15 @@ class UserController extends GetxController {
         "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
       };
 
-      // Validaciones
-      if (updatedFields["email"].isNotEmpty &&
-          !GetUtils.isEmail(updatedFields["email"])) {
+      // Validaciones de email y password
+      if (updatedFields["email"].isNotEmpty && !GetUtils.isEmail(updatedFields["email"])) {
         errorMessage.value = 'Correo electrónico no válido';
         Get.snackbar('Error', errorMessage.value);
         return false;
       }
 
       if (updatedFields["password"].isNotEmpty) {
-        final regex = RegExp(
-          r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{7,}$',
-        );
+        final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{7,}$');
         if (!regex.hasMatch(updatedFields["password"])) {
           errorMessage.value =
               'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial';
@@ -371,10 +286,9 @@ class UserController extends GetxController {
         }
       }
 
+      // Validación de fecha
       if (updatedFields["birthDate"].isNotEmpty) {
-        final dateRegex = RegExp(
-          r'^([0-2][0-9]|3[0-1])/([0][1-9]|1[0-2])/(\d{4})$',
-        );
+        final dateRegex = RegExp(r'^([0-2][0-9]|3[0-1])/([0][1-9]|1[0-2])/(\d{4})$');
         final birthDate = updatedFields["birthDate"];
         if (!dateRegex.hasMatch(birthDate)) {
           errorMessage.value = 'Fecha inválida. Formato correcto: dd/mm/yyyy';
@@ -383,14 +297,8 @@ class UserController extends GetxController {
         }
         try {
           final parts = birthDate.split('/');
-          final date = DateTime(
-            int.parse(parts[2]),
-            int.parse(parts[1]),
-            int.parse(parts[0]),
-          );
-          if (date.day != int.parse(parts[0]) ||
-              date.month != int.parse(parts[1]) ||
-              date.year != int.parse(parts[2])) {
+          final date = DateTime(int.parse(parts[2]), int.parse(parts[1]), int.parse(parts[0]));
+          if (date.day != int.parse(parts[0]) || date.month != int.parse(parts[1]) || date.year != int.parse(parts[2])) {
             throw Exception();
           }
         } catch (_) {
@@ -402,23 +310,13 @@ class UserController extends GetxController {
 
       if (updatedFields["username"] != originalUsername) {
         final currentToken = await tokenManager.getToken();
-        await SessionManager.saveSession(
-          "user", // rol
-          currentToken,
-          updatedFields["username"],
-        );
+        await SessionManager.saveSession("user", currentToken, updatedFields["username"]);
       }
 
-      print("🔹 Campos finales a enviar al backend: $updatedFields");
-
-      final responseCode = await _userService.editUser(
-        originalUsername,
-        updatedFields,
-      );
+      final responseCode = await _userService.editUser(originalUsername, updatedFields);
 
       if (responseCode == 200 || responseCode == 201) {
         Get.snackbar('Éxito', 'Usuario editado exitosamente');
-        // Refrescamos los datos del usuario
         await fetchUser("user");
         return true;
       } else {
@@ -427,7 +325,6 @@ class UserController extends GetxController {
         return false;
       }
     } catch (e) {
-      print("🔹 Error en updateUser: $e");
       errorMessage.value = 'Error al actualizar usuario';
       Get.snackbar('Error', errorMessage.value);
       return false;
@@ -436,18 +333,9 @@ class UserController extends GetxController {
     }
   }
 
-  Future<bool> updateUserByDoctor(
-    String originalUsername,
-    Map<String, dynamic> updatedFieldsFromDialog,
-  ) async {
+  Future<bool> updateUserByDoctor(String originalUsername, Map<String, dynamic> updatedFieldsFromDialog) async {
     try {
-      print(
-        "🔹 updateUserByDoctor llamado con: $originalUsername y $updatedFieldsFromDialog",
-      );
-
       isLoading.value = true;
-
-      // Construimos los campos a enviar directamente
       final Map<String, dynamic> updatedFields = {
         "username": updatedFieldsFromDialog["username"]?.trim() ?? "",
         "email": updatedFieldsFromDialog["email"]?.trim() ?? "",
@@ -462,16 +350,10 @@ class UserController extends GetxController {
         "password": updatedFieldsFromDialog["password"]?.trim() ?? "",
       };
 
-      print("🔹 Campos finales a enviar al backend: $updatedFields");
-
-      final responseCode = await _userDoctorServices.editUser(
-        originalUsername,
-        updatedFields,
-      );
+      final responseCode = await _userDoctorServices.editUser(originalUsername, updatedFields);
 
       if (responseCode == 200 || responseCode == 201) {
         Get.snackbar('Éxito', 'Usuario editado exitosamente por el doctor');
-        // Refrescamos los datos del usuario
         await fetchUser("user");
         return true;
       } else {
@@ -480,7 +362,6 @@ class UserController extends GetxController {
         return false;
       }
     } catch (e) {
-      print("🔹 Error en updateUser: $e");
       errorMessage.value = 'Error al actualizar usuario';
       Get.snackbar('Error', errorMessage.value);
       return false;
@@ -489,102 +370,65 @@ class UserController extends GetxController {
     }
   }
 
-  /// ======================================================
-  /// CAMBIAR CONTRASEÑA
-  /// ======================================================
+  // ======================================================
+  // Cambiar contraseña
+  // ======================================================
   void changePassword() async {
     try {
       final username = usernamePasswLostController.text.trim();
       final newPassword = passwordPasswLostController.text.trim();
       final confirmPassword = confirmPasswordController.text.trim();
 
-      // Validaciones de campos
       if (username.isEmpty || newPassword.isEmpty || confirmPassword.isEmpty) {
-        Get.snackbar(
-          'Error',
-          'Todos los campos son requeridos',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.snackbar('Error', 'Todos los campos son requeridos', snackPosition: SnackPosition.BOTTOM);
         return;
       }
 
       if (newPassword != confirmPassword) {
-        Get.snackbar(
-          'Error',
-          'Las contraseñas no coinciden',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.snackbar('Error', 'Las contraseñas no coinciden', snackPosition: SnackPosition.BOTTOM);
         return;
       }
 
-      // Validación de contraseña segura
-      final regex = RegExp(
-        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$',
-      );
+      final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{7,}$');
       if (!regex.hasMatch(newPassword)) {
-        Get.snackbar(
-          'Error',
-          'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial',
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.snackbar('Error', 'Contraseña insegura', snackPosition: SnackPosition.BOTTOM);
         return;
       }
 
-      // Llamada al servicio
       final responseCode = await _userService.updatePassword({
         "username": username,
         "newPassword": newPassword,
       });
-      print('🔍 Respuesta del backend: $responseCode');
 
       if (responseCode == 200) {
-        Get.snackbar(
-          "Éxito",
-          "Contraseña cambiada correctamente",
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.snackbar("Éxito", "Contraseña cambiada correctamente", snackPosition: SnackPosition.BOTTOM);
         usernamePasswLostController.clear();
         passwordPasswLostController.clear();
         passwordController.clear();
       } else {
-        Get.snackbar(
-          "Error",
-          "No se pudo cambiar la contraseña ($responseCode)",
-          snackPosition: SnackPosition.BOTTOM,
-        );
+        Get.snackbar("Error", "No se pudo cambiar la contraseña ($responseCode)", snackPosition: SnackPosition.BOTTOM);
       }
     } catch (e) {
-      Get.snackbar(
-        "Error",
-        "Error inesperado: $e",
-        snackPosition: SnackPosition.BOTTOM,
-      );
+      Get.snackbar("Error", "Error inesperado: $e", snackPosition: SnackPosition.BOTTOM);
     }
   }
 
-  /// ======================================================
-  /// LOGOUT
-  /// ======================================================
+  // ======================================================
+  // Logout
+  // ======================================================
   void logout() async {
     try {
       isLoading.value = true;
       final responseCode = await _userService.logOut();
-      print('🔍 Respuesta del backend: $responseCode');
 
-      // Limpiar sesión local
-      await SessionManager.clearSession(
-        "user",
-      ); // 👈 solo borra la sesión del usuario
-
-      // Limpiar datos en el controlador
+      await SessionManager.clearSession("user");
       user = null;
       userModel.value = null;
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Cierre de sesión exitoso');
-        Get.offAllNamed(
-          '/selectorMode',
-        ); // Usar offAll para reiniciar navegación
+        IrService().disconnect();
+        Get.offAllNamed('/selectorMode');
       } else if (responseCode == 300) {
         Get.snackbar('Advertencia', errorMessage.value);
       } else {

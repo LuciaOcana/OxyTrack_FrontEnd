@@ -1,18 +1,25 @@
-//V1.2
+// ======================================================
+// bottomNavScaffold.dart
+// Scaffold con BottomNavigationBar reactivo usando GetX
+// Incluye navegación entre Home, Perfil y Chat
+// ======================================================
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mioxi_frontend/controllers/navBarController.dart';
 
 class BottomNavScaffold extends StatelessWidget {
+  /// Contenido principal del Scaffold
   final Widget child;
+
+  /// Controlador de navegación
   final NavBarController navController = Get.put(NavBarController());
 
-  BottomNavScaffold({required this.child});
+  BottomNavScaffold({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    // Variables de tipo String asignadas en tiempo de ejecución
+    // Etiquetas traducibles
     final homeLabel = 'Home'.tr;
     final profileLabel = 'Perfil'.tr;
 
@@ -23,22 +30,22 @@ class BottomNavScaffold extends StatelessWidget {
           currentIndex: navController.selectedIndex.value,
           onTap: (index) {
             if (index == 2) {
-              // Índice correspondiente al chat
-              Get.toNamed('/chat'); // Navegar a la lista de usuarios
+              // Navegación especial: chat
+              Get.toNamed('/chat');
             } else {
-              navController.navigateTo(index); // Navegar a otras pantallas
+              // Navegación estándar
+              navController.navigateTo(index);
             }
           },
-          elevation: 5, // Sombra suave para el diseño
-          type: BottomNavigationBarType
-              .fixed, // Fija para mantener los elementos en su lugar
+          elevation: 5, // Sombra suave
+          type: BottomNavigationBarType.fixed, // Mantiene los elementos fijos
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
+              icon: const Icon(Icons.home),
               label: homeLabel,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
+              icon: const Icon(Icons.person_outline),
               label: profileLabel,
             ),
           ],

@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
 import 'package:mioxi_frontend/controllers/userDoctorController.dart';
 
 class LogInDoctorScreen extends StatefulWidget {
+  const LogInDoctorScreen({super.key});
+
   @override
-  _LogInDoctorScreenState createState() => _LogInDoctorScreenState();
+  State<LogInDoctorScreen> createState() => _LogInDoctorScreenState();
 }
 
 class _LogInDoctorScreenState extends State<LogInDoctorScreen> {
   final _loginFormKey = GlobalKey<FormState>();
   final UserDoctorController _userDoctorController = UserDoctorController();
+final RxBool _obscurePassword = true.obs; // 🔹 true = contraseña oculta al inicio
+
 
   InputDecoration _inputDecoration(String label, bool isLight) {
     return InputDecoration(
@@ -24,25 +30,18 @@ class _LogInDoctorScreenState extends State<LogInDoctorScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-final isLight = Theme.of(context).brightness == Brightness.light;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     // 🎨 Colores dinámicos
     final appBarColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
     final buttonColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
-    final altButtonBg = isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
-    final altButtonText = isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
     final titleColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
-    final textColor = isLight ? Colors.black87 : Colors.white;
-    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
-
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio de sesión de doctor'),
         backgroundColor: appBarColor,
         centerTitle: true,
-        automaticallyImplyLeading: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'OpenSans',
           fontWeight: FontWeight.bold,
@@ -74,19 +73,32 @@ final isLight = Theme.of(context).brightness == Brightness.light;
                   TextFormField(
                     controller: _userDoctorController.usernameLogInDoctorController,
                     decoration: _inputDecoration('Nombre de usuario', isLight),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Ingrese su usuario' : null,
+                    validator: (value) => value!.isEmpty ? 'Ingrese su usuario' : null,
                   ),
                   const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _userDoctorController.passwordLogInDoctorController,
-                    decoration: _inputDecoration('Contraseña', isLight),
-                    obscureText: true,
-                    validator: (value) =>
-                        value!.isEmpty ? 'Ingrese su contraseña' : null,
-                  ),
+                  Obx(() => TextFormField(
+  controller: _userDoctorController.passwordLogInDoctorController,
+  obscureText: _obscurePassword.value, // depende del RxBool
+  decoration: _inputDecoration('Contraseña', isLight).copyWith(
+    suffixIcon: IconButton(
+      icon: Icon(
+        _obscurePassword.value ? Icons.visibility_off : Icons.visibility,
+        color: Colors.grey,
+      ),
+      onPressed: () => _obscurePassword.value = !_obscurePassword.value,
+    ),
+  ),
+  validator: (value) => value!.isEmpty ? 'Ingrese su contraseña' : null,
+)),
+
                   const SizedBox(height: 24),
                   ElevatedButton(
+                    onPressed: () {
+                      if (_loginFormKey.currentState!.validate()) {
+                        _userDoctorController.logIn();
+                        Navigator.of(context).pop();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: buttonColor,
@@ -94,12 +106,6 @@ final isLight = Theme.of(context).brightness == Brightness.light;
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {
-                      if (_loginFormKey.currentState!.validate()) {
-                        _userDoctorController.logIn();
-                        Navigator.of(context).pop();
-                      }
-                    },
                     child: const Text(
                       'Iniciar sesión',
                       style: TextStyle(

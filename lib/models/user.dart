@@ -1,18 +1,29 @@
+// ======================================================
+// UserModel: Modelo de usuario
+// Maneja: datos del usuario y serialización JSON
+// ======================================================
+
 import 'package:flutter/material.dart';
 
 class UserModel with ChangeNotifier {
+  // ------------------------------
+  // Campos privados
+  // ------------------------------
   String _username;
   String _email;
   String _name;
   String _lastname;
   String _birthDate;
-  String? _age; 
+  String? _age;
   String _height;
   String _weight;
   List<String> _medication;
   String _doctor;
   String _password;
 
+  // ------------------------------
+  // Constructor
+  // ------------------------------
   UserModel({
     required String username,
     required String email,
@@ -37,7 +48,9 @@ class UserModel with ChangeNotifier {
         _doctor = doctor ?? '',
         _password = password;
 
-  /// 🔄 Calcula la edad como String
+  // ------------------------------
+  // Calcula la edad a partir de birthDate
+  // ------------------------------
   static String _calculateAge(String birthDateStr) {
     try {
       final birthDate = DateTime.parse(birthDateStr);
@@ -49,11 +62,13 @@ class UserModel with ChangeNotifier {
       }
       return age.toString();
     } catch (e) {
-      return ''; // Por si la fecha está mal
+      return ''; // Por si la fecha no es válida
     }
   }
 
+  // ------------------------------
   // Getters
+  // ------------------------------
   String get username => _username;
   String get email => _email;
   String get name => _name;
@@ -66,6 +81,9 @@ class UserModel with ChangeNotifier {
   String? get doctor => _doctor;
   String get password => _password;
 
+  // ------------------------------
+  // Creación desde JSON
+  // ------------------------------
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       username: json['username'] ?? '',
@@ -73,15 +91,18 @@ class UserModel with ChangeNotifier {
       name: json['name'] ?? '',
       lastname: json['lastname'] ?? '',
       birthDate: json['birthDate'] ?? '',
-      age: json['age']?.toString(), // ⬅️ asegúrate de que sea String
+      age: json['age']?.toString(),
       height: json['height'] ?? '',
       weight: json['weight'] ?? '',
       medication: List<String>.from(json['medication'] ?? []),
-      doctor: json['doctor']?.toString(), 
+      doctor: json['doctor']?.toString(),
       password: json['password'] ?? '',
     );
   }
 
+  // ------------------------------
+  // Serialización a JSON
+  // ------------------------------
   Map<String, dynamic> toJson() {
     return {
       'username': _username,

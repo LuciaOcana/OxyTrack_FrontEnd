@@ -37,9 +37,10 @@ class MyHttpOverrides extends HttpOverrides {
 }
 
 void main() async {
-    HttpOverrides.global = MyHttpOverrides();
 
   WidgetsFlutterBinding.ensureInitialized();
+      HttpOverrides.global = MyHttpOverrides();
+
   await GetStorage.init(); // ✅ Inicializa GetStorage
   Get.put(ThemeController());
 
@@ -115,7 +116,7 @@ class MyApp extends StatelessWidget {
           GetPage(name: '/selectorMode', page: () => SelectorModeScreen()),
 
           // Usuario
-          GetPage(name: '/logIn', page: () => logInScreen()),
+          GetPage(name: '/logIn', page: () => LogInScreen()),
           GetPage(
             name: '/homeUser',
             page: () => BottomNavScaffold(child: HomePageScreen()),

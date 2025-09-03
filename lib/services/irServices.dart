@@ -1,15 +1,20 @@
+// ======================================================
+// irService.dart
+// Servicio WebSocket para datos de SpO2
+// ======================================================
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:mioxi_frontend/others/sessionManager.dart';
 
-// Clase que representa un dato de SpO2
+// Clase que representa un dato de SpO2 con timestamp real
 class SpO2Data {
   final double time;
   final double value;
-    final DateTime timestamp; // NUEVO: hora real del dato
-  SpO2Data(this.time, this.value, this.timestamp);
+  final DateTime timestamp;
 
+  SpO2Data(this.time, this.value, this.timestamp);
 }
 
 class IrService {
@@ -19,27 +24,24 @@ class IrService {
   IrService._internal();
   // ---------------------------------------------------
 
-  final String wsUrl = 'wss://192.168.1.34:3000';
+  final String wsUrl = 'wss://172.20.10.5:3000';
   WebSocket? _socket;
 
-  // StreamController broadcast para que múltiples listeners puedan escuchar
+  // StreamController broadcast para múltiples listeners
   final StreamController<Map<String, dynamic>> _spo2Controller =
       StreamController.broadcast();
   Stream<Map<String, dynamic>> get spo2Stream => _spo2Controller.stream;
 
-  // Lista global de datos y estado actual
+  // Estado global
   List<SpO2Data> spo2Data = [];
   double timeIndex = 0;
   double? currentSpo2;
-    DateTime? lastTimestamp; // NUEVO: último timestamp recibido
+  DateTime? lastTimestamp;
 
-
-  // Conectar al WebSocket
+  // -------------------- CONEXIÓN --------------------
   Future<void> connect() async {
     try {
-      String? username = await SessionManager.getUsername("user");
-      print("Conectando a WebSocket en: $wsUrl");
-
+      final username = await SessionManager.getUsername("user");
       if (username == null || username.isEmpty) {
         print("❌ No se encontró username en sesión");
         return;
@@ -53,43 +55,16 @@ class IrService {
       _socket = await WebSocket.connect(wsUrl);
       print('✅ WebSocket conectado');
 
-      final initMessage = jsonEncode({
+      // Enviar mensaje de inicialización
+      _socket!.add(jsonEncode({
         "type": "init",
         "username": username,
         "role": "paciente",
-      });
-      _socket!.add(initMessage);
-      print("📤 Init enviado con username: $username");
+      }));
 
+      // Escuchar mensajes del WS
       _socket!.listen(
-        (data) {
-          print('📨 Mensaje recibido WS: $data');
-          try {
-            Map<String, dynamic> message = jsonDecode(data);
-
-            if (message.containsKey('spo2')) {
-              double spo2Value = (message['spo2'] as num).toDouble();
-              currentSpo2 = spo2Value;
-
-// Parsear timestamp
-      DateTime timestamp = DateTime.parse(message['timestamp']);
-      
-// Guardar último timestamp para mostrar debajo del %SpO2
-      lastTimestamp = timestamp;
-              // Guardar en lista global
-              spo2Data.add(SpO2Data(timeIndex++, spo2Value,timestamp));
-
-              // Mantener solo los últimos 100 datos para no crecer indefinidamente
-              if (spo2Data.length > 100) {
-                spo2Data.removeAt(0);
-              }
-            }
-
-            _spo2Controller.add(message); // enviar al stream
-          } catch (e) {
-            print('❌ Error parseando mensaje WS: $e');
-          }
-        },
+        _handleMessage,
         onDone: () {
           print('🔌 WebSocket cerrado');
           _socket = null;
@@ -104,7 +79,33 @@ class IrService {
     }
   }
 
-  // Enviar mensaje al backend
+  // -------------------- MENSAJES --------------------
+  void _handleMessage(dynamic data) {
+    try {
+      final message = jsonDecode(data) as Map<String, dynamic>;
+      print('📨 Mensaje recibido WS: $message');
+
+      if (message.containsKey('spo2')) {
+        final spo2Value = (message['spo2'] as num).toDouble();
+        currentSpo2 = spo2Value;
+
+        final timestamp = DateTime.parse(message['timestamp']);
+        lastTimestamp = timestamp;
+
+        spo2Data.add(SpO2Data(timeIndex++, spo2Value, timestamp));
+
+        // Mantener solo últimos 100 datos
+        if (spo2Data.length > 100) {
+          spo2Data.removeAt(0);
+        }
+      }
+
+      _spo2Controller.add(message);
+    } catch (e) {
+      print('❌ Error parseando mensaje WS: $e');
+    }
+  }
+
   void sendMessage(String message) {
     if (_socket != null && _socket!.readyState == WebSocket.open) {
       _socket!.add(message);
@@ -113,7 +114,7 @@ class IrService {
     }
   }
 
- // 👇 Aquí agregas el reset()
+  // -------------------- RESET Y DESCONECTAR --------------------
   void reset() {
     spo2Data.clear();
     currentSpo2 = null;
@@ -122,11 +123,9 @@ class IrService {
     print('🗑️ Datos del IrService reseteados');
   }
 
-  // Cerrar conexión y stream
   void disconnect() {
     _socket?.close();
     _socket = null;
-    // No cerramos el stream aquí para mantener los datos mientras la app está abierta
     print('🔒 WebSocket desconectado (stream sigue activo)');
   }
 }

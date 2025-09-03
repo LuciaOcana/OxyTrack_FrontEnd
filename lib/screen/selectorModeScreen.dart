@@ -1,3 +1,8 @@
+// ======================================================
+// selectorModeScreen.dart
+// Pantalla para seleccionar modo: paciente, médico o admin
+// ======================================================
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mioxi_frontend/others/themeController.dart';
@@ -9,31 +14,26 @@ class SelectorModeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final isLight = Theme.of(context).brightness == Brightness.light;
 
-    // 🎨 Paleta dinámica
+    // 🎨 Colores dinámicos según tema
     final appBarColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
     final buttonColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
     final buttonTextColor = isLight ? Colors.white : const Color(0xFFCAF0F8);
     final titleColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
-    final textPrimary = isLight ? Colors.black87 : Colors.white;
+    final bgColor = isLight ? Colors.white : Theme.of(context).scaffoldBackgroundColor;
 
     return Scaffold(
-      backgroundColor: isLight ? Colors.white : Theme.of(context).scaffoldBackgroundColor,
+      backgroundColor: bgColor,
       appBar: AppBar(
         backgroundColor: appBarColor,
         centerTitle: true,
         automaticallyImplyLeading: false,
         leading: IconButton(
-          icon: Icon(
-            isLight ? Icons.dark_mode : Icons.light_mode,
-            color: Colors.white,
-          ),
+          icon: Icon(isLight ? Icons.dark_mode : Icons.light_mode, color: Colors.white),
           onPressed: () => Get.find<ThemeController>().toggleTheme(),
         ),
         actions: [
           TextButton(
-            onPressed: () {
-              Get.toNamed('/loginAdmin');
-            },
+            onPressed: () => Get.toNamed('/loginAdmin'),
             child: const Text(
               'Administrador',
               style: TextStyle(
@@ -55,14 +55,17 @@ class SelectorModeScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: 20),
+
+                // Imagen principal
                 Image.asset(
                   isLight
                       ? 'lib/others/images/SpO.png'
                       : 'lib/others/images/SpODark.png',
                   height: 200,
                 ),
-
                 const SizedBox(height: 20),
+
+                // Título
                 Text(
                   'Bienvenido a MiOxi',
                   style: TextStyle(
@@ -75,7 +78,7 @@ class SelectorModeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 30),
 
-                // 🔵 Botón Soy paciente
+                // 🔵 Botón "Soy paciente"
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -84,9 +87,7 @@ class SelectorModeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    Get.toNamed('/logIn');
-                  },
+                  onPressed: () => Get.toNamed('/logIn'),
                   child: Text(
                     'Soy paciente',
                     style: TextStyle(
@@ -99,7 +100,7 @@ class SelectorModeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 16),
 
-                // 🩺 Botón Soy personal médico
+                // 🩺 Botón "Soy personal médico"
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
@@ -108,9 +109,7 @@ class SelectorModeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  onPressed: () {
-                    Get.toNamed('/loginDoctor');
-                  },
+                  onPressed: () => Get.toNamed('/loginDoctor'),
                   child: Text(
                     'Soy personal médico',
                     style: TextStyle(
@@ -122,7 +121,6 @@ class SelectorModeScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-
               ],
             ),
           ),

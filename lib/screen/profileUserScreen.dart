@@ -1,13 +1,15 @@
+// ======================================================
+// userProfileScreen.dart
+// Pantalla de perfil de usuario con edición y logout
+// ======================================================
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mioxi_frontend/services/irServices.dart';
 import 'package:mioxi_frontend/controllers/userController.dart';
-import 'package:mioxi_frontend/services/userServices.dart';
 import 'package:mioxi_frontend/others/sessionManager.dart';
 import 'package:mioxi_frontend/models/user.dart';
 import 'package:mioxi_frontend/others/themeController.dart';
-
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({super.key});
@@ -19,7 +21,7 @@ class UserProfileScreen extends StatefulWidget {
 class _UserProfileScreenState extends State<UserProfileScreen> {
   final RxString name = ''.obs;
   final RxString email = ''.obs;
-final RxBool isLoading = false.obs; // Defínelo dentro de _UserProfileScreenState
+  final RxBool isLoading = false.obs;
 
 
   final UserController _userController = Get.put(UserController());
@@ -28,15 +30,15 @@ final RxBool isLoading = false.obs; // Defínelo dentro de _UserProfileScreenSta
   @override
   void initState() {
     super.initState();
-    loadUserData();
+    _loadUserData();
     IrService().connect();
   }
 
-  Future<void> loadUserData() async {
+  Future<void> _loadUserData() async {
     isLoading.value = true;
-final username = await SessionManager.getUsername("user");
+    final username = await SessionManager.getUsername("user");
     if (username != null) {
-final fetchedUser = await _userController.fetchUser("user");
+      final fetchedUser = await _userController.fetchUser("user");
       if (fetchedUser != null) {
         userModel = fetchedUser;
         name.value = userModel!.name;
@@ -49,25 +51,17 @@ final fetchedUser = await _userController.fetchUser("user");
 
   @override
   Widget build(BuildContext context) {
-
-  final isLight = Theme.of(context).brightness == Brightness.light;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     // 🎨 Colores dinámicos
-    final appBarColor =
-        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
-    final buttonColor =
-        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
-    final altButtonBg =
-        isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
-    final altButtonText =
-        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
-    final titleColor =
-        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final appBarColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
     final textColor = isLight ? Colors.black87 : Colors.white;
-    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
 
     if (userModel == null) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
     }
 
     return Scaffold(
@@ -75,18 +69,15 @@ final fetchedUser = await _userController.fetchUser("user");
         title: const Text('Perfil'),
         backgroundColor: appBarColor,
         automaticallyImplyLeading: false,
-          leading: IconButton(
-          icon: Icon(
-            isLight ? Icons.dark_mode : Icons.light_mode,
-            color: Colors.white,
-          ),
+        leading: IconButton(
+          icon: Icon(isLight ? Icons.dark_mode : Icons.light_mode, color: Colors.white),
           onPressed: () => Get.find<ThemeController>().toggleTheme(),
         ),
         centerTitle: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'OpenSans',
           fontWeight: FontWeight.bold,
-          fontSize: 20,
+          fontSize: 19,
           color: Colors.white,
         ),
         actions: [
@@ -97,7 +88,6 @@ final fetchedUser = await _userController.fetchUser("user");
           ),
         ],
       ),
-      
       body: Obx(() {
         if (isLoading.value) {
           return const Center(child: CircularProgressIndicator());
@@ -105,69 +95,54 @@ final fetchedUser = await _userController.fetchUser("user");
         if (userModel == null) {
           return const Center(child: Text('No se pudo cargar el usuario'));
         }
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text("👤", style: TextStyle(fontSize: 80)),
-              const SizedBox(height: 20),
-              Obx(
-                () => Text(
-                  name.value,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'OpenSans',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Obx(
-                () => Text(
-                  email.value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontFamily: 'OpenSans',
-                  ),
-                ),
-              ),
-              const SizedBox(height: 40),
-              ElevatedButton.icon(
-                onPressed: () {
-                  if (userModel != null) {
-                    _showEditDialog(
-                      context,
-                      userModel!,
-                      _userController,
-                      
-                      () async {
-                        await loadUserData();
-                      },
-                      textColor
-                    );
-                  } else {
-                    Get.snackbar('Error', 'No se pudo cargar el usuario');
-                  }
-                },
-                icon: const Icon(Icons.edit),
-                label: const Text('Editar perfil'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: buttonColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 14,
-                  ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontFamily: 'OpenSans',
-                    fontWeight: FontWeight.bold,
+
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("👤", style: TextStyle(fontSize: 80)),
+                const SizedBox(height: 20),
+                Obx(() => Text(
+                      name.value,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'OpenSans',
+                      ),
+                    )),
+                const SizedBox(height: 8),
+                Obx(() => Text(
+                      email.value,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontFamily: 'OpenSans',
+                      ),
+                    )),
+                const SizedBox(height: 40),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    if (userModel != null) {
+                      _showEditDialog(context, userModel!, _userController, () async {
+                        await _loadUserData();
+                      }, textColor, buttonColor);
+                    } else {
+                      Get.snackbar('Error', 'No se pudo cargar el usuario');
+                    }
+                  },
+                  icon: const Icon(Icons.edit),
+                  label: const Text('Editar perfil'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: buttonColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'OpenSans',
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -179,31 +154,23 @@ final fetchedUser = await _userController.fetchUser("user");
     );
   }
 
-
   void _showLogoutDialog(BuildContext context) {
-     final isLight = Theme.of(context).brightness == Brightness.light;
-final IrService irService = IrService();
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final textColor = isLight ? Colors.black87 : Colors.white;
+    final IrService irService = IrService();
 
-        final textColor = isLight ? Colors.black87 : Colors.white;
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           content: Text(
             "¿Estás segura de que quieres cerrar sesión?",
-            style: TextStyle(
-              fontSize: 16,
-              color: textColor,
-              fontFamily: 'OpenSans',
-            ),
+            style: TextStyle(fontSize: 16, color: textColor, fontFamily: 'OpenSans'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFE4E1)),
               child: const Text(
                 "Cancelar",
                 style: TextStyle(
@@ -217,13 +184,11 @@ final IrService irService = IrService();
             ElevatedButton(
               onPressed: () {
                 _userController.logout();
-                  irService.disconnect();
-                // 👇 Limpiar valores al cerrar sesión
+                irService.disconnect();
                 irService.reset();
                 Navigator.of(context).pop();
               },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB31B1B)),
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFB31B1B)),
               child: const Text(
                 "Cerrar sesión",
                 style: TextStyle(
@@ -246,7 +211,8 @@ void _showEditDialog(
   UserModel user,
   UserController userController,
   VoidCallback onSaved,
-  Color textColor
+  Color textColor,
+  Color buttonColor,
 ) {
   // Inicializamos los controladores con los datos actuales
   userController.usernameControllerEdit.text = user.username;
@@ -258,6 +224,8 @@ void _showEditDialog(
   userController.weightControllerEdit.text = user.weight;
   userController.passwordControllerEdit.text = "";
 
+final RxBool _obscurePasswordEdit = true.obs; // contraseña oculta al inicio
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
@@ -266,11 +234,7 @@ void _showEditDialog(
         title: Text(
           'Editar perfil',
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontFamily: 'OpenSans',
-            fontWeight: FontWeight.bold,
-            color: textColor,
-          ),
+          style: TextStyle(fontFamily: 'OpenSans', fontWeight: FontWeight.bold, color: textColor),
         ),
         content: SizedBox(
           width: 400,
@@ -278,56 +242,45 @@ void _showEditDialog(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  controller: userController.usernameControllerEdit,
-                  decoration: const InputDecoration(labelText: 'Username'),
-                ),
-                TextField(
-                  controller: userController.emailControllerEdit,
-                  decoration: const InputDecoration(labelText: 'Email'),
-                ),
-                TextField(
-                  controller: userController.nameControllerEdit,
-                  decoration: const InputDecoration(labelText: 'Nombre'),
-                ),
-                TextField(
-                  controller: userController.lastnameControllerEdit,
-                  decoration: const InputDecoration(labelText: 'Apellido'),
-                ),
-                TextField(
-                  controller: userController.birthDateControllerEdit,
-                  decoration: const InputDecoration(labelText: 'Fecha de nacimiento'),
-                ),
-                TextField(
-                  controller: userController.heightControllerEdit,
-                  decoration: const InputDecoration(labelText: 'Altura'),
-                ),
-                TextField(
-                  controller: userController.weightControllerEdit,
-                  decoration: const InputDecoration(labelText: 'Peso'),
-                ),
-                TextField(
-                  controller: userController.passwordControllerEdit,
-                  decoration: const InputDecoration(labelText: 'Contraseña'),
-                  obscureText: true,
-                ),
+                for (final field in [
+                  {"controller": userController.usernameControllerEdit, "label": "Username"},
+                  {"controller": userController.emailControllerEdit, "label": "Email"},
+                  {"controller": userController.nameControllerEdit, "label": "Nombre"},
+                  {"controller": userController.lastnameControllerEdit, "label": "Apellido"},
+                  {"controller": userController.birthDateControllerEdit, "label": "Fecha de nacimiento"},
+                  {"controller": userController.heightControllerEdit, "label": "Altura"},
+                  {"controller": userController.weightControllerEdit, "label": "Peso"},
+                  {"controller": userController.passwordControllerEdit, "label": "Contraseña", "obscure": true},
+                ])
+                  if (field["obscure"] == true)
+  Obx(() => TextField(
+        controller: field["controller"] as TextEditingController,
+        obscureText: _obscurePasswordEdit.value,
+        decoration: InputDecoration(
+          labelText: field["label"] as String,
+          suffixIcon: IconButton(
+            icon: Icon(
+              _obscurePasswordEdit.value ? Icons.visibility_off : Icons.visibility,
+            ),
+            onPressed: () => _obscurePasswordEdit.value = !_obscurePasswordEdit.value,
+          ),
+        ),
+      ))
+else
+  TextField(
+    controller: field["controller"] as TextEditingController,
+    decoration: InputDecoration(labelText: field["label"] as String),
+  )
+
               ],
             ),
           ),
         ),
         actionsAlignment: MainAxisAlignment.center,
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('Cancelar', style: TextStyle(color: textColor)),
-          ),
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: Text('Cancelar', style: TextStyle(color: textColor))),
           ElevatedButton(
             onPressed: () async {
-              final dialogLoading = ValueNotifier(false);
-    dialogLoading.value = true;
-              print("🔹 Botón Guardar presionado");
-
-              // Construimos el mapa completo para enviar al backend
               final updatedFields = {
                 "username": userController.usernameControllerEdit.text.trim().isNotEmpty
                     ? userController.usernameControllerEdit.text.trim()
@@ -358,11 +311,7 @@ void _showEditDialog(
                     : user.password,
               };
 
-              print("🔹 Campos enviados al backend: $updatedFields");
-
               final success = await userController.updateUser(user.username, updatedFields);
-              print("🔹 Resultado de updateUser: $success");
-                  dialogLoading.value = false;
 
               if (success) {
                 Navigator.of(context).pop();
@@ -371,11 +320,11 @@ void _showEditDialog(
                 Get.snackbar('Error', 'No se pudo actualizar el usuario');
               }
             },
-            child: Text('Guardar', style: TextStyle(color: textColor)),
+            style: ElevatedButton.styleFrom(backgroundColor: buttonColor),
+            child: Text('Guardar', style: TextStyle(color: Colors.white)),
           ),
         ],
       );
     },
   );
 }
-

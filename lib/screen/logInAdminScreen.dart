@@ -1,24 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import 'package:mioxi_frontend/models/userAdmin.dart';
-import 'package:mioxi_frontend/services/userAdminServices.dart';
 import 'package:mioxi_frontend/controllers/userAdminController.dart';
-import 'package:mioxi_frontend/screen/homePageScreen.dart';
 
 class LogInAdminScreen extends StatefulWidget {
+  const LogInAdminScreen({super.key});
+
   @override
-  _LogInAdminScreenState createState() => _LogInAdminScreenState();
+  State<LogInAdminScreen> createState() => _LogInAdminScreenState();
 }
 
 class _LogInAdminScreenState extends State<LogInAdminScreen> {
   final _formKey = GlobalKey<FormState>();
-
-  final TextEditingController _usernameController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  final UserAdminServices _userAdminServices = UserAdminServices();
   final UserAdminController _userAdminController = UserAdminController();
+  final RxBool _obscurePassword = true.obs; // 🔹 true = contraseña oculta al inicio
+
 
   InputDecoration _inputDecoration(String label, bool isLight) {
     return InputDecoration(
@@ -34,24 +29,19 @@ class _LogInAdminScreenState extends State<LogInAdminScreen> {
 
   @override
   Widget build(BuildContext context) {
-
-  final isLight = Theme.of(context).brightness == Brightness.light;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     // 🎨 Colores dinámicos
     final appBarColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
     final buttonColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
-    final altButtonBg = isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
-    final altButtonText = isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
     final titleColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
-    final textColor = isLight ? Colors.black87 : Colors.white;
-    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Inicio de sesión de administrador'),
         backgroundColor: appBarColor,
         centerTitle: true,
-        automaticallyImplyLeading: true, // ✅ Esto habilita la flecha
+        automaticallyImplyLeading: true,
         titleTextStyle: const TextStyle(
           fontFamily: 'OpenSans',
           fontWeight: FontWeight.bold,
@@ -81,27 +71,40 @@ class _LogInAdminScreenState extends State<LogInAdminScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Campo Usuario
+                  // Campo Nombre de usuario
                   TextFormField(
                     controller: _userAdminController.usernameAdminController,
                     decoration: _inputDecoration('Nombre de usuario', isLight),
-                    validator: (value) =>
-                        value!.isEmpty ? 'Ingrese su usuario' : null,
+                    validator: (value) => value!.isEmpty ? 'Ingrese su usuario' : null,
                   ),
                   const SizedBox(height: 16),
 
                   // Campo Contraseña
-                  TextFormField(
-                    controller: _userAdminController.passwordAdminController,
-                    decoration: _inputDecoration('Contraseña', isLight),
-                    obscureText: true,
-                    validator: (value) =>
-                        value!.isEmpty ? 'Ingrese su contraseña' : null,
-                  ),
+                  Obx(() => TextFormField(
+  controller: _userAdminController.passwordAdminController,
+  obscureText: _obscurePassword.value, // depende del RxBool
+  decoration: _inputDecoration('Contraseña', isLight).copyWith(
+    suffixIcon: IconButton(
+      icon: Icon(
+        _obscurePassword.value ? Icons.visibility_off : Icons.visibility,
+        color: Colors.grey,
+      ),
+      onPressed: () => _obscurePassword.value = !_obscurePassword.value,
+    ),
+  ),
+  validator: (value) => value!.isEmpty ? 'Ingrese su contraseña' : null,
+)),
+
                   const SizedBox(height: 24),
 
-                  // Botón Login
+                  // Botón Iniciar sesión
                   ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _userAdminController.logIn();
+                        Navigator.of(context).pop();
+                      }
+                    },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       backgroundColor: buttonColor,
@@ -109,12 +112,6 @@ class _LogInAdminScreenState extends State<LogInAdminScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {
-                        _userAdminController.logIn();
-                        Navigator.of(context).pop();
-                      }
-                    },
                     child: const Text(
                       'Iniciar sesión',
                       style: TextStyle(

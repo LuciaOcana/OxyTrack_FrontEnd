@@ -1,13 +1,21 @@
+// ======================================================
+// SessionManager: Manejo de sesiones locales
+// Maneja: guardado, obtención y limpieza de sesiones por rol
+// ======================================================
+
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SessionManager {
-
-  // Variables para almacenar los usernames localmente
+  // ------------------------------
+  // 🔹 Variables locales por rol
+  // ------------------------------
   static String? adminUsername;
   static String? doctorUsername;
   static String? userUsername;
 
-  /// Guardar sesión por rol
+  // ------------------------------
+  // 🔹 Guardar sesión
+  // ------------------------------
   static Future<void> saveSession(String role, String token, String username) async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -15,7 +23,7 @@ class SessionManager {
     await prefs.setString('token_$role', token);
     await prefs.setString('username_$role', username);
 
-    // Guardar en las variables locales según el rol
+    // Guardar en variables locales según rol
     switch (role) {
       case 'admin':
         adminUsername = username;
@@ -29,25 +37,31 @@ class SessionManager {
     }
   }
 
-  /// Obtener token por rol
+  // ------------------------------
+  // 🔹 Obtener token
+  // ------------------------------
   static Future<String?> getToken(String role) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('token_$role');
   }
 
-  /// Obtener username por rol
+  // ------------------------------
+  // 🔹 Obtener username
+  // ------------------------------
   static Future<String?> getUsername(String role) async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('username_$role');
   }
 
-  /// Cerrar sesión por rol
+  // ------------------------------
+  // 🔹 Limpiar sesión de un rol
+  // ------------------------------
   static Future<void> clearSession(String role) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('token_$role');
     await prefs.remove('username_$role');
 
-    // Limpiar la variable local correspondiente
+    // Limpiar variable local
     switch (role) {
       case 'admin':
         adminUsername = null;
@@ -61,7 +75,9 @@ class SessionManager {
     }
   }
 
-  /// Cerrar todas las sesiones
+  // ------------------------------
+  // 🔹 Limpiar todas las sesiones
+  // ------------------------------
   static Future<void> clearAllSessions() async {
     final prefs = await SharedPreferences.getInstance();
     final roles = ['admin', 'doctor', 'user'];
@@ -70,13 +86,15 @@ class SessionManager {
       await prefs.remove('username_$role');
     }
 
-    // Limpiar todas las variables locales
+    // Limpiar variables locales
     adminUsername = null;
     doctorUsername = null;
     userUsername = null;
   }
 
-  /// Verificar si hay sesión activa para un rol
+  // ------------------------------
+  // 🔹 Verificar si hay sesión activa
+  // ------------------------------
   static Future<bool> isLoggedIn(String role) async {
     final token = await getToken(role);
     return token != null && token.isNotEmpty;

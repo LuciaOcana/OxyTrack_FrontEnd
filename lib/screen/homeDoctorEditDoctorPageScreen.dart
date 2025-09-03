@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/userDoctor.dart';
-
 import 'package:mioxi_frontend/controllers/userDoctorController.dart';
 import 'package:mioxi_frontend/services/userDoctorServices.dart';
-
 import 'package:mioxi_frontend/others/themeController.dart';
 import 'package:mioxi_frontend/others/sessionManager.dart';
-
-
 
 class HomeDoctorEditDoctorPageScreen extends StatefulWidget {
   const HomeDoctorEditDoctorPageScreen({super.key});
@@ -20,26 +16,28 @@ class HomeDoctorEditDoctorPageScreen extends StatefulWidget {
 
 class _HomeDoctorEditDoctorPageScreenState
     extends State<HomeDoctorEditDoctorPageScreen> {
-   final RxString name = ''.obs;
+  final RxString name = ''.obs;
   final RxString email = ''.obs;
-final RxBool isLoading = false.obs; // Defínelo dentro de _UserProfileScreenState
-  UserDoctorModel? userDoctorModel;
+  final RxBool isLoading = false.obs;
+  final RxBool _obscurePasswordDoctor = true.obs;
 
+
+  UserDoctorModel? userDoctorModel;
   final UserDoctorController _userDoctorController = UserDoctorController();
-final UserDoctorServices userDoctorServices = UserDoctorServices();
+  final UserDoctorServices userDoctorServices = UserDoctorServices();
+
   @override
-void initState() {
+  void initState() {
     super.initState();
     loadUserData();
     userDoctorServices.connectWS();
-
   }
 
   Future<void> loadUserData() async {
     isLoading.value = true;
-final username = await SessionManager.getUsername("doctor");
+    final username = await SessionManager.getUsername("doctor");
     if (username != null) {
-final fetchedUser = await _userDoctorController.fetchUser("doctor");
+      final fetchedUser = await _userDoctorController.fetchUser("doctor");
       if (fetchedUser != null) {
         userDoctorModel = fetchedUser;
         name.value = userDoctorModel!.name;
@@ -47,145 +45,97 @@ final fetchedUser = await _userDoctorController.fetchUser("doctor");
       }
     }
     isLoading.value = false;
-    setState(() {});
   }
 
- @override
-Widget build(BuildContext context) {
-
-
-  final isLight = Theme.of(context).brightness == Brightness.light;
+  @override
+  Widget build(BuildContext context) {
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     // 🎨 Colores dinámicos
-    final appBarColor =
-        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
-    final buttonColor =
-        isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
-    final altButtonBg =
-        isLight ? const Color(0xFFCAF0F8) : const Color(0xFF001d3d);
-    final altButtonText =
-        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
-    final titleColor =
-        isLight ? const Color(0xFF0096C7) : const Color(0xFF90E0EF);
+    final appBarColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
+    final buttonColor = isLight ? const Color(0xFF0096C7) : const Color(0xFF003566);
     final textColor = isLight ? Colors.black87 : Colors.white;
-    final dialogBg = isLight ? Colors.white : const Color(0xFF1E1E1E);
 
-  return Scaffold(
-backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-    appBar: AppBar(
-      title: const Text("Perfil doctor"),
-      backgroundColor: appBarColor,
-      automaticallyImplyLeading: false,
-       leading: IconButton(
-          icon: Icon(
-            isLight ? Icons.dark_mode : Icons.light_mode,
-            color: Colors.white,
-          ),
+    return Scaffold(
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      appBar: AppBar(
+        title: const Text("Perfil doctor"),
+        backgroundColor: appBarColor,
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: Icon(isLight ? Icons.dark_mode : Icons.light_mode, color: Colors.white),
           onPressed: () => Get.find<ThemeController>().toggleTheme(),
         ),
-      centerTitle: true,
-      titleTextStyle: const TextStyle(
-        fontFamily: 'OpenSans',
-        fontWeight: FontWeight.bold,
-        fontSize: 20,
-        color: Colors.white,
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          fontFamily: 'OpenSans',
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+          color: Colors.white,
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Color(0xFFe2fdff)),
+            tooltip: 'Cerrar sesión',
+            onPressed: () => _showLogoutDialog(context),
+          ),
+        ],
       ),
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.logout, color: Color(0xFFe2fdff)),
-          tooltip: 'Cerrar sesión',
-onPressed: () {
-              _showLogoutDialog(context);
-            },        ),
-      ],
-    ),
-    body: Obx(() {
+      body: Obx(() {
         if (isLoading.value) {
           return const Center(child: CircularProgressIndicator());
         }
         if (userDoctorModel == null) {
           return const Center(child: Text('No se pudo cargar el usuario'));
         }
-      return Center(
-        child: Padding(
-                  padding: const EdgeInsets.all(24),
-          child: Column(
-
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-             const Text("👤", style: TextStyle(fontSize: 80)),
-              const SizedBox(height: 20),
-            Obx(
-                () => Text(
-                  name.value,
-                  style: const TextStyle(
-                    fontSize: 26,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'OpenSans',
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("👤", style: TextStyle(fontSize: 80)),
+                const SizedBox(height: 20),
+                Obx(() => Text(
+                      name.value,
+                      style: const TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'OpenSans',
+                      ),
+                    )),
+                const SizedBox(height: 8),
+                Obx(() => Text(
+                      email.value,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontFamily: 'OpenSans',
+                      ),
+                    )),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () => _showChangePasswordDialog(context, textColor),
+                  icon: const Icon(Icons.lock_reset, color: Colors.white),
+                  label: const Text('Cambiar contraseña'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(double.infinity, 60),
+                    backgroundColor: buttonColor,
+                    foregroundColor: textColor,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                    textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Obx(
-                () => Text(
-                  email.value,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                    fontFamily: 'OpenSans',
-                  ),
-                ),
-              ),
-            const SizedBox(height: 20),
-           
-            // Botón de acción estilizado
-            ElevatedButton.icon(
-              onPressed: () => _showChangePasswordDialog(context, textColor),
-              icon: const Icon(Icons.lock_reset, color: Colors.white),
-              label: Text('Cambiar contraseña'),
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(double.infinity, 60),
-                backgroundColor: buttonColor,
-                foregroundColor: textColor, // 🔹 esto controla el color del texto
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
-    );
-}),
-  );
-}
-
-
-  /// 🔹 Widget para botones elegantes
-  Widget _actionButton({
-    required IconData icon,
-    required String text,
-    required VoidCallback onTap,
-  }) {
-    return ElevatedButton.icon(
-      style: ElevatedButton.styleFrom(
-        minimumSize: const Size(double.infinity, 60),
-        backgroundColor: const Color(0xFF0096C7),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: 3,
-      ),
-      icon: Icon(icon, size: 26, color: Colors.white),
-      label: Text(
-        text,
-        style: const TextStyle(fontSize: 18, color: Colors.white),
-      ),
-      onPressed: onTap,
+          ),
+        );
+      }),
     );
   }
 
-  /// 🔹 Dialog para cambiar contraseña
   void _showChangePasswordDialog(BuildContext context, Color textColor) {
-
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -194,17 +144,33 @@ onPressed: () {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(
-              controller: _userDoctorController.passwordPasswLostControllerDoctor,
-              decoration: const InputDecoration(labelText: "Nueva contraseña"),
-              obscureText: true,
-            ),
-            TextField(
-              controller: _userDoctorController.confirmPasswordControllerDoctor,
-              decoration:
-                  const InputDecoration(labelText: "Confirmar contraseña"),
-              obscureText: true,
-            ),
+            Obx(() => TextField(
+      controller: _userDoctorController.passwordPasswLostControllerDoctor,
+      obscureText: _obscurePasswordDoctor.value,
+      decoration: InputDecoration(
+        labelText: "Nueva contraseña",
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePasswordDoctor.value ? Icons.visibility_off : Icons.visibility,
+          ),
+          onPressed: () => _obscurePasswordDoctor.value = !_obscurePasswordDoctor.value,
+        ),
+      ),
+    )),
+Obx(() => TextField(
+      controller: _userDoctorController.confirmPasswordControllerDoctor,
+      obscureText: _obscurePasswordDoctor.value,
+      decoration: InputDecoration(
+        labelText: "Confirmar contraseña",
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscurePasswordDoctor.value ? Icons.visibility_off : Icons.visibility,
+          ),
+          onPressed: () => _obscurePasswordDoctor.value = !_obscurePasswordDoctor.value,
+        ),
+      ),
+    )),
+
           ],
         ),
         actions: [
@@ -214,11 +180,8 @@ onPressed: () {
           ),
           ElevatedButton(
             onPressed: () {
-              
-                // 🔹 Lógica para cambiar contraseña
-                _userDoctorController.changeDoctorPassword();
-                Navigator.pop(context);
-                
+              _userDoctorController.changeDoctorPassword();
+              Navigator.pop(context);
             },
             child: Text('Guardar', style: TextStyle(color: textColor)),
           ),
@@ -227,60 +190,40 @@ onPressed: () {
     );
   }
 
-
   void _showLogoutDialog(BuildContext context) {
-     final isLight = Theme.of(context).brightness == Brightness.light;
+    final isLight = Theme.of(context).brightness == Brightness.light;
+    final textColor = isLight ? Colors.black87 : Colors.white;
 
-        final textColor = isLight ? Colors.black87 : Colors.white;
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          content: Text(
-            "¿Estás segura de que quieres cerrar sesión?",
-            style: TextStyle(
-              fontSize: 16,
-              color: textColor,
-              fontFamily: 'OpenSans',
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: Text(
+          "¿Estás segura de que quieres cerrar sesión?",
+          style: TextStyle(fontSize: 16, color: textColor, fontFamily: 'OpenSans'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFFE4E1)),
+            child: const Text(
+              "Cancelar",
+              style: TextStyle(fontSize: 15, color: Color(0xFFB31B1B), fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFE4E1)),
-              child: const Text(
-                "Cancelar",
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFFB31B1B),
-                  fontFamily: 'OpenSans',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+          ElevatedButton(
+            onPressed: () {
+              _userDoctorController.logout();
+              Navigator.of(context).pop();
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFB31B1B)),
+            child: const Text(
+              "Cerrar sesión",
+              style: TextStyle(fontSize: 15, color: Color(0xFFFFE4E1), fontFamily: 'OpenSans', fontWeight: FontWeight.bold),
             ),
-            ElevatedButton(
-              onPressed: () {
-                _userDoctorController.logout();
-                Navigator.of(context).pop();
-              },
-              style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFB31B1B)),
-              child: const Text(
-                "Cerrar sesión",
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Color(0xFFFFE4E1),
-                  fontFamily: 'OpenSans',
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+        ],
+      ),
     );
   }
 }

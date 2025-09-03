@@ -1,18 +1,25 @@
-//V1.2
+// ======================================================
+// bottomNavScaffoldDoctor.dart
+// Scaffold con BottomNavigationBar para Doctor usando GetX
+// Navegación entre Lista de pacientes y Editar doctor
+// ======================================================
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mioxi_frontend/controllers/navBarDoctorController.dart';
 
 class BottomNavScaffoldDoctor extends StatelessWidget {
+  /// Contenido principal del Scaffold
   final Widget child;
+
+  /// Controlador de navegación para doctor
   final NavBarDoctorController navController = Get.put(NavBarDoctorController());
 
-  BottomNavScaffoldDoctor({required this.child});
+  BottomNavScaffoldDoctor({super.key, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    // Variables de tipo String asignadas en tiempo de ejecución
+    // Etiquetas traducibles
     final patientsListLabel = 'Lista de pacientes'.tr;
     final doctorEditLabel = 'Editar doctor'.tr;
 
@@ -22,25 +29,24 @@ class BottomNavScaffoldDoctor extends StatelessWidget {
         () => BottomNavigationBar(
           currentIndex: navController.selectedIndex.value,
           onTap: (index) {
+            // Solo navegación estándar, sin ruta especial
             if (index != 2) {
-            navController.navigateTo(index); // navegar
-
-            } 
+              navController.navigateTo(index);
+            }
           },
-          elevation: 5, // Sombra suave para el diseño
-          type: BottomNavigationBarType
-                  .fixed, // Fija para mantener los elementos en su lugar
-          // 👇 Colores personalizados
-         // selectedItemColor: const Color(0xFF0096C7), // color activo
-         // unselectedItemColor: Colors.grey, // color inactivo
-          //backgroundColor: Colors.white, // color de fondo
+          elevation: 5, // Sombra suave
+          type: BottomNavigationBarType.fixed, // Mantiene los elementos fijos
+          // Puedes personalizar colores aquí si lo deseas
+          // selectedItemColor: const Color(0xFF0096C7),
+          // unselectedItemColor: Colors.grey,
+          // backgroundColor: Colors.white,
           items: [
             BottomNavigationBarItem(
-              icon: Icon(Icons.list_alt),
+              icon: const Icon(Icons.list_alt),
               label: patientsListLabel,
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_add_alt_1),
+              icon: const Icon(Icons.person_add_alt_1),
               label: doctorEditLabel,
             ),
           ],

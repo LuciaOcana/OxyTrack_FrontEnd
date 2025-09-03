@@ -1,37 +1,42 @@
+// ======================================================
+// UserDoctorController: Controlador para doctores
+// Maneja: Login, cambio de contraseña y Logout
+// ======================================================
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:mioxi_frontend/models/userDoctor.dart';
-
 import 'package:mioxi_frontend/services/userDoctorServices.dart';
 import 'package:mioxi_frontend/others/sessionManager.dart';
 import 'package:mioxi_frontend/auth/tokenManager.dart';
 
-
 class UserDoctorController extends GetxController {
-  final UserDoctorServices _userDoctorServices= Get.put(UserDoctorServices());
-
+  // ------------------------------
+  // Servicios y dependencias
+  // ------------------------------
+  final UserDoctorServices _userDoctorServices = Get.put(UserDoctorServices());
   final tokenManager = TokenManager();
 
-    // Variables del Log In de doctor
-  final TextEditingController usernameLogInDoctorController =
-      TextEditingController();
-  final TextEditingController passwordLogInDoctorController =
-      TextEditingController();
+  // ------------------------------
+  // Controladores de texto
+  // ------------------------------
+  final TextEditingController usernameLogInDoctorController = TextEditingController();
+  final TextEditingController passwordLogInDoctorController = TextEditingController();
 
+  final TextEditingController passwordPasswLostControllerDoctor = TextEditingController();
+  final TextEditingController confirmPasswordControllerDoctor = TextEditingController();
 
-        final TextEditingController passwordPasswLostControllerDoctor =
-      TextEditingController();
-  final TextEditingController confirmPasswordControllerDoctor =
-      TextEditingController();
-
-
+  // ------------------------------
+  // Variables reactivas
+  // ------------------------------
   final RxBool isLoading = false.obs;
   final RxString errorMessage = ''.obs;
-    final Rxn<UserDoctorModel> userDoctorModel = Rxn<UserDoctorModel>();
-
+  final Rxn<UserDoctorModel> userDoctorModel = Rxn<UserDoctorModel>();
   UserDoctorModel? doctor;
 
-// Obtener datos de usuario desde el backend y guardarlos en el controlador
+  // ======================================================
+  // Obtener doctor desde backend y guardarlo en el controlador
+  // ======================================================
   Future<UserDoctorModel?> fetchUser(String role) async {
     try {
       final username = await SessionManager.getUsername(role);
@@ -49,18 +54,15 @@ class UserDoctorController extends GetxController {
     }
   }
 
-
+  // ======================================================
+  // Login de doctor
+  // ======================================================
   void logIn() async {
-    if (usernameLogInDoctorController.text.isEmpty || passwordLogInDoctorController.text.isEmpty) {
-      Get.snackbar(
-        'Error',
-        'Campos vacíos',
-        snackPosition: SnackPosition.BOTTOM,
-      );
+    if (usernameLogInDoctorController.text.isEmpty ||
+        passwordLogInDoctorController.text.isEmpty) {
+      Get.snackbar('Error', 'Campos vacíos', snackPosition: SnackPosition.BOTTOM);
       return;
     }
-
-    print('🟢 Iniciando sesión desde UserController...');
 
     final logInDoctor = (
       username: usernameLogInDoctorController.text,
@@ -72,16 +74,13 @@ class UserDoctorController extends GetxController {
 
     try {
       final responseCode = await _userDoctorServices.logInDoctor(logInDoctor);
-      final token = await tokenManager.getToken(); // Recupera token guardado
-
-      print('🔍 Respuesta del backend: $responseCode');
+      final token = await tokenManager.getToken();
 
       if (responseCode == 200) {
         Get.snackbar('Éxito', 'Inicio de sesión exitoso');
         await SessionManager.saveSession("doctor", token, usernameLogInDoctorController.text);
-  _userDoctorServices.connectWS(); // ✅ Solo una vez
-
-        Get.toNamed('/doctorPatientListPage');  //ESTO HAY QUE CAMBIARLO POR LA PAGINA PRINCIPAL DE DOCTOR
+        _userDoctorServices.connectWS(); // Conectar WebSocket
+        Get.toNamed('/doctorPatientListPage'); // Página principal del doctor
       } else if (responseCode == 300) {
         errorMessage.value = 'Usuario deshabilitado'.tr;
         Get.snackbar('Advertencia', errorMessage.value);
@@ -97,61 +96,61 @@ class UserDoctorController extends GetxController {
     }
   }
 
-void changeDoctorPassword() async {
-  try {
-    final String? username = await SessionManager.getUsername("doctor");
-    final newPassword = passwordPasswLostControllerDoctor.text.trim();
-    final confirmPassword = confirmPasswordControllerDoctor.text.trim();
+  // ======================================================
+  // Cambiar contraseña de doctor
+  // ======================================================
+  void changeDoctorPassword() async {
+    try {
+      final String? username = await SessionManager.getUsername("doctor");
+      final newPassword = passwordPasswLostControllerDoctor.text.trim();
+      final confirmPassword = confirmPasswordControllerDoctor.text.trim();
 
-    print(username);
+      if (newPassword.isEmpty || confirmPassword.isEmpty) {
+        Get.snackbar('Error', 'Todos los campos son requeridos', snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
 
-    if (newPassword.isEmpty || confirmPassword.isEmpty) {
-      Get.snackbar('Error', 'Todos los campos son requeridos', snackPosition: SnackPosition.BOTTOM);
-      return;
+      if (newPassword != confirmPassword) {
+        Get.snackbar('Error', 'Las contraseñas no coinciden', snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+
+      final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{7,}$');
+      if (!regex.hasMatch(newPassword)) {
+        Get.snackbar('Error', 'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial', snackPosition: SnackPosition.BOTTOM);
+        return;
+      }
+
+      final responseCode = await _userDoctorServices.updatePassword({
+        "username": username,
+        "newPassword": newPassword,
+      });
+
+      if (responseCode == 200) {
+        Get.snackbar("Éxito", "Contraseña cambiada correctamente", snackPosition: SnackPosition.BOTTOM);
+        passwordPasswLostControllerDoctor.clear();
+        confirmPasswordControllerDoctor.clear();
+      } else {
+        Get.snackbar("Error", "No se pudo cambiar la contraseña ($responseCode)", snackPosition: SnackPosition.BOTTOM);
+      }
+    } catch (e) {
+      Get.snackbar("Error", "Error inesperado: $e", snackPosition: SnackPosition.BOTTOM);
     }
-
-    if (newPassword != confirmPassword) {
-      Get.snackbar('Error', 'Las contraseñas no coinciden', snackPosition: SnackPosition.BOTTOM);
-      return;
-    }
-
-    final regex = RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{7,}$');
-    if (!regex.hasMatch(newPassword)) {
-      Get.snackbar('Error', 'La contraseña debe tener al menos 7 caracteres, una mayúscula, una minúscula, un número y un carácter especial', snackPosition: SnackPosition.BOTTOM);
-      return;
-    }
-
-    final responseCode = await _userDoctorServices.updatePassword({
-      "username": username,
-      "newPassword": newPassword,
-    });
-
-    print('🔍 Respuesta del backend: $responseCode');
-
-    if (responseCode == 200) {
-      Get.snackbar("Éxito", "Contraseña cambiada correctamente", snackPosition: SnackPosition.BOTTOM);
-      passwordPasswLostControllerDoctor.clear();
-      confirmPasswordControllerDoctor.clear();
-    } else {
-      Get.snackbar("Error", "No se pudo cambiar la contraseña ($responseCode)", snackPosition: SnackPosition.BOTTOM);
-    }
-  } catch (e) {
-    Get.snackbar("Error", "Error inesperado: $e", snackPosition: SnackPosition.BOTTOM);
   }
-}
 
-
-
+  // ======================================================
+  // Logout de doctor
+  // ======================================================
   void logout() async {
     try {
       final responseCode = await _userDoctorServices.logOut();
-      // 🔹 Llamada correcta a función async
-await SessionManager.clearSession("doctor"); // 👈 solo borra la sesión del admin
-      print('🔍 Respuesta del backend: $responseCode');
-      if (responseCode == 200) {
-        Get.snackbar('Éxito', 'Inicio de sesión exitoso');
-        UserDoctorServices().disconnectWS();
+      await SessionManager.clearSession("doctor");
+      doctor = null;
+      userDoctorModel.value = null;
 
+      if (responseCode == 200) {
+        Get.snackbar('Éxito', 'Cierre de sesión exitoso');
+        UserDoctorServices().disconnectWS();
         Get.toNamed('/selectorMode');
       } else if (responseCode == 300) {
         Get.snackbar('Advertencia', errorMessage.value);
@@ -165,5 +164,4 @@ await SessionManager.clearSession("doctor"); // 👈 solo borra la sesión del a
       isLoading.value = false;
     }
   }
-
 }
