@@ -96,7 +96,7 @@ class UserDoctorServices {
 
   void disconnectWS() {
     _socket?.close();
-    _notificationController.close();
+      _socket = null;
     _loggedDoctor = null;
     print("👋 WebSocket Doctor desconectado");
   }

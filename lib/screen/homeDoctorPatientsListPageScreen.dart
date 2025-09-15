@@ -27,7 +27,7 @@ class _HomeDoctorPatientListPageScreenState
     _userListController.fetchUsers();
 
     final userDoctorServices = UserDoctorServices();
-    userDoctorServices.connectWS();
+    //userDoctorServices.connectWS();
 
     userDoctorServices.notificationsStream.listen((msg) {
       print("📩 Mensaje recibido: $msg");
